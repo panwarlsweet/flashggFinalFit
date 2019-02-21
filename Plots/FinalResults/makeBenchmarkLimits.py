@@ -1,8 +1,11 @@
 import ROOT
-from ROOT import TFile, TTree, TCanvas, TGraph, TMultiGraph, TGraphErrors, TLegend
-import CMS_lumi, tdrstyle
+from ROOT import TFile, TTree, TCanvas, TGraph, TMultiGraph, TGraphErrors, TLegend,TH1F
 import subprocess # to execute shell command
 ROOT.gROOT.SetBatch(ROOT.kTRUE)
+from optparse import OptionParser
+
+import CMSlumi as CMS_lumi
+import tdrstyle
 
 # CMS style
 CMS_lumi.cmsText = "CMS"
@@ -38,7 +41,7 @@ def plotUpperLimits(labels,values,axis_labels):
 
     up2s = [ ]
     for i in range(N):
-        file_name = "higgsCombine"+labels[i]+"Asymptotic.mH125.root"
+        file_name = options.indir+"/higgsCombine_"+labels[i]+"_"+options.outtag+".Asymptotic.mH125.root"
         limit = getLimits(file_name)
         up2s.append(limit[4])
         yellow.SetPoint(    i,    values[i], limit[4] ) # + 2 sigma
@@ -67,15 +70,16 @@ def plotUpperLimits(labels,values,axis_labels):
     c.SetGrid()
     c.cd()
     frame = c.DrawFrame(1.4,0.001, 4.1, 10)
+   # frame = TH1F("frame","frame",1,0,14)
     frame.GetYaxis().CenterTitle()
-    frame.GetYaxis().SetTitleSize(0.05)
+    frame.GetYaxis().SetTitleSize(0.04)
     frame.GetXaxis().SetTitleSize(0.05)
     frame.GetXaxis().SetLabelSize(0.04)
     frame.GetYaxis().SetLabelSize(0.04)
     frame.GetYaxis().SetTitleOffset(0.9)
     frame.GetXaxis().SetNdivisions(508)
     frame.GetYaxis().CenterTitle(True)
-    frame.GetYaxis().SetTitle("95% CL on #sigma (gg #rightarrow HH) [fb]")
+    frame.GetYaxis().SetTitle("95% CL on #sigma (pp #rightarrow HH) #times BR(HH #rightarrow #gamma#gamma b#bar{b}) [fb]")
     frame.GetXaxis().SetTitle("Shape benchmark")
     frame.SetMinimum(0)
     frame.SetMaximum(max(up2s)*1.05)
@@ -96,9 +100,10 @@ def plotUpperLimits(labels,values,axis_labels):
     median.SetLineColor(1)
     median.SetLineWidth(2)
     median.SetLineStyle(2)
-    median.Draw('Lsame')
+    median.SetMarkerStyle(24)
+    median.Draw('Psame')
 
-    CMS_lumi.CMS_lumi(c,13,11)
+    CMS_lumi.CMS_lumi(c,14,11)
     ROOT.gPad.SetTicks(1,1)
     frame.Draw('sameaxis')
 
@@ -117,11 +122,10 @@ def plotUpperLimits(labels,values,axis_labels):
     legend.Draw()
 
     print " "
-    c.SaveAs("output/UpperLimit.png")
+    c.SaveAs(options.outdir+"/UpperLimitBenchmarks_%s.png"%options.outtag)
+    c.SaveAs(options.outdir+"/UpperLimitBenchmarks_%s.pdf"%options.outtag)
     c.Close()
 
-
-# RANGE of floats
 def frange(start, stop, step):
     i = start
     while i <= stop:
@@ -130,24 +134,25 @@ def frange(start, stop, step):
 
 
 # MAIN
-def main():
+parser = OptionParser()
+parser.add_option("--indir", help="Input directory ")
+parser.add_option("--outdir", help="Output directory ")
+parser.add_option("--outtag", help="Output tag ")
 
-    labels = [] 
-    axis_labels = [] 
-    values = [ ]
-    for node in frange(0,12):
-        values.append(node+1)
-        label = "node%d"%node
-        labels.append(label)
-        axis_labels.append("%d"node)
-    values.append(13)
-    labels.append("nodeSM")
-    axis_labels.append("SM")
-
-    plotUpperLimits(labels,values,axis_labels)
+(options,args)=parser.parse_args()
 
 
+labels = [] 
+axis_labels = [] 
+values = [ ]
+for node in range(0,12):
+   values.append(node+1)
+   label = "node%d"%node
+   labels.append(label)
+   axis_labels.append("%d"%node)
+values.append(13)
+labels.append("SM")
+axis_labels.append("SM")
 
-if __name__ == '__main__':
-    main()
-    
+plotUpperLimits(labels,values,axis_labels)
+
