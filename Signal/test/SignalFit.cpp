@@ -1123,8 +1123,7 @@ int main(int argc, char *argv[]){
     
     // if we are doing jobs for each proc/tag, want to do the split.
     bool split =0;
-   // if (split_.size() > 0) split=1; 
-	 std::cout<< "value of split and split_ "<<split<<" ,  "<<split_[0]<<" , "<<split_[1]<<std::endl;
+    if (split_.size() > 0) split=1; 
     packager.packageOutput(/*split*/split, /*proc*/split_[0], /*tag*/ split_[1] );
     sw.Stop();
     cout << "[INFO] Combination complete." << endl;

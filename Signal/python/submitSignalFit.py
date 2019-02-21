@@ -164,7 +164,7 @@ indirOpt = ""
 if opts.refProc:
     refProcOpt = " --refProc "+str(opts.refProc)
 if opts.refTag:
-    refTagOpt = " --refTagWV "+str(opts.refTag)
+    refTagOpt = " --refTag "+str(opts.refTag)
 if opts.indir:
     indirOpt = " --indir "+str(opts.indir)
 

@@ -45,7 +45,6 @@ class WSTFileWrapper:
    def convertTemplatedName(self,dataName):
         theProcName = ""
         theDataName = ""
-     #   tpMap = {"GluGluToHHTo2B2G_node_SM_13TeV_madgraph":"GluGluToHHTo2B2G_node_SM_13TeV_madgraph","GluGluHToGG_M_125_13TeV_powheg_pythia8":"GluGluHToGG_M_125_13TeV_powheg_pythia8","VBFHToGG_M_125_13TeV_powheg_pythia8":"VBFHToGG_M_125_13TeV_powheg_pythia8","ttHToGG_M125_13TeV_powheg_pythia8_v2":"ttHToGG_M125_13TeV_powheg_pythia8_v2","VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8":"VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8","bbHToGG_M_125_4FS_yb2_13TeV_amcatnlo":"bbHToGG_M_125_4FS_yb2_13TeV_amcatnlo","bbHToGG_M_125_4FS_ybyt_13TeV_amcatnlo":"bbHToGG_M_125_4FS_ybyt_13TeV_amcatnlo","GluGluToHHTo2B2G_node_SM_13TeV_madgraph_2017":"GluGluToHHTo2B2G_node_SM_13TeV_madgraph_2017","GluGluHToGG_M125_13TeV_amcatnloFXFX_pythia8_2017":"GluGluHToGG_M125_13TeV_amcatnloFXFX_pythia8_2017","VBFHToGG_M125_13TeV_amcatnlo_pythia8_2017":"VBFHToGG_M125_13TeV_amcatnlo_pythia8_2017","ttHToGG_M125_13TeV_powheg_pythia8_2017":"ttHToGG_M125_13TeV_powheg_pythia8_2017","VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8_2017":"VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8_2017","GG2H":"ggh","VBF":"vbf","TTH":"tth","QQ2HLNU":"wh","QQ2HLL":"zh","WH2HQQ":"wh","ZH2HQQ":"zh","testBBH":"bbh","testTHQ":"th","testTHW":"th"}
         tpMap =combProc
         for stxsProc in tpMap:
           if dataName.startswith(stxsProc):
@@ -102,6 +101,9 @@ class WSTFileWrapper:
 from optparse import OptionParser
 parser = OptionParser()
 parser.add_option("-i","--infilename", help="Input file (binned signal from flashgg)")
+parser.add_option("-s","--signalFile", help="Input signal file (binned signal from flashgg)")
+parser.add_option("--nodesFile", default="",help="Input nodes file (binned signal from flashgg)")
+parser.add_option("-d","--dataFile", help="Input data file (binned signal from flashgg)")
 parser.add_option("-o","--outfilename",default="cms_hgg_datacard.txt",help="Name of card to print (default: %default)")
 parser.add_option("-p","--procs",default="ggh,vbf,wh,zh,tth",help="String list of procs (default: %default)")
 parser.add_option("-c","--cats",default="UntaggedTag_0,UntaggedTag_1,UntaggedTag_2,UntaggedTag_3,UntaggedTag_4,VBFTag_0,VBFTag_1,VBFTag_2",help="Flashgg Categories (default: %default)")
@@ -126,6 +128,7 @@ parser.add_option("--intLumi",type="float",default=3.71,help="Integrated Lumi (d
 parser.add_option("--intLumi2017",type="float",default=41.5,help="Integrated Lumi for 2017 (default: %default)")
 parser.add_option("--newGghScheme",default=False,action="store_true",help="Use new WG1 scheme for ggH theory uncertainties" )
 parser.add_option("--doSTXS",default=False,action="store_true",help="Use STXS Stage 0 processes" )
+parser.add_option("--signalProc",default='GluGluToHHTo2B2G_node_SM_13TeV_madgraph,GluGluToHHTo2B2G_node_SM_13TeV_madgraph_2017',help="What to consider signal processes" )
 (options,args)=parser.parse_args()
 allSystList=[]
 if options.submitSelf :
@@ -153,21 +156,41 @@ outFile = open(options.outfilename,'w')
 #procId = {'ggH_hgg':0,'qqH_hgg':-1,'ttH_hgg':-2,'WH_lep_hgg':-2,'ZH_lep_hgg':-3,'WH_had_hgg':-4,'ZH_had_hgg':-5,'bbH_hgg':-6,'tHq_hgg':-7,'tHW_hgg':-8,'bkg_mass':1}
 #bkgProcs = ['bkg_mass','bbH_hgg','tHq_hgg','tHW_hgg'] #what to treat as background
 
-combProc = {'GluGluToHHTo2B2G_node_SM_13TeV_madgraph':'GluGluToHHTo2B2G_node_SM_13TeV_madgraph', "GluGluHToGG_M_125_13TeV_powheg_pythia8":"GluGluHToGG_M_125_13TeV_powheg_pythia8", "VBFHToGG_M_125_13TeV_powheg_pythia8":"VBFHToGG_M_125_13TeV_powheg_pythia8","ttHToGG_M125_13TeV_powheg_pythia8_v2":"ttHToGG_M125_13TeV_powheg_pythia8_v2","VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8":"VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8","bbHToGG_M_125_4FS_yb2_13TeV_amcatnlo":"bbHToGG_M_125_4FS_yb2_13TeV_amcatnlo","bbHToGG_M_125_4FS_ybyt_13TeV_amcatnlo":"bbHToGG_M_125_4FS_ybyt_13TeV_amcatnlo",
-"GluGluToHHTo2B2G_node_SM_13TeV_madgraph_2017":"GluGluToHHTo2B2G_node_SM_13TeV_madgraph_2017","GluGluHToGG_M125_13TeV_amcatnloFXFX_pythia8_2017":"GluGluHToGG_M125_13TeV_amcatnloFXFX_pythia8_2017","GluGluHToGG_M_125_13TeV_powheg_pythia8_2017":"GluGluHToGG_M_125_13TeV_powheg_pythia8_2017","VBFHToGG_M125_13TeV_amcatnlo_pythia8_2017":"VBFHToGG_M125_13TeV_amcatnlo_pythia8_2017","ttHToGG_M125_13TeV_powheg_pythia8_2017":"ttHToGG_M125_13TeV_powheg_pythia8_2017","VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8_2017":"VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8_2017",
- 'bkg_mass':'bkg_mass'}
+combProc = { 'bkg_mass':'bkg_mass'}
+allProcs = ["GluGluToHHTo2B2G_node_SM_13TeV_madgraph", "GluGluHToGG_M_125_13TeV_powheg_pythia8", "VBFHToGG_M_125_13TeV_powheg_pythia8","ttHToGG_M125_13TeV_powheg_pythia8_v2","VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8","bbHToGG_M_125_4FS_yb2_13TeV_amcatnlo""bbHToGG_M_125_4FS_ybyt_13TeV_amcatnlo",
+"GluGluToHHTo2B2G_node_SM_13TeV_madgraph_2017","GluGluHToGG_M125_13TeV_amcatnloFXFX_pythia8_2017","GluGluHToGG_M_125_13TeV_powheg_pythia8_2017","VBFHToGG_M125_13TeV_amcatnlo_pythia8_2017","ttHToGG_M125_13TeV_powheg_pythia8_2017","VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8_2017"]
+allNodes=[]
+for proc in allProcs:
+   combProc[proc] = proc
+for node in range(0,12):
+   proc = 'GluGluToHHTo2B2G_node_%d_13TeV_madgraph'%node
+   combProc[proc] = proc
+   allNodes.append(proc)
+   allProcs.append(proc)
+   proc = 'GluGluToHHTo2B2G_node_%d_13TeV_madgraph_2017'%node
+   combProc[proc] = proc
+   allProcs.append(proc)
+   allNodes.append(proc)
 
+	
 flashggProc = combProc
 
 #procId = {'GluGluToHHTo2B2G_node_SM_13TeV_madgraph':0,"GluGluHToGG_M_125_13TeV_powheg_pythia8":2,"VBFHToGG_M_125_13TeV_powheg_pythia8":3,"ttHToGG_M125_13TeV_powheg_pythia8_v2":4,"VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8":5,"bbHToGG_M_125_4FS_yb2_13TeV_amcatnlo":6,"bbHToGG_M_125_4FS_ybyt_13TeV_amcatnlo":7,
 #"GluGluToHHTo2B2G_node_SM_13TeV_madgraph_2017":-1,"GluGluHToGG_M125_13TeV_amcatnloFXFX_pythia8_2017":8,"VBFHToGG_M125_13TeV_amcatnlo_pythia8_2017":9,"ttHToGG_M125_13TeV_powheg_pythia8_2017":10,"VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8_2017":11,
 #'bkg_mass':1}
-procId = {'GluGluToHHTo2B2G_node_SM_13TeV_madgraph':0,"GluGluHToGG_M_125_13TeV_powheg_pythia8":2,"VBFHToGG_M_125_13TeV_powheg_pythia8":3,"ttHToGG_M125_13TeV_powheg_pythia8_v2":4,"VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8":5,"GluGluToHHTo2B2G_node_SM_13TeV_madgraph_2017":-1,"GluGluHToGG_M125_13TeV_amcatnloFXFX_pythia8_2017":6,"GluGluHToGG_M_125_13TeV_powheg_pythia8_2017":6,"VBFHToGG_M125_13TeV_amcatnlo_pythia8_2017":7,"ttHToGG_M125_13TeV_powheg_pythia8_2017":8,"VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8_2017":9,
+procId = {"GluGluHToGG_M_125_13TeV_powheg_pythia8":2,"VBFHToGG_M_125_13TeV_powheg_pythia8":3,"ttHToGG_M125_13TeV_powheg_pythia8_v2":4,"VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8":5,"GluGluHToGG_M125_13TeV_amcatnloFXFX_pythia8_2017":6,"GluGluHToGG_M_125_13TeV_powheg_pythia8_2017":6,"VBFHToGG_M125_13TeV_amcatnlo_pythia8_2017":7,"ttHToGG_M125_13TeV_powheg_pythia8_2017":8,"VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8_2017":9,
 'bkg_mass':1}
+signalProc = options.signalProc.split(',')
+id_num=0
+for proc in signalProc:
+   procId[proc]=id_num
+   id_num-=1
+
 bkgProcs = ['bkg_mass'] #what to treat as background
 
 #Determine if VH or WZH_hgg
 splitVH=False
+
 if 'wzh'in options.procs.split(','):
   splitVH=False
 if 'wh' in options.procs.split(',') and 'zh' in options.procs.split(','):
@@ -266,9 +289,10 @@ print "[INFO] Get Intlumi from file, value : ", intL," pb^{-1}", " sqrts ", sqrt
 file_ext = 'data'
 dataFile = 'CMS-HGG_%s_%dTeV_multipdf.root'%(file_ext,sqrts)
 bkgFile = 'CMS-HGG_%s_%dTeV_multipdf.root'%(file_ext,sqrts)
-#dataFile = 'CMS-HGG_multipdf_HHbbgg_data2016_2017_13_12_2018.root'
+dataFile = 'CMS-HGG_multipdf_HHbbgg_data2016_2017_13_12_2018.root'
 #dataFile = 'CMS-HGG_multipdf_HHbbgg_data2017_only_13_12_2018.root'
-dataFile = 'CMS-HGG_multipdf_HHbbgg_data2016_only_13_12_2018.root'
+#dataFile = 'CMS-HGG_multipdf_HHbbgg_data2016_only_13_12_2018.root'
+dataFile = options.dataFile
 bkgFile = dataFile 
 dataWS = 'multipdf'
 bkgWS = 'multipdf'
@@ -278,6 +302,10 @@ sigFile = 'CMS-HGG_sigfit_%s_$PROC.root'%(file_ext)
 sigFile = 'CMS-HGG_sigfit_04_10_2018_deepCSV.root'
 sigFile = 'CMS-HGG_sigfit_30_10_2018_combo.root'
 sigFile = 'CMS-HGG_sigfit_13_12_2018_combo.root'
+sigFile = options.signalFile.split(',')[0]
+sigFiles = options.signalFile.split(',')
+if options.nodesFile=="" : nodesFile = ['',''] 
+else : nodesFile = options.nodesFile.split(',')
 #print "making sigfile " ,sigFile
 sigWS = 'wsig_%dTeV'%(sqrts)
 # file detaisl: for FLashgg always use unbinned signal and multipdf
@@ -296,31 +324,18 @@ if options.doSTXS:
   fileDetails['bbH_hgg']       = [sigFile.replace('$PROC',"testBBH"),sigWS,'hggpdfsmrel_%dTeV_testBBH_$CHANNEL'%sqrts]
   fileDetails['tHq_hgg']       = [sigFile.replace('$PROC',"testTHQ"),sigWS,'hggpdfsmrel_%dTeV_testTHQ_$CHANNEL'%sqrts]
   fileDetails['tHW_hgg']       = [sigFile.replace('$PROC',"testTHW"),sigWS,'hggpdfsmrel_%dTeV_testTHW_$CHANNEL'%sqrts]
-  fileDetails['GluGluToHHTo2B2G_node_SM_13TeV_madgraph']       = [sigFile.replace('$PROC',"GluGluToHHTo2B2G_node_SM_13TeV_madgraph"),sigWS,'hggpdfsmrel_%dTeV_GluGluToHHTo2B2G_node_SM_13TeV_madgraph_$CHANNEL'%sqrts]
-  fileDetails['GluGluHToGG_M_125_13TeV_powheg_pythia8']       = [sigFile.replace('$PROC',"GluGluHToGG_M_125_13TeV_powheg_pythia8"),sigWS,'hggpdfsmrel_%dTeV_GluGluHToGG_M_125_13TeV_powheg_pythia8_$CHANNEL'%sqrts]
-  fileDetails['VBFHToGG_M_125_13TeV_powheg_pythia8']       = [sigFile.replace('$PROC',"VBFHToGG_M_125_13TeV_powheg_pythia8"),sigWS,'hggpdfsmrel_%dTeV_VBFHToGG_M_125_13TeV_powheg_pythia8_$CHANNEL'%sqrts]
-  fileDetails['VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8']       = [sigFile.replace('$PROC',"VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8"),sigWS,'hggpdfsmrel_%dTeV_VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8_$CHANNEL'%sqrts]
-  fileDetails['bbHToGG_M_125_4FS_ybyt_13TeV_amcatnlo']       = [sigFile.replace('$PROC',"bbHToGG_M_125_4FS_ybyt_13TeV_amcatnlo"),sigWS,'hggpdfsmrel_%dTeV_bbHToGG_M_125_4FS_ybyt_13TeV_amcatnlo_$CHANNEL'%sqrts]
-  fileDetails['bbHToGG_M_125_4FS_yb2_13TeV_amcatnlo']       = [sigFile.replace('$PROC',"bbHToGG_M_125_4FS_yb2_13TeV_amcatnlo"),sigWS,'hggpdfsmrel_%dTeV_bbHToGG_M_125_4FS_yb2_13TeV_amcatnlo_$CHANNEL'%sqrts]
+  
+  for proc in allProcs:
+		fileDetails[proc] = 	[sigFile.replace('$PROC',proc),sigWS,'hggpdfsmrel_%dTeV_%s_$CHANNEL'%(sqrts,proc)]
 else:
   fileDetails['ggH_hgg']       = [sigFile.replace('$PROC',"ggh"),sigWS,'hggpdfsmrel_%dTeV_ggh_$CHANNEL'%sqrts]
   fileDetails['qqH_hgg']       = [sigFile.replace('$PROC',"vbf"),sigWS,'hggpdfsmrel_%dTeV_vbf_$CHANNEL'%sqrts]
   fileDetails['ttH_hgg']       = [sigFile.replace('$PROC',"tth"),sigWS,'hggpdfsmrel_%dTeV_tth_$CHANNEL'%sqrts]
-  fileDetails['GluGluToHHTo2B2G_node_SM_13TeV_madgraph']       = [sigFile,sigWS,'hggpdfsmrel_%dTeV_GluGluToHHTo2B2G_node_SM_13TeV_madgraph_$CHANNEL'%sqrts]
-  fileDetails['GluGluHToGG_M_125_13TeV_powheg_pythia8']       = [sigFile,sigWS,'hggpdfsmrel_%dTeV_GluGluHToGG_M_125_13TeV_powheg_pythia8_$CHANNEL'%sqrts]
-  fileDetails['VBFHToGG_M_125_13TeV_powheg_pythia8']       = [sigFile,sigWS,'hggpdfsmrel_%dTeV_VBFHToGG_M_125_13TeV_powheg_pythia8_$CHANNEL'%sqrts]
-  fileDetails['ttHToGG_M125_13TeV_powheg_pythia8_v2']       = [sigFile,sigWS,'hggpdfsmrel_%dTeV_ttHToGG_M125_13TeV_powheg_pythia8_v2_$CHANNEL'%sqrts]
-  fileDetails['VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8']       = [sigFile.replace('$PROC',"VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8"),sigWS,'hggpdfsmrel_%dTeV_VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8_$CHANNEL'%sqrts]
-  fileDetails['bbHToGG_M_125_4FS_ybyt_13TeV_amcatnlo']       = [sigFile.replace('$PROC',"bbHToGG_M_125_4FS_ybyt_13TeV_amcatnlo"),sigWS,'hggpdfsmrel_%dTeV_bbHToGG_M_125_4FS_ybyt_13TeV_amcatnlo_$CHANNEL'%sqrts]
-  fileDetails['bbHToGG_M_125_4FS_yb2_13TeV_amcatnlo']       = [sigFile.replace('$PROC',"bbHToGG_M_125_4FS_yb2_13TeV_amcatnlo"),sigWS,'hggpdfsmrel_%dTeV_bbHToGG_M_125_4FS_yb2_13TeV_amcatnlo_$CHANNEL'%sqrts]
-  fileDetails['GluGluToHHTo2B2G_node_SM_13TeV_madgraph_2017']       = [sigFile,sigWS,'hggpdfsmrel_%dTeV_GluGluToHHTo2B2G_node_SM_13TeV_madgraph_2017_$CHANNEL'%sqrts]
-  fileDetails['GluGluHToGG_M125_13TeV_amcatnloFXFX_pythia8_2017']       = [sigFile,sigWS,'hggpdfsmrel_%dTeV_GluGluHToGG_M125_13TeV_amcatnloFXFX_pythia8_2017_$CHANNEL'%sqrts]
-  fileDetails['GluGluHToGG_M_125_13TeV_powheg_pythia8_2017']       = [sigFile,sigWS,'hggpdfsmrel_%dTeV_GluGluHToGG_M_125_13TeV_powheg_pythia8_2017_$CHANNEL'%sqrts]
-  fileDetails['VBFHToGG_M125_13TeV_amcatnlo_pythia8_2017']       = [sigFile,sigWS,'hggpdfsmrel_%dTeV_VBFHToGG_M125_13TeV_amcatnlo_pythia8_2017_$CHANNEL'%sqrts]
-  fileDetails['ttHToGG_M125_13TeV_powheg_pythia8_2017']       = [sigFile,sigWS,'hggpdfsmrel_%dTeV_ttHToGG_M125_13TeV_powheg_pythia8_2017_$CHANNEL'%sqrts]
-  fileDetails['VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8_2017']       = [sigFile.replace('$PROC',"VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8_2017"),sigWS,'hggpdfsmrel_%dTeV_VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8_2017_$CHANNEL'%sqrts]
-
-
+  for proc in allProcs:
+      if (proc in allNodes) and ('2017' in proc) : fileDetails[proc] = 	[nodesFile[1],sigWS,'hggpdfsmrel_%dTeV_%s_$CHANNEL'%(sqrts,proc)]
+      elif proc in allNodes : fileDetails[proc] = 	[nodesFile[0],sigWS,'hggpdfsmrel_%dTeV_%s_$CHANNEL'%(sqrts,proc)]
+      elif ('2017' in proc) : fileDetails[proc] = 	[sigFiles[1],sigWS,'hggpdfsmrel_%dTeV_%s_$CHANNEL'%(sqrts,proc)]
+      else : fileDetails[proc] = 	[sigFiles[0],sigWS,'hggpdfsmrel_%dTeV_%s_$CHANNEL'%(sqrts,proc)]
 
   if splitVH:
     fileDetails['WH_hgg']      =  [sigFile.replace('$PROC',"wh"),sigWS,'hggpdfsmrel_%dTeV_wh_$CHANNEL'%sqrts]

@@ -62,7 +62,7 @@ for num,f in enumerate(input_files):
 				dataset.Print()
 				cat_datasets.append(dataset)
 
-			out = TFile(options.out_dir + f +"_%d_2017.root"%value,"RECREATE")
+			out = TFile(options.out_dir + f +"_2017_%d.root"%value,"RECREATE")
 #			out = TFile(options.out_dir + f +"_%d.root"%value,"RECREATE")
 			out.mkdir("tagsDumper")
 			out.cd("tagsDumper")
