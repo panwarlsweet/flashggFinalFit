@@ -97,6 +97,7 @@ specOpts.add_option("--justThisSyst",default=None)
 specOpts.add_option("--method",default=None)
 specOpts.add_option("--label",default=None)
 specOpts.add_option("--expected",type="int",default=None)
+specOpts.add_option("--mh",type="float",default=None)
 specOpts.add_option("--mhLow",type="float",default=None)
 specOpts.add_option("--mhHigh",type="float",default=None)
 specOpts.add_option("--mhStep",type="float",default=None)
@@ -352,6 +353,26 @@ def makeNoGlobCard():
   outf.close()
   opts.datacard = newcardname 
 
+def writePreambleT3(sub_file):
+  #print "[INFO] writing preamble"
+  sub_file.write('#!/bin/bash\n')
+  sub_file.write('touch %s.run\n'%os.path.abspath(sub_file.name))
+  sub_file.write('cd %s\n'%os.getcwd())
+  sub_file.write('source $VO_CMS_SW_DIR/cmsset_default.sh')
+  sub_file.write('source /swshare/glite/external/etc/profile.d/grid-env.sh')
+#  sub_file.write('eval `scramv1 runtime -sh`\n')
+  #sub_file.write('cd -\n')
+  sub_file.write('number=$RANDOM\n')
+  sub_file.write('mkdir -p scratch_$number\n')
+  sub_file.write('cd scratch_$number\n')
+  sub_file.write('cp -p $CMSSW_BASE/bin/$SCRAM_ARCH/combine .\n')
+  sub_file.write('cp -p %s .\n'%os.path.abspath(opts.datacard))
+  if opts.toysFile: 
+    for f in opts.toysFile.split(','):
+      sub_file.write('cp -p %s .\n'%os.path.abspath(f))
+  for file in opts.files.split(','):
+    sub_file.write('cp -p %s .\n'%os.path.abspath(file))
+
 def writePreamble(sub_file):
   #print "[INFO] writing preamble"
   sub_file.write('#!/bin/bash\n')
@@ -372,8 +393,9 @@ def writePreamble(sub_file):
     sub_file.write('cp -p %s .\n'%os.path.abspath(file))
 
 def writePostamble(sub_file, exec_line):
-
-  #print "[INFO] writing to postamble"
+  print "[INFO] writing to postamble"
+  print "bacth"
+  print opts.batch
   if opts.S0: exec_line += ' -S 0 '
   sub_file.write('if ( %s ) then\n'%exec_line)
   sub_file.write('\t mv higgsCombine*.root %s\n'%os.path.abspath(opts.outDir))
@@ -392,6 +414,11 @@ def writePostamble(sub_file, exec_line):
     system('rm -f %s.log'%os.path.abspath(sub_file.name))
     if (opts.batch == "LSF") : system('bsub -q %s -o %s.log %s'%(opts.queue,os.path.abspath(sub_file.name),os.path.abspath(sub_file.name)))
     if (opts.batch == "IC") : system('qsub -q %s -o %s.log -e %s.err %s > out.txt'%(opts.queue,os.path.abspath(sub_file.name),os.path.abspath(sub_file.name),os.path.abspath(sub_file.name)))
+    if (opts.batch == "T3CH") : 
+        print "we submit on t3 batch"
+        system('qsub -l h_vmem=3g -q %s -o %s.log -e %s.err %s > out.txt'%(opts.queue,os.path.abspath(sub_file.name),os.path.abspath(sub_file.name),os.path.abspath(sub_file.name)))
+        print 'qsub -l h_vmem=3g -q %s -o %s.log -e %s.err %s > out.txt'%(opts.queue,os.path.abspath(sub_file.name),os.path.abspath(sub_file.name),os.path.abspath(sub_file.name))
+
     #if (opts.batch == "IC") : system('qsub %s -q %s -o %s.log '%(os.path.abspath(sub_file.name),opts.queue,os.path.abspath(sub_file.name)))
   if opts.runLocal:
     if opts.parallel:
@@ -410,7 +437,8 @@ def writeAsymptotic():
 
   for j, mass_set in enumerate(opts.masses_per_job):
     file = open('%s/sub_job%d.sh'%(opts.outDir,j),'w')
-    writePreamble(file)
+    if opts.batch=='T3CH' : writePreambleT3(file)
+    else : writePreamble(file)
     exec_line = ''
     for mass in mass_set:
       exec_line +=  'combine %s -M Asymptotic -m %6.2f --cminDefaultMinimizerType=Minuit2 -L $CMSSW_BASE/lib/$SCRAM_ARCH/libHiggsAnalysisGBRLikelihood.so '%(opts.datacard,mass)
