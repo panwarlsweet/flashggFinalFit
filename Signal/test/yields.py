@@ -6,12 +6,17 @@ import os
 from math import sqrt
 import json
 
-filename = '/afs/cern.ch/work/n/nchernya/ETH/CMSSW_7_4_7/src/flashggFinalFit/Signal/CMS-HGG_sigfit_02_11_2018_20162017.root'
-filename_bkg = '/afs/cern.ch/work/n/nchernya/ETH/CMSSW_7_4_7/src/flashggFinalFit/Background/CMS-HGG_multipdf_HHbbgg_data2016_2017_30_10_2018.root'
+#filename = '/afs/cern.ch/work/n/nchernya/ETH/CMSSW_7_4_7/src/flashggFinalFit/Signal/CMS-HGG_sigfit_02_11_2018_20162017.root'
+#filename_bkg = '/afs/cern.ch/work/n/nchernya/ETH/CMSSW_7_4_7/src/flashggFinalFit/Background/CMS-HGG_multipdf_HHbbgg_data2016_2017_30_10_2018.root'
 filename = '/afs/cern.ch/work/n/nchernya/ETH/CMSSW_7_4_7/src/flashggFinalFit/Signal/CMS-HGG_sigfit_13_12_2018_combo.root'
 filename_bkg = '/afs/cern.ch/work/n/nchernya/ETH/CMSSW_7_4_7/src/flashggFinalFit/Background/CMS-HGG_multipdf_HHbbgg_data2016_2017_13_12_2018.root'
+#filename = '/work/nchernya/DiHiggs/CMSSW_7_4_7/src/flashggFinalFit/Signal/output/CMS-HGG_sigfit_singleHiggs2016_2017_27_02_2019.root'
+#filename_bkg = '/work/nchernya/DiHiggs/CMSSW_7_4_7/src/flashggFinalFit/Plots/FinalResults/inputs/CMS-HGG_multipdf_HHbbgg_data2016_2017_27_02_2019.root'
 wsname = 'wsig_13TeV'
 wsname_bkg = 'multipdf'
+
+symbol = ''  #for keynote
+#symbol = '&'  #for latex
 
 num_cat = 12
 lumi_2016=35.9*1000
@@ -48,7 +53,7 @@ for name in names:
 		sum+=count
 		entries_per_cat[tpMap[name]].append(count)
 	#	print '%.2f\t'%(count),
-		print '%.4f\t'%(count),'&',
+		print '%.4f\t'%(count),'%s'%symbol,
 	print '%.2f'%sum
 
 
@@ -65,16 +70,17 @@ for cat in range(0,num_cat):
 	sum_entries_bkg[name] = entries
 	sum_bkg+=entries
 	entries_per_cat[dataname].append(entries)
-	print '%d\t'%(entries),'&',
+#	print '%d\t'%(entries),'&',
+	print '%d\t'%(entries),'%s'%symbol,
 print '%d'%sum_bkg
 
 ########################
-#filename_bkg_2016 = '/afs/cern.ch/work/n/nchernya/ETH/DiHiggs/root_file/02_11_2018/2016/output_DoubleEG_micheli-ReMiniAOD2016.root'
-#filename_bkg_2017 = '/afs/cern.ch/work/n/nchernya/ETH/DiHiggs/root_file/02_11_2018/2017/output_DoubleEG_spigazzi-RunIIFall17-3_2_0-RunIIFall17-3_2_0_all.root'
-#filename_bkg_total = '/afs/cern.ch/work/n/nchernya/ETH/DiHiggs/root_file/02_11_2018/output_DoubleEG_2016_2017_30_10_2018.root'
 filename_bkg_2016 = '/afs/cern.ch/work/n/nchernya/ETH/DiHiggs/root_file/13_12_2018/2016/output_DoubleEG_micheli-ReMiniAOD2016-DeepCSV-bRegression-prod-uAOD-all.root'
 filename_bkg_2017 = '/afs/cern.ch/work/n/nchernya/ETH/DiHiggs/root_file/13_12_2018/2017/output_DoubleEG_spigazzi-RunIIFall17-3_2_0-RunIIFall17-3_2_0-all.root'
 filename_bkg_total = '/afs/cern.ch/work/n/nchernya/ETH/DiHiggs/root_file/13_12_2018/output_DoubleEG_2016_2017_13_12_2018.root'
+#filename_bkg_2016 = '/work/nchernya/DiHiggs/inputs/27_02_2019/2016/output_DoubleEG_micheli-ReMiniAOD2016-DeepCSV-27_02_2019.root'
+#filename_bkg_2017 = '/work/nchernya/DiHiggs/inputs/27_02_2019/2017/output_DoubleEG_spigazzi-RunIIFall17-3_2_0-RunIIFall17-27_02_2019.root'
+#filename_bkg_total = '/work/nchernya/DiHiggs/inputs/27_02_2019/output_DoubleEG_2016_2017_27_02_2019.root'
 years=['2016','2017','Total']
 for num,name in enumerate([filename_bkg_2016,filename_bkg_2017,filename_bkg_total]):
 	tfile = TFile(name)
@@ -88,11 +94,13 @@ for num,name in enumerate([filename_bkg_2016,filename_bkg_2017,filename_bkg_tota
 		entries = ws_bkg.data(catname).sumEntries()
 		sum_entries_bkg[catname] = entries
 		sum_bkg+=entries
-		print '%d\t'%(entries),'&',
+	#	print '%d\t'%(entries),'&',
+		print '%d\t'%(entries),'%s'%symbol,
 		entries_per_cat['Data'+years[num]].append(entries)
 	print '%d\t'%(sum_bkg)
 
 
 
-result = open("full_yields_18_12_2018.txt","w")
-result.write(json.dumps(entries_per_cat))
+#result = open("full_yields_18_12_2018.txt","w")
+#result = open("full_yields_27_02_2019.txt","w")
+#result.write(json.dumps(entries_per_cat))

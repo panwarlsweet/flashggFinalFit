@@ -1,4 +1,4 @@
-DATE="21_02_2019"
+DATE="27_02_2019"
 OUTPUTDIR="output/"
 OUTTAG="_SM_"$DATE
 DATACARD="Datacards/cms_HHbbgg_datacard_SM_${DATE}.txt"
