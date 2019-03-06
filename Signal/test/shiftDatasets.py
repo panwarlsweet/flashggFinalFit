@@ -14,8 +14,8 @@ parser = OptionParser(option_list=[
    # make_option("--inp-names",type='string',dest='inp_names',default='GluGluToHHTo2B2G_node_SM_13TeV_madgraph'),
    # make_option("--inp-dir",type='string',dest="inp_dir",default='/afs/cern.ch/work/n/nchernya/ETH/DiHiggs/root_file/13_12_2018/renamed2017/'),
    # make_option("--inp-dir",type='string',dest="inp_dir",default='/afs/cern.ch/work/n/nchernya/ETH/DiHiggs/root_file/13_12_2018/2016/'),
-    make_option("--inp-dir",type='string',dest="inp_dir",default='/work/nchernya/DiHiggs/inputs/27_02_2019/2016/'),
-    make_option("--out-dir",type='string',dest="out_dir",default='/work/nchernya/DiHiggs/inputs/27_02_2019/'),
+    make_option("--inp-dir",type='string',dest="inp_dir",default='/work/nchernya/DiHiggs/inputs/01_03_2019/2016/'),
+    make_option("--out-dir",type='string',dest="out_dir",default='/work/nchernya/DiHiggs/inputs/01_03_2019/'),
     make_option("--cats",type='string',dest="cats",default='DoubleHTag_0,DoubleHTag_1,DoubleHTag_2,DoubleHTag_3,DoubleHTag_4,DoubleHTag_5,DoubleHTag_6,DoubleHTag_7,DoubleHTag_8,DoubleHTag_9,DoubleHTag_10,DoubleHTag_11'),
     make_option("--year",type='string',dest="year",default='2016'),
 ])
