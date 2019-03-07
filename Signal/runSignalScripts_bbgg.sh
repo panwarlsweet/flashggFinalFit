@@ -1,41 +1,42 @@
+INDIR="/mnt/t3nfs01/data01/shome/nchernya/DiHiggs/inputs/07_03_2019/"
 YEAR="_2017"  #empty for 2016 and _2017 for 2017
 YEAR2="2017" 
 EXT="nodes"$YEAR2
 
+OUTDIR="output/out_27_02_2019tthKiller_set_test"$YEAR2
 #PROCS="GluGluToHHTo2B2G_node_0_13TeV_madgraph$YEAR,GluGluToHHTo2B2G_node_1_13TeV_madgraph$YEAR,GluGluToHHTo2B2G_node_2_13TeV_madgraph$YEAR,GluGluToHHTo2B2G_node_3_13TeV_madgraph$YEAR,GluGluToHHTo2B2G_node_4_13TeV_madgraph$YEAR,GluGluToHHTo2B2G_node_5_13TeV_madgraph$YEAR,GluGluToHHTo2B2G_node_6_13TeV_madgraph$YEAR,GluGluToHHTo2B2G_node_7_13TeV_madgraph$YEAR,GluGluToHHTo2B2G_node_8_13TeV_madgraph$YEAR,GluGluToHHTo2B2G_node_9_13TeV_madgraph$YEAR,GluGluToHHTo2B2G_node_10_13TeV_madgraph$YEAR,GluGluToHHTo2B2G_node_11_13TeV_madgraph$YEAR"
 PROCS="GluGluToHHTo2B2G_node_0_13TeV_madgraph$YEAR,GluGluToHHTo2B2G_node_2_13TeV_madgraph$YEAR"
 INFILES="output_GluGluToHHTo2B2G_node_0_13TeV-madgraph$YEAR,output_GluGluToHHTo2B2G_node_2_13TeV-madgraph$YEAR"
 CATS="DoubleHTag_0,DoubleHTag_1,DoubleHTag_2,DoubleHTag_3,DoubleHTag_4,DoubleHTag_5,DoubleHTag_6,DoubleHTag_7,DoubleHTag_8,DoubleHTag_9,DoubleHTag_10,DoubleHTag_11"
 REFTAG="DoubleHTag_0"
 REFPROC="GluGluToHHTo2B2G_node_0_13TeV_madgraph$YEAR"
-OUTDIR="output/out_27_02_2019tthKiller_set_test"$YEAR2
 #INFILES="output_GluGluToHHTo2B2G_node_0_13TeV-madgraph$YEAR,output_GluGluToHHTo2B2G_node_1_13TeV-madgraph$YEAR,output_GluGluToHHTo2B2G_node_2_13TeV-madgraph,output_GluGluToHHTo2B2G_node_3_13TeV-madgraph$YEAR,output_GluGluToHHTo2B2G_node_4_13TeV-madgraph$YEAR,output_GluGluToHHTo2B2G_node_5_13TeV-madgraph$YEAR,output_GluGluToHHTo2B2G_node_6_13TeV-madgraph$YEAR,output_GluGluToHHTo2B2G_node_7_13TeV-madgraph$YEAR,output_GluGluToHHTo2B2G_node_8_13TeV-madgraph$YEAR,output_GluGluToHHTo2B2G_node_9_13TeV-madgraph$YEAR,output_GluGluToHHTo2B2G_node_10_13TeV-madgraph$YEAR,output_GluGluToHHTo2B2G_node_11_13TeV-madgraph$YEAR"
 
-INDIR="/mnt/t3nfs01/data01/shome/nchernya/DiHiggs/inputs/01_03_2019/"
 INTLUMI=77.4
 #CONFIGDAT="config_13_12_nodes_"$YEAR2".dat"
 CONFIGDAT="config_13_12_nodes_"$YEAR2"_test.dat"
 
 
+
 #############SINGLE HIGGS BKG plus SM signal ###############
 
-YEAR=""
-#YEAR="_2017"
-YEAR2="2016"
+#YEAR=""
+YEAR="_2017"
+YEAR2="2017"
 EXT="singleHiggs"$YEAR2
 
-#PROCS="GluGluToHHTo2B2G_node_SM_13TeV_madgraph_2017,GluGluHToGG_M_125_13TeV_powheg_pythia8_2017,VBFHToGG_M125_13TeV_amcatnlo_pythia8_2017,ttHToGG_M125_13TeV_powheg_pythia8_2017,VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8_2017"
-#REFPROC="ttHToGG_M125_13TeV_powheg_pythia8_2017"
-#INFILES="output_GluGluToHHTo2B2G_node_SM_13TeV-madgraph_2017,output_GluGluHToGG_M-125_13TeV_powheg_pythia8_2017,output_VBFHToGG_M125_13TeV_amcatnlo_pythia8_2017,output_ttHToGG_M125_13TeV_powheg_pythia8_2017,output_VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8_2017"
-#INTLUMI=41.5
+PROCS="GluGluToHHTo2B2G_node_SM_13TeV_madgraph_2017,GluGluHToGG_M_125_13TeV_powheg_pythia8_2017,VBFHToGG_M125_13TeV_amcatnlo_pythia8_2017,ttHToGG_M125_13TeV_powheg_pythia8_2017,VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8_2017"
+REFPROC="ttHToGG_M125_13TeV_powheg_pythia8_2017"
+INFILES="output_GluGluToHHTo2B2G_node_SM_13TeV-madgraph_2017,output_GluGluHToGG_M-125_13TeV_powheg_pythia8_2017,output_VBFHToGG_M125_13TeV_amcatnlo_pythia8_2017,output_ttHToGG_M125_13TeV_powheg_pythia8_2017,output_VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8_2017"
+INTLUMI=41.5
 
-REFPROC="ttHToGG_M125_13TeV_powheg_pythia8_v2"
-PROCS="GluGluToHHTo2B2G_node_SM_13TeV_madgraph,GluGluHToGG_M_125_13TeV_powheg_pythia8,VBFHToGG_M_125_13TeV_powheg_pythia8,ttHToGG_M125_13TeV_powheg_pythia8_v2,VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8"
-INFILES="output_GluGluToHHTo2B2G_node_SM_13TeV-madgraph,output_GluGluHToGG_M-125_13TeV_powheg_pythia8,output_VBFHToGG_M-125_13TeV_powheg_pythia8,output_ttHToGG_M125_13TeV_powheg_pythia8_v2,output_VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8"
-INTLUMI=35.9
+#REFPROC="ttHToGG_M125_13TeV_powheg_pythia8_v2"
+#PROCS="GluGluToHHTo2B2G_node_SM_13TeV_madgraph,GluGluHToGG_M_125_13TeV_powheg_pythia8,VBFHToGG_M_125_13TeV_powheg_pythia8,ttHToGG_M125_13TeV_powheg_pythia8_v2,VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8"
+#INFILES="output_GluGluToHHTo2B2G_node_SM_13TeV-madgraph,output_GluGluHToGG_M-125_13TeV_powheg_pythia8,output_VBFHToGG_M-125_13TeV_powheg_pythia8,output_ttHToGG_M125_13TeV_powheg_pythia8_v2,output_VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8"
+#INTLUMI=35.9
 
 CONFIGDAT="config_13_12_all.dat"
-OUTDIR="output/out_01_03_2019tthKiller_singleHiggs_set"$YEAR2
+OUTDIR="output/out_07_03_2019tthKillerMjj_singleHiggs_set"$YEAR2
 
 ############################################################
 
