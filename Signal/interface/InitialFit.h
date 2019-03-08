@@ -37,10 +37,13 @@ class InitialFit {
 
     void setFitParams(std::map<int,std::map<std::string,RooRealVar*> >& pars );
     void printCorrMatrix(int mh);
+    std::map<int,RooFitResult*> getFitResults();
+    std::map<int,RooAddPdf*>    getSumOfGaussians(); 
   private:
 
     RooRealVar *mass;
     RooRealVar *MH;
+    std::map<int,RooAddPdf*> sumOfGaussians;
     std::map<int,RooAbsPdf*> fitPdfs;
     std::map<int,RooDataSet*> datasets; 
     std::map<int,RooDataSet*> datasetsSTD; 

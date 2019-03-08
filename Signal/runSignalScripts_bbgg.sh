@@ -36,12 +36,75 @@ INTLUMI=41.5
 #INTLUMI=35.9
 
 CONFIGDAT="config_13_12_all.dat"
-OUTDIR="output/out_07_03_2019tthKillerMjj_singleHiggs_set"$YEAR2
+OUTDIR="output/test"$YEAR2
+
+BATCH=T3CH
+DEFAULTQUEUE=all.q
+
+
+####################################################
+################## SIGNAL F-TEST ###################
+####################################################
+INDIR="/mnt/t3nfs01/data01/shome/nchernya/DiHiggs/inputs/27_02_2019/"
+MASS=_125
+PROCS="GluGluToHHTo2B2G_node_SM_13TeV_madgraph_2017,GluGluHToGG_M_125_13TeV_powheg_pythia8_2017"
+INFILES="output_GluGluToHHTo2B2G_node_SM_13TeV-madgraph_2017$MASS,output_GluGluHToGG_M-125_13TeV_powheg_pythia8_2017$MASS"
+#ls dat/newConfig_${EXT}.dat
+mkdir -p $OUTDIR/dat
+if [ -e ${OUTDIR}/dat/newConfig_${EXT}.dat ]; then
+  echo "[INFO] sigFTest dat file $OUTDIR/dat/newConfig_${EXT}.dat already exists, so SKIPPING SIGNAL FTEST"
+else
+ echo "[INFO] sigFTest dat file $OUTDIR/dat/newConfig_${EXT}.dat  DOES NOT already exist, so PERFORMING SIGNAL FTEST"
+ if [ 1 > 0 ]; then
+    mkdir -p $OUTDIR/fTest
+    echo "=============================="
+    echo "Running Signal F-Test"
+    echo "-->Determine Number of gaussians"
+    echo "=============================="
+    echo "./python/submitSignaFTest.py --procs $PROCS --flashggCats $CATS --outDir $OUTDIR -i $INFILES  --indir $INDIR   --batch $BATCH -q '$DEFAULTQUEUE'"
+    ./python/submitSignaFTest.py --procs $PROCS --flashggCats $CATS --outDir $OUTDIR -i $INFILES --indir $INDIR    --batch $BATCH -q "$DEFAULTQUEUE"
+
+    PEND=`ls -l $OUTDIR/fTestJobs/sub*| grep -v "\.run" | grep -v "\.done" | grep -v "\.fail" | grep -v "\.err" |grep -v "\.log"  |wc -l`
+    TOTAL=`ls -l $OUTDIR/fTestJobs/sub*| grep "\.sh"  |wc -l`
+    echo "PEND $PEND"
+    while (( $PEND > 0 )) ; do
+      PEND=`ls -l $OUTDIR/fTestJobs/sub* | grep -v "\.run" | grep -v "\.done" | grep -v "\.fail" | grep -v "\.err" | grep -v "\.log" |wc -l`
+      RUN=`ls -l $OUTDIR/fTestJobs/sub* | grep "\.run" |wc -l`
+      FAIL=`ls -l $OUTDIR/fTestJobs/sub* | grep "\.fail" |wc -l`
+      DONE=`ls -l $OUTDIR/fTestJobs/sub* | grep "\.done" |wc -l`
+      (( PEND=$PEND-$RUN-$FAIL-$DONE ))
+      echo " PEND $PEND - RUN $RUN - DONE $DONE - FAIL $FAIL"
+      if (( $RUN > 0 )) ; then PEND=1 ; fi
+	   if (( $DONE == $TOTAL )) ; then PEND=0; fi
+      if (( $FAIL > 0 )) ; then 
+          echo "ERROR at least one job failed :"
+          ls -l $OUTDIR/fTestJobs/sub* | grep "\.fail"
+          exit 1
+      fi
+      sleep 10
+    done
+    mkdir -p $OUTDIR/dat
+    cat $OUTDIR/fTestJobs/outputs/* > dat/newConfig_${EXT}_temp.dat
+    sort -u dat/newConfig_${EXT}_temp.dat  > dat/tmp_newConfig_${EXT}_temp.dat 
+    mv dat/tmp_newConfig_${EXT}_temp.dat dat/newConfig_${EXT}_temp.dat
+    cp dat/newConfig_${EXT}_temp.dat $OUTDIR/dat/copy_newConfig_${EXT}_temp.dat
+    rm -rf $OUTDIR/sigfTest
+    mv $OUTDIR/fTest $OUTDIR/sigfTest
+  fi
+  echo "[INFO] sigFtest completed"
+  echo "[INFO] using the results of the F-test as they are and building the signal model"
+  echo "If you want to amend the number of gaussians, do it in $PWD/dat/newConfig_${EXT}.dat and re-run!"
+  cp dat/newConfig_${EXT}_temp.dat dat/newConfig_${EXT}.dat
+  cp dat/newConfig_${EXT}_temp.dat $OUTDIR/dat/newConfig_${EXT}.dat
+fi
+
+
+
 
 ############################################################
 
 echo "./python/submitSignalFit.py --indir $INDIR -i $INFILES -d dat/${CONFIGDAT} --mhLow=120 --mhHigh=130 --procs $PROCS -s dat/photonCatSyst.dat --changeIntLumi ${INTLUMI} --refProc $REFPROC --refTag $REFTAG -p $OUTDIR/sigfit --batch T3CH -q all.q -f $CATS  -o ${OUTDIR}/CMS-HGG_sigfit_${EXT}.root"
-./python/submitSignalFit.py --indir $INDIR -i $INFILES -d dat/${CONFIGDAT} --mhLow=120 --mhHigh=130 --procs $PROCS -s dat/photonCatSyst.dat --changeIntLumi ${INTLUMI} --refProc $REFPROC --refTag $REFTAG -p $OUTDIR/sigfit --batch T3CH -q all.q -f $CATS  -o ${OUTDIR}/CMS-HGG_sigfit_${EXT}.root
+#./python/submitSignalFit.py --indir $INDIR -i $INFILES -d dat/${CONFIGDAT} --mhLow=120 --mhHigh=130 --procs $PROCS -s dat/photonCatSyst.dat --changeIntLumi ${INTLUMI} --refProc $REFPROC --refTag $REFTAG -p $OUTDIR/sigfit --batch T3CH -q all.q -f $CATS  -o ${OUTDIR}/CMS-HGG_sigfit_${EXT}.root
 
 
 ######################Combined output for 2016+2017################

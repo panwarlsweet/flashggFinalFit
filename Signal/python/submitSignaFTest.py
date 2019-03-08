@@ -74,6 +74,7 @@ parser.add_option("--outDir",default=None)
 parser.add_option("--procs",default=None)
 parser.add_option("--flashggCats",default=None)
 parser.add_option("--expected",type="int",default=None)
+parser.add_option("--indir",default="",help="infile directory ")
 (opts,args) = parser.parse_args()
 
 defaults = copy(opts)
@@ -98,16 +99,39 @@ def system(exec_line):
 #
 #catRanges = strtodict(opts.catRanges)
 
+#def writePreamble(sub_file):
+#  #print "[INFO] writing preamble"
+#  sub_file.write('#!/bin/bash\n')
+#  sub_file.write('touch %s.run\n'%os.path.abspath(sub_file.name))
+#  sub_file.write('cd %s\n'%os.getcwd())
+#  sub_file.write('eval `scramv1 runtime -sh`\n')
+#  sub_file.write('cd -\n')
+#  sub_file.write('number=$RANDOM\n')
+#  sub_file.write('mkdir -p scratch_$number\n')
+#  sub_file.write('cd scratch_$number\n')
+
 def writePreamble(sub_file):
   #print "[INFO] writing preamble"
   sub_file.write('#!/bin/bash\n')
+  if (opts.batch == "T3CH"):
+      sub_file.write('set -x\n')
   sub_file.write('touch %s.run\n'%os.path.abspath(sub_file.name))
   sub_file.write('cd %s\n'%os.getcwd())
+  if (opts.batch == "T3CH"):
+      sub_file.write('source $VO_CMS_SW_DIR/cmsset_default.sh\n')
+      sub_file.write('source /mnt/t3nfs01/data01/swshare/glite/external/etc/profile.d/grid-env.sh\n')
+      sub_file.write('export SCRAM_ARCH=slc6_amd64_gcc481\n')
+      sub_file.write('export LD_LIBRARY_PATH=/swshare/glite/d-cache/dcap/lib/:$LD_LIBRARY_PATH\n')
+      sub_file.write('set +x\n') 
   sub_file.write('eval `scramv1 runtime -sh`\n')
+  if (opts.batch == "T3CH"):
+      sub_file.write('set -x\n') 
   sub_file.write('cd -\n')
+  if (opts.batch == "T3CH" ) : sub_file.write('cd $TMPDIR\n')
   sub_file.write('number=$RANDOM\n')
   sub_file.write('mkdir -p scratch_$number\n')
   sub_file.write('cd scratch_$number\n')
+
 
 def writePostamble(sub_file, exec_line):
 
@@ -129,24 +153,24 @@ def writePostamble(sub_file, exec_line):
     system('rm -f %s.err'%os.path.abspath(sub_file.name))
     if (opts.batch == "LSF") : system('bsub -q %s -o %s.log %s'%(opts.queue,os.path.abspath(sub_file.name),os.path.abspath(sub_file.name)))
     if (opts.batch == "IC") : system('qsub -q %s -o %s.log -e %s.err %s > out.txt'%(opts.queue,os.path.abspath(sub_file.name),os.path.abspath(sub_file.name),os.path.abspath(sub_file.name)))
+    if (opts.batch == "T3CH") : system('qsub -q %s -o %s.log -e %s.err %s > out.txt'%(opts.queue,os.path.abspath(sub_file.name),os.path.abspath(sub_file.name),os.path.abspath(sub_file.name)))
   if opts.runLocal:
      system('bash %s'%os.path.abspath(sub_file.name))
 
 
 #######################################
-
-  
 system('mkdir -p %s/fTestJobs/outputs'%opts.outDir)
 counter=0
+indirOpt = ""
+if opts.indir:
+    indirOpt = " --indir "+str(opts.indir)
 for proc in  opts.procs.split(","):
   for cat in opts.flashggCats.split(","):
     print "job ", counter , " - ", proc, " - ", cat
     file = open('%s/fTestJobs/sub%d.sh'%(opts.outDir,counter),'w')
     writePreamble(file)
     counter =  counter+1
-    exec_line = "%s/bin/signalFTest -i %s  -p %s -f %s --considerOnly %s -o %s/%s --datfilename %s/%s/fTestJobs/outputs/config_%d.dat" %(os.getcwd(), opts.infile,proc,opts.flashggCats,cat,os.getcwd(),opts.outDir,os.getcwd(),opts.outDir, counter)
-    #print exec_line
+    exec_line = "%s/bin/signalFTest_new -i %s  -p %s -f %s --considerOnly %s -o %s/%s --datfilename %s/%s/fTestJobs/outputs/config_%d.dat %s" %(os.getcwd(), opts.infile,proc,opts.flashggCats,cat,os.getcwd(),opts.outDir,os.getcwd(),opts.outDir, counter,indirOpt)
+    # print exec_line
     writePostamble(file,exec_line)
-
-
 

@@ -158,7 +158,9 @@ void InitialFit::buildSumOfGaussians(string name, int nGaussians, bool recursive
       }
     }
     assert(gaussians->getSize()==nGaussians && coeffs->getSize()==nGaussians-(1*!forceFracUnity));
-    RooAbsPdf *tempSumOfGaussians = new RooAddPdf(Form("%s_mh%d",name.c_str(),mh),Form("%s_mh%d",name.c_str(),mh),*gaussians,*coeffs,recursive);
+   // RooAbsPdf *tempSumOfGaussians = new RooAddPdf(Form("%s_mh%d",name.c_str(),mh),Form("%s_mh%d",name.c_str(),mh),*gaussians,*coeffs,recursive);
+    RooAddPdf *tempSumOfGaussians = new RooAddPdf(Form("%s_mh%d",name.c_str(),mh),Form("%s_mh%d",name.c_str(),mh),*gaussians,*coeffs,recursive);
+    sumOfGaussians.insert(pair<int,RooAddPdf*>(mh,tempSumOfGaussians));
     fitPdfs.insert(pair<int,RooAbsPdf*>(mh,tempSumOfGaussians));
     fitParams.insert(pair<int,map<string,RooRealVar*> >(mh,tempFitParams));
     fitUtils.insert(pair<int,map<string,RooAbsReal*> >(mh,tempFitUtils));
@@ -232,6 +234,16 @@ map<int,map<string,RooRealVar*> > InitialFit::getFitParams(){
   return fitParams;
 }
 
+
+std::map<int,RooFitResult*> InitialFit::getFitResults(){
+  return fitResults;
+}
+
+
+std::map<int,RooAddPdf*> InitialFit::getSumOfGaussians(){
+  return sumOfGaussians;
+}
+
 void InitialFit::printFitParams(){
 	cout << "[INFO] Printing fit param map: " << endl;
 	for (map<int,map<string,RooRealVar*> >::iterator it = fitParams.begin(); it != fitParams.end(); it++){
@@ -240,6 +252,10 @@ void InitialFit::printFitParams(){
 		}
 	}
 }
+
+
+
+
 
 void InitialFit::runFits(int ncpu){
 
@@ -252,9 +268,11 @@ void InitialFit::runFits(int ncpu){
     MH->setConstant(false);
     MH->setVal(mh);
     MH->setConstant(true);
+    assert(sumOfGaussians.find(mh)!=sumOfGaussians.end());
     assert(fitPdfs.find(mh)!=fitPdfs.end());
     assert(datasets.find(mh)!=datasets.end());
-    RooAbsPdf *fitModel125 = fitPdfs[mh];
+  //  RooAbsPdf *fitModel125 = fitPdfs[mh];
+    RooAddPdf *fitModel125 = sumOfGaussians[mh];
     //RooDataSet *data125 = datasets[mh];
     RooAbsData *data125;
     if (binnedFit_){
@@ -291,9 +309,13 @@ void InitialFit::runFits(int ncpu){
       MH->setConstant(false);
       MH->setVal(mh);
       MH->setConstant(true);
-      assert(fitPdfs.find(mh)!=fitPdfs.end());
+      assert(sumOfGaussians.find(mh)!=sumOfGaussians.end());
       assert(datasets.find(mh)!=datasets.end());
-      RooAbsPdf *fitModel = fitPdfs[mh];
+      RooAddPdf *fitModel = sumOfGaussians[mh];
+
+   //   assert(fitPdfs.find(mh)!=fitPdfs.end());
+   //   assert(datasets.find(mh)!=datasets.end());
+  //    RooAbsPdf *fitModel = fitPdfs[mh];
       //RooDataSet *data = datasets[mh];
 
 
@@ -444,9 +466,13 @@ void InitialFit::plotFits(string name, string rvwv){
     MH->setConstant(false);
     MH->setVal(mh);
     MH->setConstant(true);
-    assert(fitPdfs.find(mh)!=fitPdfs.end());
+//    assert(fitPdfs.find(mh)!=fitPdfs.end());
+//    assert(datasets.find(mh)!=datasets.end());
+//    RooAbsPdf *fitModel = fitPdfs[mh];
+    assert(sumOfGaussians.find(mh)!=sumOfGaussians.end());
     assert(datasets.find(mh)!=datasets.end());
-    RooAbsPdf *fitModel = fitPdfs[mh];
+    RooAddPdf *fitModel = sumOfGaussians[mh];
+
     //RooDataSet *data = datasets[mh];
     mass->setBins(bins_);
     RooDataHist *data = new RooDataHist(datasets[mh]->GetName(),datasets[mh]->GetName(), RooArgSet(*mass),*datasets[mh]);
