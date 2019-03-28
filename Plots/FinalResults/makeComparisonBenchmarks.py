@@ -41,10 +41,12 @@ parser = OptionParser()
 parser.add_option("--indir", help="Input directory ")
 parser.add_option("--outdir", help="Output directory ")
 parser.add_option("--outtag", help="Output tag ")
+parser.add_option("--labels", help="Labels ")
 parser.add_option("--blind", help="Observed is present or not ",default=True)
 
 (options,args)=parser.parse_args()
 outtags = options.outtag.split(',')
+labels = options.labels.split(',')
 indirs = options.indir.split(',')
 
 thelabsize = 0.045
@@ -171,8 +173,7 @@ for num,outtag in enumerate(outtags):
       agrExp.SetPoint(agrExp.GetN(),    bn, values[bn][0])
       values_array[num].append(values[bn][0])
 
-   if num==0 :  legend.AddEntry(agrExp, "Median expected w/o ttH killer", "p")
-   if num==1 : legend.AddEntry(agrExp, "Median expected with ttH killer", "p")
+   legend.AddEntry(agrExp, "Median expected %s"%labels[num], "p")
 
 
    #setBarWidth(agr1sigma, 0.3)

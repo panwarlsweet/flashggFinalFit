@@ -6,16 +6,18 @@ import os
 from math import sqrt
 import json
 
+date = '27_03_2019'
+
 #filename = '/afs/cern.ch/work/n/nchernya/ETH/CMSSW_7_4_7/src/flashggFinalFit/Signal/CMS-HGG_sigfit_02_11_2018_20162017.root'
 #filename_bkg = '/afs/cern.ch/work/n/nchernya/ETH/CMSSW_7_4_7/src/flashggFinalFit/Background/CMS-HGG_multipdf_HHbbgg_data2016_2017_30_10_2018.root'
 #filename = '/afs/cern.ch/work/n/nchernya/ETH/CMSSW_7_4_7/src/flashggFinalFit/Signal/CMS-HGG_sigfit_13_12_2018_combo.root'
 #filename_bkg = '/afs/cern.ch/work/n/nchernya/ETH/CMSSW_7_4_7/src/flashggFinalFit/Background/CMS-HGG_multipdf_HHbbgg_data2016_2017_13_12_2018.root'
-filename = '/work/nchernya/DiHiggs/CMSSW_7_4_7/src/flashggFinalFit/Signal/output/CMS-HGG_sigfit_singleHiggs2016_2017_01_03_2019.root'
-filename_bkg = '/work/nchernya/DiHiggs/CMSSW_7_4_7/src/flashggFinalFit/Plots/FinalResults/inputs/CMS-HGG_multipdf_HHbbgg_2016_2017_01_03_2019.root'
+#filename = '/work/nchernya/DiHiggs/CMSSW_7_4_7/src/flashggFinalFit/Signal/output/CMS-HGG_sigfit_singleHiggs2016_2017_01_03_2019.root'
+#filename_bkg = '/work/nchernya/DiHiggs/CMSSW_7_4_7/src/flashggFinalFit/Plots/FinalResults/inputs/CMS-HGG_multipdf_HHbbgg_2016_2017_01_03_2019.root'
 #filename = '/work/nchernya/DiHiggs/CMSSW_7_4_7/src/flashggFinalFit/Signal/output/CMS-HGG_sigfit_singleHiggs2016_2017_27_02_2019.root'
 #filename_bkg = '/work/nchernya/DiHiggs/CMSSW_7_4_7/src/flashggFinalFit/Plots/FinalResults/inputs/CMS-HGG_multipdf_HHbbgg_data2016_2017_27_02_2019.root'
-#filename = '/work/nchernya/DiHiggs/CMSSW_7_4_7/src/flashggFinalFit/Signal/output/CMS-HGG_sigfit_singleHiggs2016_2017_07_03_2019.root'
-#filename_bkg = '/work/nchernya/DiHiggs/CMSSW_7_4_7/src/flashggFinalFit/Background/outputs/CMS-HGG_multipdf_HHbbgg_2016_2017_07_03_2019.root'
+filename = '/work/nchernya/DiHiggs/CMSSW_7_4_7/src/flashggFinalFit/Signal/output/CMS-HGG_sigfit_singleHiggs2016_2017_%s.root'%date
+filename_bkg = '/work/nchernya/DiHiggs/CMSSW_7_4_7/src/flashggFinalFit/Background/outputs/CMS-HGG_multipdf_HHbbgg_2016_2017_%s.root'%date
 wsname = 'wsig_13TeV'
 wsname_bkg = 'multipdf'
 
@@ -30,8 +32,8 @@ SMsignal=33.49*0.58*0.00227*2
 #lumi_2017=1000.
 #SMsignal=1
 #names='GluGluToHHTo2B2G_node_SM_13TeV_madgraph,GluGluHToGG_M_125_13TeV_powheg_pythia8,VBFHToGG_M_125_13TeV_powheg_pythia8,ttHToGG_M125_13TeV_powheg_pythia8_v2,VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8,GluGluToHHTo2B2G_node_SM_13TeV_madgraph_2017,GluGluHToGG_M125_13TeV_amcatnloFXFX_pythia8_2017,VBFHToGG_M125_13TeV_amcatnlo_pythia8_2017,ttHToGG_M125_13TeV_powheg_pythia8_2017,VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8_2017'.split(',')
-names='GluGluToHHTo2B2G_node_SM_13TeV_madgraph,GluGluHToGG_M_125_13TeV_powheg_pythia8,VBFHToGG_M_125_13TeV_powheg_pythia8,ttHToGG_M125_13TeV_powheg_pythia8_v2,VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8,GluGluToHHTo2B2G_node_SM_13TeV_madgraph_2017,GluGluHToGG_M_125_13TeV_powheg_pythia8_2017,VBFHToGG_M125_13TeV_amcatnlo_pythia8_2017,ttHToGG_M125_13TeV_powheg_pythia8_2017,VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8_2017'.split(',')
-tpMap = {"GluGluToHHTo2B2G_node_SM_13TeV_madgraph":"HHbbgg_2016","GluGluHToGG_M_125_13TeV_powheg_pythia8":"GF_2016","VBFHToGG_M_125_13TeV_powheg_pythia8":"VBF_2016","ttHToGG_M125_13TeV_powheg_pythia8_v2":"ttH_2016","VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8":"VH_2016","GluGluToHHTo2B2G_node_SM_13TeV_madgraph_2017":"HHbbgg_2017","GluGluHToGG_M125_13TeV_amcatnloFXFX_pythia8_2017":"GF_2017","GluGluHToGG_M_125_13TeV_powheg_pythia8_2017":"GF_2017","VBFHToGG_M125_13TeV_amcatnlo_pythia8_2017":"VBF_2017","ttHToGG_M125_13TeV_powheg_pythia8_2017":"ttH_2017","VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8_2017":"VH_2017"}
+names='GluGluToHHTo2B2G_node_SM_13TeV_madgraph_generated,GluGluHToGG_M_125_13TeV_powheg_pythia8,VBFHToGG_M_125_13TeV_powheg_pythia8,ttHToGG_M125_13TeV_powheg_pythia8_v2,VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8,GluGluToHHTo2B2G_node_SM_13TeV_madgraph_generated_2017,GluGluHToGG_M_125_13TeV_powheg_pythia8_2017,VBFHToGG_M_125_13TeV_powheg_pythia8_2017,ttHToGG_M125_13TeV_powheg_pythia8_2017,VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8_2017'.split(',')
+tpMap = {"GluGluToHHTo2B2G_node_SM_13TeV_madgraph_generated":"HHbbgg_2016","GluGluHToGG_M_125_13TeV_powheg_pythia8":"GF_2016","VBFHToGG_M_125_13TeV_powheg_pythia8":"VBF_2016","ttHToGG_M125_13TeV_powheg_pythia8_v2":"ttH_2016","VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8":"VH_2016","GluGluToHHTo2B2G_node_SM_13TeV_madgraph_generated_2017":"HHbbgg_2017","GluGluHToGG_M125_13TeV_amcatnloFXFX_pythia8_2017":"GF_2017","GluGluHToGG_M_125_13TeV_powheg_pythia8_2017":"GF_2017","VBFHToGG_M_125_13TeV_powheg_pythia8_2017":"VBF_2017","ttHToGG_M125_13TeV_powheg_pythia8_2017":"ttH_2017","VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8_2017":"VH_2017"}
 sum_entries = dict()
 sum_entries_bkg = dict()
 
@@ -85,12 +87,12 @@ print '%d'%sum_bkg
 #filename_bkg_2016 = '/work/nchernya/DiHiggs/inputs/27_02_2019/2016/output_DoubleEG_micheli-ReMiniAOD2016-DeepCSV-27_02_2019.root'
 #filename_bkg_2017 = '/work/nchernya/DiHiggs/inputs/27_02_2019/2017/output_DoubleEG_spigazzi-RunIIFall17-3_2_0-RunIIFall17-27_02_2019.root'
 #filename_bkg_total = '/work/nchernya/DiHiggs/inputs/27_02_2019/output_DoubleEG_2016_2017_27_02_2019.root'
-filename_bkg_2016 = '/work/nchernya/DiHiggs/inputs/01_03_2019/output_DoubleEG_2016.root'
-filename_bkg_2017 = '/work/nchernya/DiHiggs/inputs/01_03_2019/output_DoubleEG_2017_only_13_12_2018.root'
-filename_bkg_total = '/work/nchernya/DiHiggs/inputs/01_03_2019/output_DoubleEG_2016_2017_01_03_2019.root'
-#filename_bkg_2016 = '/work/nchernya/DiHiggs/inputs/07_03_2019/2016/output_DoubleEG.root'
-#filename_bkg_2017 = '/work/nchernya/DiHiggs/inputs/07_03_2019/2017/output_DoubleEG.root'
-#filename_bkg_total = '/work/nchernya/DiHiggs/inputs/07_03_2019/output_DoubleEG_2016_2017_07_03_2019.root'
+#filename_bkg_2016 = '/work/nchernya/DiHiggs/inputs/01_03_2019/output_DoubleEG_2016.root'
+#filename_bkg_2017 = '/work/nchernya/DiHiggs/inputs/01_03_2019/output_DoubleEG_2017_only_13_12_2018.root'
+#filename_bkg_total = '/work/nchernya/DiHiggs/inputs/01_03_2019/output_DoubleEG_2016_2017_01_03_2019.root'
+filename_bkg_2016 = '/work/nchernya/DiHiggs/inputs/%s/output_DoubleEG_2016_%s.root'%(date,date)
+filename_bkg_2017 = '/work/nchernya/DiHiggs/inputs/%s/output_DoubleEG_2017_%s.root'%(date,date)
+filename_bkg_total = '/work/nchernya/DiHiggs/inputs/%s/output_DoubleEG_2016_2017_%s.root'%(date,date)
 years=['2016','2017','Total']
 print 'Data with blinded 115 < Mgg < 135'
 for num,name in enumerate([filename_bkg_2016,filename_bkg_2017,filename_bkg_total]):
@@ -116,8 +118,5 @@ for num,name in enumerate([filename_bkg_2016,filename_bkg_2017,filename_bkg_tota
 
 
 
-#result = open("full_yields_18_12_2018.txt","w")
-#result = open("full_yields_27_02_2019.txt","w")
-result = open("full_yields_01_03_2019.txt","w")
-#result = open("full_yields_07_03_2019.txt","w")
-#result.write(json.dumps(entries_per_cat))
+result = open("full_yields_%s.txt"%date,"w")
+result.write(json.dumps(entries_per_cat))

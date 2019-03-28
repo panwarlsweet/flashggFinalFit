@@ -153,7 +153,10 @@ def writePostamble(sub_file, exec_line):
     system('rm -f %s.err'%os.path.abspath(sub_file.name))
     if (opts.batch == "LSF") : system('bsub -q %s -o %s.log %s'%(opts.queue,os.path.abspath(sub_file.name),os.path.abspath(sub_file.name)))
     if (opts.batch == "IC") : system('qsub -q %s -o %s.log -e %s.err %s > out.txt'%(opts.queue,os.path.abspath(sub_file.name),os.path.abspath(sub_file.name),os.path.abspath(sub_file.name)))
-    if (opts.batch == "T3CH") : system('qsub -q %s -o %s.log -e %s.err %s > out.txt'%(opts.queue,os.path.abspath(sub_file.name),os.path.abspath(sub_file.name),os.path.abspath(sub_file.name)))
+    if (opts.batch == "T3CH") : 
+          command = 'qsub -q %s -o %s.log -e %s.err %s > out.txt'%(opts.queue,os.path.abspath(sub_file.name),os.path.abspath(sub_file.name),os.path.abspath(sub_file.name))
+          print command
+          system(command)
   if opts.runLocal:
      system('bash %s'%os.path.abspath(sub_file.name))
 
@@ -170,7 +173,7 @@ for proc in  opts.procs.split(","):
     file = open('%s/fTestJobs/sub%d.sh'%(opts.outDir,counter),'w')
     writePreamble(file)
     counter =  counter+1
-    exec_line = "%s/bin/signalFTest_new -i %s  -p %s -f %s --considerOnly %s -o %s/%s --datfilename %s/%s/fTestJobs/outputs/config_%d.dat %s" %(os.getcwd(), opts.infile,proc,opts.flashggCats,cat,os.getcwd(),opts.outDir,os.getcwd(),opts.outDir, counter,indirOpt)
+    exec_line = "%s/bin/signalFTest -i %s  -p %s -f %s --considerOnly %s -o %s/%s --datfilename %s/%s/fTestJobs/outputs/config_%d.dat %s" %(os.getcwd(), opts.infile,proc,opts.flashggCats,cat,os.getcwd(),opts.outDir,os.getcwd(),opts.outDir, counter,indirOpt)
     # print exec_line
     writePostamble(file,exec_line)
 

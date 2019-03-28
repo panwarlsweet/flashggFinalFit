@@ -1,68 +1,70 @@
-INDIR="/mnt/t3nfs01/data01/shome/nchernya/DiHiggs/inputs/07_03_2019/"
-YEAR="_2017"  #empty for 2016 and _2017 for 2017
-YEAR2="2017" 
-EXT="nodes"$YEAR2
+doFTEST=0
+#MASS=_125
+MASS=''
 
-OUTDIR="output/out_27_02_2019tthKiller_set_test"$YEAR2
-#PROCS="GluGluToHHTo2B2G_node_0_13TeV_madgraph$YEAR,GluGluToHHTo2B2G_node_1_13TeV_madgraph$YEAR,GluGluToHHTo2B2G_node_2_13TeV_madgraph$YEAR,GluGluToHHTo2B2G_node_3_13TeV_madgraph$YEAR,GluGluToHHTo2B2G_node_4_13TeV_madgraph$YEAR,GluGluToHHTo2B2G_node_5_13TeV_madgraph$YEAR,GluGluToHHTo2B2G_node_6_13TeV_madgraph$YEAR,GluGluToHHTo2B2G_node_7_13TeV_madgraph$YEAR,GluGluToHHTo2B2G_node_8_13TeV_madgraph$YEAR,GluGluToHHTo2B2G_node_9_13TeV_madgraph$YEAR,GluGluToHHTo2B2G_node_10_13TeV_madgraph$YEAR,GluGluToHHTo2B2G_node_11_13TeV_madgraph$YEAR"
-PROCS="GluGluToHHTo2B2G_node_0_13TeV_madgraph$YEAR,GluGluToHHTo2B2G_node_2_13TeV_madgraph$YEAR"
-INFILES="output_GluGluToHHTo2B2G_node_0_13TeV-madgraph$YEAR,output_GluGluToHHTo2B2G_node_2_13TeV-madgraph$YEAR"
-CATS="DoubleHTag_0,DoubleHTag_1,DoubleHTag_2,DoubleHTag_3,DoubleHTag_4,DoubleHTag_5,DoubleHTag_6,DoubleHTag_7,DoubleHTag_8,DoubleHTag_9,DoubleHTag_10,DoubleHTag_11"
-REFTAG="DoubleHTag_0"
-REFPROC="GluGluToHHTo2B2G_node_0_13TeV_madgraph$YEAR"
-#INFILES="output_GluGluToHHTo2B2G_node_0_13TeV-madgraph$YEAR,output_GluGluToHHTo2B2G_node_1_13TeV-madgraph$YEAR,output_GluGluToHHTo2B2G_node_2_13TeV-madgraph,output_GluGluToHHTo2B2G_node_3_13TeV-madgraph$YEAR,output_GluGluToHHTo2B2G_node_4_13TeV-madgraph$YEAR,output_GluGluToHHTo2B2G_node_5_13TeV-madgraph$YEAR,output_GluGluToHHTo2B2G_node_6_13TeV-madgraph$YEAR,output_GluGluToHHTo2B2G_node_7_13TeV-madgraph$YEAR,output_GluGluToHHTo2B2G_node_8_13TeV-madgraph$YEAR,output_GluGluToHHTo2B2G_node_9_13TeV-madgraph$YEAR,output_GluGluToHHTo2B2G_node_10_13TeV-madgraph$YEAR,output_GluGluToHHTo2B2G_node_11_13TeV-madgraph$YEAR"
+YEAR=""
+YEAR2="2016"
+#YEAR="_2017"
+#YEAR2="2017"
 
-INTLUMI=77.4
-#CONFIGDAT="config_13_12_nodes_"$YEAR2".dat"
-CONFIGDAT="config_13_12_nodes_"$YEAR2"_test.dat"
-
-
-
-#############SINGLE HIGGS BKG plus SM signal ###############
-
-#YEAR=""
-YEAR="_2017"
-YEAR2="2017"
+DATE="27_03_2019"
 EXT="singleHiggs"$YEAR2
 
-PROCS="GluGluToHHTo2B2G_node_SM_13TeV_madgraph_2017,GluGluHToGG_M_125_13TeV_powheg_pythia8_2017,VBFHToGG_M125_13TeV_amcatnlo_pythia8_2017,ttHToGG_M125_13TeV_powheg_pythia8_2017,VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8_2017"
-REFPROC="ttHToGG_M125_13TeV_powheg_pythia8_2017"
-INFILES="output_GluGluToHHTo2B2G_node_SM_13TeV-madgraph_2017,output_GluGluHToGG_M-125_13TeV_powheg_pythia8_2017,output_VBFHToGG_M125_13TeV_amcatnlo_pythia8_2017,output_ttHToGG_M125_13TeV_powheg_pythia8_2017,output_VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8_2017"
-INTLUMI=41.5
-
-#REFPROC="ttHToGG_M125_13TeV_powheg_pythia8_v2"
-#PROCS="GluGluToHHTo2B2G_node_SM_13TeV_madgraph,GluGluHToGG_M_125_13TeV_powheg_pythia8,VBFHToGG_M_125_13TeV_powheg_pythia8,ttHToGG_M125_13TeV_powheg_pythia8_v2,VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8"
-#INFILES="output_GluGluToHHTo2B2G_node_SM_13TeV-madgraph,output_GluGluHToGG_M-125_13TeV_powheg_pythia8,output_VBFHToGG_M-125_13TeV_powheg_pythia8,output_ttHToGG_M125_13TeV_powheg_pythia8_v2,output_VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8"
-#INTLUMI=35.9
-
-CONFIGDAT="config_13_12_all.dat"
-OUTDIR="output/test"$YEAR2
+INDIR="/mnt/t3nfs01/data01/shome/nchernya/DiHiggs/inputs/${DATE}/"
+OUTDIR="output/out_fit_${DATE}$_${EXT}"
+CONFIGDAT="output/out_${DATE}_${EXT}/dat/newConfig_${EXT}.dat"
+#runLocal='--runLocal'
+runLocal=''
 
 BATCH=T3CH
-DEFAULTQUEUE=all.q
+DEFAULTQUEUE=short.q
+CATS="DoubleHTag_0,DoubleHTag_1,DoubleHTag_2,DoubleHTag_3,DoubleHTag_4,DoubleHTag_5,DoubleHTag_6,DoubleHTag_7,DoubleHTag_8,DoubleHTag_9,DoubleHTag_10,DoubleHTag_11"
+REFTAG="DoubleHTag_0"
+INTLUMI=77.4
+
+
+##############for tests##############
+#PROCS="GluGluToHHTo2B2G_node_SM_13TeV_madgraph_generated_2017"
+#REFPROC="GluGluToHHTo2B2G_node_SM_13TeV_madgraph_generated_2017"
+#INFILES="output_GluGluToHHTo2B2G_node_SM_13TeV-madgraph_generated_2017$MASS"
+#####################################
+
+
+##############2016#############
+PROCS="GluGluToHHTo2B2G_node_SM_13TeV_madgraph_generated,GluGluHToGG_M_125_13TeV_powheg_pythia8,VBFHToGG_M_125_13TeV_powheg_pythia8,ttHToGG_M125_13TeV_powheg_pythia8_v2,VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8"
+REFPROC="ttHToGG_M125_13TeV_powheg_pythia8_v2"
+INFILES="output_GluGluToHHTo2B2G_node_SM_13TeV-madgraph_generated$MASS,output_GluGluHToGG_M-125_13TeV_powheg_pythia8$MASS,output_VBFHToGG_M-125_13TeV_powheg_pythia8$MASS,output_ttHToGG_M125_13TeV_powheg_pythia8_v2$MASS,output_VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8$MASS"
+##############2017#############
+#PROCS="GluGluToHHTo2B2G_node_SM_13TeV_madgraph_generated_2017,GluGluHToGG_M_125_13TeV_powheg_pythia8_2017,VBFHToGG_M_125_13TeV_powheg_pythia8_2017,ttHToGG_M125_13TeV_powheg_pythia8_2017,VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8_2017"
+#REFPROC="ttHToGG_M125_13TeV_powheg_pythia8_2017"
+#INFILES="output_GluGluToHHTo2B2G_node_SM_13TeV-madgraph_generated_2017$MASS,output_GluGluHToGG_M-125_13TeV_powheg_pythia8_2017$MASS,output_VBFHToGG_M-125_13TeV_powheg_pythia8_2017$MASS,output_ttHToGG_M125_13TeV_powheg_pythia8_2017$MASS,output_VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8_2017$MASS"
+#############NODES ############
+#PROCS="GluGluToHHTo2B2G_node_SM_13TeV_madgraph$YEAR,GluGluToHHTo2B2G_node_0_13TeV_madgraph$YEAR,GluGluToHHTo2B2G_node_1_13TeV_madgraph$YEAR,GluGluToHHTo2B2G_node_2_13TeV_madgraph$YEAR,GluGluToHHTo2B2G_node_3_13TeV_madgraph$YEAR,GluGluToHHTo2B2G_node_4_13TeV_madgraph$YEAR,GluGluToHHTo2B2G_node_5_13TeV_madgraph$YEAR,GluGluToHHTo2B2G_node_6_13TeV_madgraph$YEAR,GluGluToHHTo2B2G_node_7_13TeV_madgraph$YEAR,GluGluToHHTo2B2G_node_8_13TeV_madgraph$YEAR,GluGluToHHTo2B2G_node_9_13TeV_madgraph$YEAR,GluGluToHHTo2B2G_node_10_13TeV_madgraph$YEAR,GluGluToHHTo2B2G_node_11_13TeV_madgraph$YEAR"
+#REFPROC="GluGluToHHTo2B2G_node_SM_13TeV_madgraph$YEAR"
+#INFILES="output_GluGluToHHTo2B2G_node_SM_13TeV-madgraph$YEAR$MASS,output_GluGluToHHTo2B2G_node_0_13TeV-madgraph$YEAR$MASS,output_GluGluToHHTo2B2G_node_1_13TeV-madgraph$YEAR$MASS,output_GluGluToHHTo2B2G_node_2_13TeV-madgraph$YEAR$MASS,output_GluGluToHHTo2B2G_node_3_13TeV-madgraph$YEAR$MASS,output_GluGluToHHTo2B2G_node_4_13TeV-madgraph$YEAR$MASS,output_GluGluToHHTo2B2G_node_5_13TeV-madgraph$YEAR$MASS,output_GluGluToHHTo2B2G_node_6_13TeV-madgraph$YEAR$MASS,output_GluGluToHHTo2B2G_node_7_13TeV-madgraph$YEAR$MASS,output_GluGluToHHTo2B2G_node_8_13TeV-madgraph$YEAR$MASS,output_GluGluToHHTo2B2G_node_9_13TeV-madgraph$YEAR$MASS,output_GluGluToHHTo2B2G_node_10_13TeV-madgraph$YEAR$MASS,output_GluGluToHHTo2B2G_node_11_13TeV-madgraph$YEAR$MASS"
+################################
+
 
 
 ####################################################
 ################## SIGNAL F-TEST ###################
 ####################################################
-INDIR="/mnt/t3nfs01/data01/shome/nchernya/DiHiggs/inputs/27_02_2019/"
-MASS=_125
-PROCS="GluGluToHHTo2B2G_node_SM_13TeV_madgraph_2017,GluGluHToGG_M_125_13TeV_powheg_pythia8_2017"
-INFILES="output_GluGluToHHTo2B2G_node_SM_13TeV-madgraph_2017$MASS,output_GluGluHToGG_M-125_13TeV_powheg_pythia8_2017$MASS"
+
 #ls dat/newConfig_${EXT}.dat
-mkdir -p $OUTDIR/dat
-if [ -e ${OUTDIR}/dat/newConfig_${EXT}.dat ]; then
-  echo "[INFO] sigFTest dat file $OUTDIR/dat/newConfig_${EXT}.dat already exists, so SKIPPING SIGNAL FTEST"
-else
- echo "[INFO] sigFTest dat file $OUTDIR/dat/newConfig_${EXT}.dat  DOES NOT already exist, so PERFORMING SIGNAL FTEST"
- if [ 1 > 0 ]; then
+if [ $doFTEST -gt 0 ]; then
+  mkdir -p $OUTDIR/dat
+  if [ -e ${OUTDIR}/dat/newConfig_${EXT}.dat ]; then
+    echo "[INFO] sigFTest dat file $OUTDIR/dat/newConfig_${EXT}.dat already exists, so SKIPPING SIGNAL FTEST"
+  else
+    echo "[INFO] sigFTest dat file $OUTDIR/dat/newConfig_${EXT}.dat  DOES NOT already exist, so PERFORMING SIGNAL FTEST"
+
     mkdir -p $OUTDIR/fTest
     echo "=============================="
     echo "Running Signal F-Test"
     echo "-->Determine Number of gaussians"
     echo "=============================="
     echo "./python/submitSignaFTest.py --procs $PROCS --flashggCats $CATS --outDir $OUTDIR -i $INFILES  --indir $INDIR   --batch $BATCH -q '$DEFAULTQUEUE'"
-    ./python/submitSignaFTest.py --procs $PROCS --flashggCats $CATS --outDir $OUTDIR -i $INFILES --indir $INDIR    --batch $BATCH -q "$DEFAULTQUEUE"
+    ./python/submitSignaFTest.py --procs $PROCS --flashggCats $CATS --outDir $OUTDIR -i $INFILES --indir $INDIR    --batch $BATCH -q "$DEFAULTQUEUE" $runLocal
 
     PEND=`ls -l $OUTDIR/fTestJobs/sub*| grep -v "\.run" | grep -v "\.done" | grep -v "\.fail" | grep -v "\.err" |grep -v "\.log"  |wc -l`
     TOTAL=`ls -l $OUTDIR/fTestJobs/sub*| grep "\.sh"  |wc -l`
@@ -79,7 +81,7 @@ else
       if (( $FAIL > 0 )) ; then 
           echo "ERROR at least one job failed :"
           ls -l $OUTDIR/fTestJobs/sub* | grep "\.fail"
-          exit 1
+         # exit 1
       fi
       sleep 10
     done
@@ -96,6 +98,9 @@ else
   echo "If you want to amend the number of gaussians, do it in $PWD/dat/newConfig_${EXT}.dat and re-run!"
   cp dat/newConfig_${EXT}_temp.dat dat/newConfig_${EXT}.dat
   cp dat/newConfig_${EXT}_temp.dat $OUTDIR/dat/newConfig_${EXT}.dat
+  CONFIGDAT=$OUTDIR/dat/newConfig_${EXT}.dat
+  echo 'New CONFIG IS '$CONFIGDAT
+  source makeOnepdf.sh $OUTDIR
 fi
 
 
@@ -103,9 +108,10 @@ fi
 
 ############################################################
 
-echo "./python/submitSignalFit.py --indir $INDIR -i $INFILES -d dat/${CONFIGDAT} --mhLow=120 --mhHigh=130 --procs $PROCS -s dat/photonCatSyst.dat --changeIntLumi ${INTLUMI} --refProc $REFPROC --refTag $REFTAG -p $OUTDIR/sigfit --batch T3CH -q all.q -f $CATS  -o ${OUTDIR}/CMS-HGG_sigfit_${EXT}.root"
-#./python/submitSignalFit.py --indir $INDIR -i $INFILES -d dat/${CONFIGDAT} --mhLow=120 --mhHigh=130 --procs $PROCS -s dat/photonCatSyst.dat --changeIntLumi ${INTLUMI} --refProc $REFPROC --refTag $REFTAG -p $OUTDIR/sigfit --batch T3CH -q all.q -f $CATS  -o ${OUTDIR}/CMS-HGG_sigfit_${EXT}.root
+echo "./python/submitSignalFit.py --indir $INDIR -i $INFILES -d ${CONFIGDAT} --mhLow=120 --mhHigh=130 --procs $PROCS -s dat/photonCatSyst.dat --changeIntLumi ${INTLUMI} --refProc $REFPROC --refTag $REFTAG -p $OUTDIR/sigfit  --batch $BATCH -q "$DEFAULTQUEUE"  -f $CATS  -o ${OUTDIR}/CMS-HGG_sigfit_${EXT}.root"
+./python/submitSignalFit.py --indir $INDIR -i $INFILES -d ${CONFIGDAT} --mhLow=120 --mhHigh=130 --procs $PROCS -s dat/photonCatSyst.dat --changeIntLumi ${INTLUMI} --refProc $REFPROC --refTag $REFTAG -p $OUTDIR/sigfit  --batch $BATCH -q "$DEFAULTQUEUE"  -f $CATS  -o ${OUTDIR}/CMS-HGG_sigfit_${EXT}.root
 
+echo "python mergeWorkspaces.py ${OUTDIR}/CMS-HGG_sigfit_${EXT}_${DATE}.root ${OUTDIR}/CMS-HGG_sigfit_*.root"
 
 ######################Combined output for 2016+2017################
 #OUTDIR="output/out_20_02_2019_set20162017"

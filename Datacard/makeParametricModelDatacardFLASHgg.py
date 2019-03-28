@@ -7,6 +7,7 @@
 ## IMPORTS ####################################################################
 ###############################################################################
 import os,sys,copy,math
+import numpy as np
 ###############################################################################
 
 ###############################################################################
@@ -157,17 +158,19 @@ outFile = open(options.outfilename,'w')
 #bkgProcs = ['bkg_mass','bbH_hgg','tHq_hgg','tHW_hgg'] #what to treat as background
 
 combProc = { 'bkg_mass':'bkg_mass'}
-allProcs = ["GluGluToHHTo2B2G_node_SM_13TeV_madgraph", "GluGluHToGG_M_125_13TeV_powheg_pythia8", "VBFHToGG_M_125_13TeV_powheg_pythia8","ttHToGG_M125_13TeV_powheg_pythia8_v2","VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8","bbHToGG_M_125_4FS_yb2_13TeV_amcatnlo""bbHToGG_M_125_4FS_ybyt_13TeV_amcatnlo",
-"GluGluToHHTo2B2G_node_SM_13TeV_madgraph_2017","GluGluHToGG_M125_13TeV_amcatnloFXFX_pythia8_2017","GluGluHToGG_M_125_13TeV_powheg_pythia8_2017","VBFHToGG_M125_13TeV_amcatnlo_pythia8_2017","ttHToGG_M125_13TeV_powheg_pythia8_2017","VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8_2017"]
+allProcs = ["GluGluToHHTo2B2G_node_SM_13TeV_madgraph","GluGluToHHTo2B2G_node_SM_13TeV_madgraph_generated", "GluGluHToGG_M_125_13TeV_powheg_pythia8", "VBFHToGG_M_125_13TeV_powheg_pythia8","ttHToGG_M125_13TeV_powheg_pythia8_v2","VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8","bbHToGG_M_125_4FS_yb2_13TeV_amcatnlo""bbHToGG_M_125_4FS_ybyt_13TeV_amcatnlo",
+"GluGluToHHTo2B2G_node_SM_13TeV_madgraph_2017","GluGluToHHTo2B2G_node_SM_13TeV_madgraph_generated_2017","GluGluHToGG_M125_13TeV_amcatnloFXFX_pythia8_2017","GluGluHToGG_M_125_13TeV_powheg_pythia8_2017","VBFHToGG_M125_13TeV_amcatnlo_pythia8_2017","VBFHToGG_M_125_13TeV_powheg_pythia8_2017","ttHToGG_M125_13TeV_powheg_pythia8_2017","VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8_2017"]
 allNodes=[]
 for proc in allProcs:
    combProc[proc] = proc
-for node in range(0,12):
-   proc = 'GluGluToHHTo2B2G_node_%d_13TeV_madgraph'%node
+whichNodes = list(np.arange(0,12,1))
+whichNodes.append('SM')
+for node in whichNodes:
+   proc = 'GluGluToHHTo2B2G_node_%s_13TeV_madgraph'%node
    combProc[proc] = proc
    allNodes.append(proc)
    allProcs.append(proc)
-   proc = 'GluGluToHHTo2B2G_node_%d_13TeV_madgraph_2017'%node
+   proc = 'GluGluToHHTo2B2G_node_%s_13TeV_madgraph_2017'%node
    combProc[proc] = proc
    allProcs.append(proc)
    allNodes.append(proc)
@@ -178,7 +181,7 @@ flashggProc = combProc
 #procId = {'GluGluToHHTo2B2G_node_SM_13TeV_madgraph':0,"GluGluHToGG_M_125_13TeV_powheg_pythia8":2,"VBFHToGG_M_125_13TeV_powheg_pythia8":3,"ttHToGG_M125_13TeV_powheg_pythia8_v2":4,"VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8":5,"bbHToGG_M_125_4FS_yb2_13TeV_amcatnlo":6,"bbHToGG_M_125_4FS_ybyt_13TeV_amcatnlo":7,
 #"GluGluToHHTo2B2G_node_SM_13TeV_madgraph_2017":-1,"GluGluHToGG_M125_13TeV_amcatnloFXFX_pythia8_2017":8,"VBFHToGG_M125_13TeV_amcatnlo_pythia8_2017":9,"ttHToGG_M125_13TeV_powheg_pythia8_2017":10,"VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8_2017":11,
 #'bkg_mass':1}
-procId = {"GluGluHToGG_M_125_13TeV_powheg_pythia8":2,"VBFHToGG_M_125_13TeV_powheg_pythia8":3,"ttHToGG_M125_13TeV_powheg_pythia8_v2":4,"VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8":5,"GluGluHToGG_M125_13TeV_amcatnloFXFX_pythia8_2017":6,"GluGluHToGG_M_125_13TeV_powheg_pythia8_2017":6,"VBFHToGG_M125_13TeV_amcatnlo_pythia8_2017":7,"ttHToGG_M125_13TeV_powheg_pythia8_2017":8,"VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8_2017":9,
+procId = {"GluGluHToGG_M_125_13TeV_powheg_pythia8":2,"VBFHToGG_M_125_13TeV_powheg_pythia8":3,"ttHToGG_M125_13TeV_powheg_pythia8_v2":4,"VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8":5,"GluGluHToGG_M125_13TeV_amcatnloFXFX_pythia8_2017":6,"GluGluHToGG_M_125_13TeV_powheg_pythia8_2017":6,"VBFHToGG_M125_13TeV_amcatnlo_pythia8_2017":7,"VBFHToGG_M_125_13TeV_powheg_pythia8_2017":7,"ttHToGG_M125_13TeV_powheg_pythia8_2017":8,"VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8_2017":9,
 'bkg_mass':1}
 signalProc = options.signalProc.split(',')
 id_num=0
@@ -1081,6 +1084,8 @@ def printObsProcBinLines():
         if c in tthCats:
           if c in tthLepCat: scale *= tthLepRateScale
           else: scale *= tthHadRateScale
+        if ('node_') in p and (not 'generated' in p): 
+            scale*=2.
         if '2017' in p : outFile.write('%7.1f '%(intL2017*scale))
         else : outFile.write('%7.1f '%(intL*scale))
       #  outFile.write('%7.1f '%(intL*scale))
