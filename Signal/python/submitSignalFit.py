@@ -136,7 +136,9 @@ def writePostamble(sub_file, exec_line):
   sub_file.write('rm -rf scratch_$number\n')
   sub_file.close()
   system('chmod +x %s'%os.path.abspath(sub_file.name))
-  if opts.queue:
+  if opts.runLocal:
+     system('bash %s'%os.path.abspath(sub_file.name))
+  elif opts.queue:
     system('rm -f %s.done'%os.path.abspath(sub_file.name))
     system('rm -f %s.fail'%os.path.abspath(sub_file.name))
     system('rm -f %s.log'%os.path.abspath(sub_file.name))
@@ -147,8 +149,6 @@ def writePostamble(sub_file, exec_line):
     if (opts.batch == "IC") : 
       system('qsub -q %s -l h_rt=0:20:0 -o %s.log -e %s.err %s'%(opts.queue,os.path.abspath(sub_file.name),os.path.abspath(sub_file.name),os.path.abspath(sub_file.name)))
       #print "system(",'qsub -q %s -o %s.log -e %s.err %s '%(opts.queue,os.path.abspath(sub_file.name),os.path.abspath(sub_file.name),os.path.abspath(sub_file.name)),")"
-  if opts.runLocal:
-     system('bash %s'%os.path.abspath(sub_file.name))
 
 
 #######################################

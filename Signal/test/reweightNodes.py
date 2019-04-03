@@ -10,9 +10,9 @@ import json
 parser = OptionParser(option_list=[
    # make_option("--inp-files",type='string',dest='inp_files',default='GluGluToHHTo2B2G_12nodes_13TeV-madgraph_correctedcfg'),  #2017
     make_option("--inp-files",type='string',dest='inp_files',default='GluGluToHHTo2B2G_nodesPlusSM_13TeV-madgraph'),  #2016
-    make_option("--inp-dir",type='string',dest="inp_dir",default='/work/nchernya/DiHiggs/inputs/27_03_2019/'),
-    make_option("--out-dir",type='string',dest="out_dir",default='/work/nchernya/DiHiggs/inputs/27_03_2019/test/'),
-    make_option("--year",type='string',dest="year",default='2017'),
+    make_option("--inp-dir",type='string',dest="inp_dir",default='/work/nchernya/DiHiggs/inputs/01_04_2019/'),
+    make_option("--out-dir",type='string',dest="out_dir",default='/work/nchernya/DiHiggs/inputs/01_04_2019/'),
+    make_option("--year",type='string',dest="year",default='2016'),
     make_option("--cats",type='string',dest="cats",default='DoubleHTag_0,DoubleHTag_1,DoubleHTag_2,DoubleHTag_3,DoubleHTag_4,DoubleHTag_5,DoubleHTag_6,DoubleHTag_7,DoubleHTag_8,DoubleHTag_9,DoubleHTag_10,DoubleHTag_11'),
     make_option("--config",type='string',dest="config",default='/work/nchernya/DiHiggs/inputs/27_03_2019/reweighting_normalization_18_03_2019.json'),
 ])
@@ -91,8 +91,8 @@ for num,f in enumerate(input_files):
 			neww.Write()
 			out.Close()
 
-with open(options.config.replace(".json","_fit.josn"), 'w') as fp:
-	json.dump(normalizations, fp)
+#with open(options.config.replace(".json","_fit.josn"), 'w') as fp:
+#	json.dump(normalizations, fp)
 
 
 

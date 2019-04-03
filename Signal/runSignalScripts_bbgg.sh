@@ -1,5 +1,5 @@
 doFTEST=0
-#MASS=_125
+doFIT=1
 MASS=''
 
 YEAR=""
@@ -7,14 +7,20 @@ YEAR2="2016"
 #YEAR="_2017"
 #YEAR2="2017"
 
-DATE="27_03_2019"
+DATE="01_04_2019"
 EXT="singleHiggs"$YEAR2
+#EXT="nodes"$YEAR2
 
 INDIR="/mnt/t3nfs01/data01/shome/nchernya/DiHiggs/inputs/${DATE}/"
-OUTDIR="output/out_fit_${DATE}$_${EXT}"
+OUTDIR="output/out_fit_${DATE}_${EXT}"
+if [ $doFTEST -gt 0 ]; then
+   OUTDIR="output/out_${DATE}_${EXT}"
+   MASS=_125
+   doFIT=0
+fi
 CONFIGDAT="output/out_${DATE}_${EXT}/dat/newConfig_${EXT}.dat"
-#runLocal='--runLocal'
-runLocal=''
+runLocal='--runLocal'
+#runLocal=''
 
 BATCH=T3CH
 DEFAULTQUEUE=short.q
@@ -81,7 +87,7 @@ if [ $doFTEST -gt 0 ]; then
       if (( $FAIL > 0 )) ; then 
           echo "ERROR at least one job failed :"
           ls -l $OUTDIR/fTestJobs/sub* | grep "\.fail"
-         # exit 1
+          exit 1
       fi
       sleep 10
     done
@@ -92,15 +98,15 @@ if [ $doFTEST -gt 0 ]; then
     cp dat/newConfig_${EXT}_temp.dat $OUTDIR/dat/copy_newConfig_${EXT}_temp.dat
     rm -rf $OUTDIR/sigfTest
     mv $OUTDIR/fTest $OUTDIR/sigfTest
+    echo "[INFO] sigFtest completed"
+    echo "[INFO] using the results of the F-test as they are and building the signal model"
+    echo "If you want to amend the number of gaussians, do it in $PWD/dat/newConfig_${EXT}.dat and re-run!"
+    cp dat/newConfig_${EXT}_temp.dat dat/newConfig_${EXT}.dat
+    cp dat/newConfig_${EXT}_temp.dat $OUTDIR/dat/newConfig_${EXT}.dat
+    CONFIGDAT=$OUTDIR/dat/newConfig_${EXT}.dat
+    echo 'New CONFIG IS '$CONFIGDAT
+    source makeOnepdf.sh $OUTDIR
   fi
-  echo "[INFO] sigFtest completed"
-  echo "[INFO] using the results of the F-test as they are and building the signal model"
-  echo "If you want to amend the number of gaussians, do it in $PWD/dat/newConfig_${EXT}.dat and re-run!"
-  cp dat/newConfig_${EXT}_temp.dat dat/newConfig_${EXT}.dat
-  cp dat/newConfig_${EXT}_temp.dat $OUTDIR/dat/newConfig_${EXT}.dat
-  CONFIGDAT=$OUTDIR/dat/newConfig_${EXT}.dat
-  echo 'New CONFIG IS '$CONFIGDAT
-  source makeOnepdf.sh $OUTDIR
 fi
 
 
@@ -108,10 +114,12 @@ fi
 
 ############################################################
 
-echo "./python/submitSignalFit.py --indir $INDIR -i $INFILES -d ${CONFIGDAT} --mhLow=120 --mhHigh=130 --procs $PROCS -s dat/photonCatSyst.dat --changeIntLumi ${INTLUMI} --refProc $REFPROC --refTag $REFTAG -p $OUTDIR/sigfit  --batch $BATCH -q "$DEFAULTQUEUE"  -f $CATS  -o ${OUTDIR}/CMS-HGG_sigfit_${EXT}.root"
-./python/submitSignalFit.py --indir $INDIR -i $INFILES -d ${CONFIGDAT} --mhLow=120 --mhHigh=130 --procs $PROCS -s dat/photonCatSyst.dat --changeIntLumi ${INTLUMI} --refProc $REFPROC --refTag $REFTAG -p $OUTDIR/sigfit  --batch $BATCH -q "$DEFAULTQUEUE"  -f $CATS  -o ${OUTDIR}/CMS-HGG_sigfit_${EXT}.root
+if [ $doFIT -gt 0 ]; then
+  echo "./python/submitSignalFit.py --indir $INDIR -i $INFILES -d ${CONFIGDAT} --mhLow=120 --mhHigh=130 --procs $PROCS -s dat/photonCatSyst.dat --changeIntLumi ${INTLUMI} --refProc $REFPROC --refTag $REFTAG -p $OUTDIR/sigfit  --batch $BATCH -q "$DEFAULTQUEUE"  -f $CATS  -o ${OUTDIR}/CMS-HGG_sigfit_${EXT}.root $runLocal"
+  ./python/submitSignalFit.py --indir $INDIR -i $INFILES -d ${CONFIGDAT} --mhLow=120 --mhHigh=130 --procs $PROCS -s dat/photonCatSyst.dat --changeIntLumi ${INTLUMI} --refProc $REFPROC --refTag $REFTAG -p $OUTDIR/sigfit  --batch $BATCH -q "$DEFAULTQUEUE"  -f $CATS  -o ${OUTDIR}/CMS-HGG_sigfit_${EXT}.root $runLocal
 
-echo "python mergeWorkspaces.py ${OUTDIR}/CMS-HGG_sigfit_${EXT}_${DATE}.root ${OUTDIR}/CMS-HGG_sigfit_*.root"
+  echo "python mergeWorkspaces.py ${OUTDIR}/CMS-HGG_sigfit_${EXT}_${DATE}.root ${OUTDIR}/CMS-HGG_sigfit_*.root"
+fi
 
 ######################Combined output for 2016+2017################
 #OUTDIR="output/out_20_02_2019_set20162017"
