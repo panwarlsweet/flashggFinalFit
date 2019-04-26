@@ -57,6 +57,7 @@ for node in range(0,12):
    label = "node%d"%node
    labels.append(label)
 labels.append("nodeSM")
+labels.append("nodebox")
 
 plotUpperLimits(labels)
 

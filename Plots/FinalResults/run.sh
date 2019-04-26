@@ -1,4 +1,4 @@
-DATE="27_03_2019"
+DATE="25_04_2019"
 OUTPUTDIR="output/"
 OUTTAG="_SMgenerated_"$DATE
 DATACARD="Datacards/cms_HHbbgg_datacard_SMgenerated_${DATE}.txt"
@@ -7,7 +7,7 @@ DATACARD="Datacards/cms_HHbbgg_datacard_SMgenerated_${DATE}.txt"
 #mv file $OUTPUTDIR
 
 #for node in `seq 0 -1`;
-for node in SM `seq 0 11`;
+for node in SM box `seq 0 11`;
 do
    datacard="Datacards/cms_HHbbgg_datacard_node${node}_${DATE}.txt"
    outtag="_node${node}_${DATE}"

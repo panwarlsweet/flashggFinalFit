@@ -53,7 +53,7 @@ agrExp    = TGraphAsymmErrors()
 agr1sigma = TGraphAsymmErrors()
 agr2sigma = TGraphAsymmErrors()
 
-for ipt in range(0, 13):  #13 = 12 nodes + 13th SM point
+for ipt in range(0, 14):  #13 = 12 nodes + 13th SM point +14th box
     bn = ipt + 1
     agrExp.    SetPoint(agrExp.GetN(),    bn, values[bn][0])
     agr1sigma. SetPoint(agr1sigma.GetN(), bn, values[bn][0])

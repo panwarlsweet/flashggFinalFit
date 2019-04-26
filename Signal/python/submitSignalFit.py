@@ -137,7 +137,7 @@ def writePostamble(sub_file, exec_line):
   sub_file.close()
   system('chmod +x %s'%os.path.abspath(sub_file.name))
   if opts.runLocal:
-     system('bash %s'%os.path.abspath(sub_file.name))
+     system('bash %s > %s.log'%(os.path.abspath(sub_file.name),os.path.abspath(sub_file.name)))
   elif opts.queue:
     system('rm -f %s.done'%os.path.abspath(sub_file.name))
     system('rm -f %s.fail'%os.path.abspath(sub_file.name))

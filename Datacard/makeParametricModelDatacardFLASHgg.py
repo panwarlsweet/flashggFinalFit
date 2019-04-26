@@ -165,6 +165,7 @@ for proc in allProcs:
    combProc[proc] = proc
 whichNodes = list(np.arange(0,12,1))
 whichNodes.append('SM')
+whichNodes.append('box')
 for node in whichNodes:
    proc = 'GluGluToHHTo2B2G_node_%s_13TeV_madgraph'%node
    combProc[proc] = proc
@@ -1084,8 +1085,8 @@ def printObsProcBinLines():
         if c in tthCats:
           if c in tthLepCat: scale *= tthLepRateScale
           else: scale *= tthHadRateScale
-        if ('node_') in p and (not 'generated' in p): 
-            scale*=2.
+      #  if ('node_') in p and (not 'generated' in p): 
+      #      scale*=2.
         if '2017' in p : outFile.write('%7.1f '%(intL2017*scale))
         else : outFile.write('%7.1f '%(intL*scale))
       #  outFile.write('%7.1f '%(intL*scale))
