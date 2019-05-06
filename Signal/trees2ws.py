@@ -157,6 +157,7 @@ def get_options():
 if opt.nosysts : systematics = ['']
 else : systematics = getSystLabelsWeights()
 mass = opt.mass
+masses = [-5,5.]
 cats = opt.cats.split(',')
 input_files = opt.inp_files.split(',')
 input_names = []
@@ -182,11 +183,25 @@ for num,f in enumerate(input_files):
          if syst!='' : name = input_names[num]+'_'+cat+'_'+syst
          else : name = input_names[num]+'_'+cat
          data = pd.DataFrame(tree2array(tfile.Get("tagsDumper/trees/%s"%name)))
+         if syst!='' : newname = input_names[num]+'_'+mass+'_'+cat+'_'+syst
+         else : newname = input_names[num]+'_'+mass+'_'+cat
  
         # if syst=='' : systematics_datasets += add_dataset_to_workspace( data, ws, name,systematics[1] )  #this should be done for nominal only, to add weights
         # else : systematics_datasets += add_dataset_to_workspace( data, ws, name )
-         systematics_datasets += add_dataset_to_workspace( data, ws, name )
-         print name, " ::: Entries =", ws.data(name).numEntries(), ", SumEntries =", ws.data(name).sumEntries()
+         systematics_datasets += add_dataset_to_workspace( data, ws, newname )
+         #print newname, " ::: Entries =", ws.data(newname).numEntries(), ", SumEntries =", ws.data(newname).sumEntries()
+ 
+         for newmass in masses :
+             value = newmass + int(mass) 
+             if syst!='' : massname = input_names[num]+'_%d_'%value+cat+'_'+syst
+             else : massname = input_names[num]+"_%d_"%value+cat
+             newdataset = (ws.data(newname)).Clone(massname)
+             newdataset.changeObservableName("CMS_hgg_mass","CMS_hgg_mass_old")
+             oldmass = newdataset.get()["CMS_hgg_mass_old"]
+             mass_new = ROOT.RooFormulaVar( "CMS_hgg_mass", "CMS_hgg_mass", "(@0+%.1f)"%float(mass),ROOT.RooArgList(oldmass) );
+             newdataset.addColumn(mass_new).setRange(100,180)
+             getattr(ws, 'import')(newdataset)
+             systematics_datasets += massname
          
    #export ws to file
    f_out = ROOT.TFile.Open("%s/%s.root"%(opt.out_dir,f),"RECREATE")

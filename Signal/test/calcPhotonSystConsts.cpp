@@ -84,7 +84,7 @@ void OptionParser(int argc, char *argv[]){
 		("doPlots,P", po::value<bool>(&doPlots_)->default_value(false),																	"Plot variations")
 		("quadInterpolate",	po::value<int>(&quadInterpolate_)->default_value(0),														"Do a quadratic interpolation from this amount of sigma")
 		("isFlashgg",	po::value<bool>(&isFlashgg_)->default_value(true),														"Use flashgg format")
-		("flashggCats,f", po::value<string>(&flashggCatsStr_)->default_value("UntaggedTag_0,UntaggedTag_1,UntaggedTag_2,UntaggedTag_3,UntaggedTag_4,VBFTag_0,VBFTag_1,VBFTag_2,TTHHadronicTag,TTHLeptonicTag,VHHadronicTag,VHTightTag,VHLooseTag,VHEtTag"),       "Flashgg category names") 
+		("flashggCats,f", po::value<string>(&flashggCatsStr_)->default_value("DoubleHTag_0,DoubleHTag_1,DoubleHTag_2,DoubleHTag_3,DoubleHTag_4,DoubleHTag_5,DoubleHTag_6,DoubleHTag_7,DoubleHTag_8,DoubleHTag_9,DoubleHTag_10,DoubleHTag_11"),       "Flashgg categories if used")
 		("verbosity,v", po::value<int>(&verbosity_)->default_value(0),                                  								"How much info to write (0 none, 1 some)")
 		;                                   
 
@@ -489,7 +489,9 @@ int main(int argc, char *argv[]){
 					vector<TH1F*> hists;
 					if (isFlashgg_){
 						string flashggCat = flashggCats_[cat]; 
-						hists= getHistograms(inFiles,Form("%s_%d_13TeV_%s",proc->c_str(),mh_,flashggCat.c_str()),Form("MCScale%s",phoCat->c_str()));
+					//	hists= getHistograms(inFiles,Form("%s_%d_13TeV_%s",proc->c_str(),mh_,flashggCat.c_str()),Form("MCScale%s",phoCat->c_str()));
+						hists= getHistograms(inFiles,Form("%s_13TeV_%d_%s",proc->c_str(),mh_,flashggCat.c_str()),Form("MCScale%s",phoCat->c_str()));
+					//	hists= getHistograms(inFiles,Form("%s_13TeV_%s",proc->c_str(),flashggCat.c_str()),Form("MCScale%s",phoCat->c_str()));
 					}else{
 						hists= getHistograms(inFiles,Form("th1f_sig_%s_mass_m%d_cat%d",proc->c_str(),mh_,cat),Form("E_scale_%s",phoCat->c_str()));
 					}
@@ -529,7 +531,9 @@ int main(int argc, char *argv[]){
 					vector<TH1F*> hists;
 					if (isFlashgg_){ // Smearing not yet supported for Flashgg
 						string flashggCat = flashggCats_[cat]; 
-						hists= getHistograms(inFiles,Form("%s_%d_13TeV_%s",proc->c_str(),mh_,flashggCat.c_str()),Form("MCSmear%s",phoCat->c_str()));
+				//		hists= getHistograms(inFiles,Form("%s_%d_13TeV_%s",proc->c_str(),mh_,flashggCat.c_str()),Form("MCSmear%s",phoCat->c_str()));
+						hists= getHistograms(inFiles,Form("%s_13TeV_%d_%s",proc->c_str(),mh_,flashggCat.c_str()),Form("MCSmear%s",phoCat->c_str()));
+					//	hists= getHistograms(inFiles,Form("%s_13TeV_%s",proc->c_str(),flashggCat.c_str()),Form("MCSmear%s",phoCat->c_str()));
 					}	 else {
 
 						// this is to ensure nominal comes from the right file
@@ -570,7 +574,9 @@ int main(int argc, char *argv[]){
 				if (photonCatScalesCorrStr_.size()!=0){
 					for (vector<string>::iterator phoCat=photonCatScalesCorr_.begin(); phoCat!=photonCatScalesCorr_.end(); phoCat++){
 						string flashggCat = flashggCats_[cat]; 
-						vector<TH1F*> hists= getHistograms(inFiles,Form("%s_%d_13TeV_%s",proc->c_str(),mh_,flashggCat.c_str()),Form("%s",phoCat->c_str()));
+					//	vector<TH1F*> hists= getHistograms(inFiles,Form("%s_%d_13TeV_%s",proc->c_str(),mh_,flashggCat.c_str()),Form("%s",phoCat->c_str()));
+						vector<TH1F*> hists= getHistograms(inFiles,Form("%s_13TeV_%d_%s",proc->c_str(),mh_,flashggCat.c_str()),Form("%s",phoCat->c_str()));
+					//	vector<TH1F*> hists= getHistograms(inFiles,Form("%s_13TeV_%s",proc->c_str(),flashggCat.c_str()),Form("%s",phoCat->c_str()));
 
 						// this is to ensure nominal comes from the right file
 						TH1F *nominal = hists[0];

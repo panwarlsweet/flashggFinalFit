@@ -236,7 +236,8 @@ void OptionParser(int argc, char *argv[]){
 	if( !(dirnameStr_.empty()) ){
       for (int iname =0 ; iname < filename_.size() ; iname++){
 			for (int mass_num = 0; mass_num < massListVector_.size(); mass_num++) {
-        		dirfilename_.push_back(dirnameStr_+"/"+filename_[iname]+"_"+massListVector_[mass_num]+".root");
+        	//	dirfilename_.push_back(dirnameStr_+"/"+filename_[iname]+"_"+massListVector_[mass_num]+".root");
+        		dirfilename_.push_back(dirnameStr_+"/"+filename_[iname]+".root");
 			}
 	   }
       for (int iname =0 ; iname < dirfilename_.size() ; iname++){
