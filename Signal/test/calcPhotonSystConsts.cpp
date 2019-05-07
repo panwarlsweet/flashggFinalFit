@@ -38,6 +38,7 @@ typedef map<pair<string,int>, std::pair<parlist_t,parlist_t> > parmap_t;
 string infilenamesStr_;
 vector<string> infilenames_;
 string outfilename_;
+string dirnameStr_;
 
 string photonCatScalesStr_;
 vector<string> photonCatScales_;
@@ -76,6 +77,7 @@ void OptionParser(int argc, char *argv[]){
 	general_opts.add_options()
 		("help,h",                                                                                					"Show help")
 		("infilenames,i", po::value<string>(&infilenamesStr_),                                           		"Input file names (comma sep)")
+	   ("indir", po::value<string>(&dirnameStr_),                                           			"Input file dir name")
 		("outfilename,o", po::value<string>(&outfilename_)->default_value("dat/photonCatSyst.dat"), 				"Output file name")
 		("mh,m", po::value<int>(&mh_)->default_value(125),                                  								"Mass point")
 		("sqrtS", po::value<string>(&sqrtS_)->default_value("13"),																								"CoM energy")
@@ -121,6 +123,22 @@ void OptionParser(int argc, char *argv[]){
 	split(photonCatSmearsCorr_,photonCatSmearsCorrStr_,boost::is_any_of(","));
 	split(globalScales_,globalScalesStr_,boost::is_any_of(","));
 	split(globalScalesCorr_,globalScalesCorrStr_,boost::is_any_of(","));
+
+   vector<string> dirfilename_;
+   string fullFilename_ = "";
+	if( !(dirnameStr_.empty()) ){
+      for (int iname =0 ; iname < infilenames_.size() ; iname++){
+        		dirfilename_.push_back(dirnameStr_+"/"+infilenames_[iname]+".root");
+	   }
+      for (int iname =0 ; iname < dirfilename_.size() ; iname++){
+        if (iname<(dirfilename_.size()-1)) fullFilename_=fullFilename_+dirfilename_[iname]+",";
+        if (iname==dirfilename_.size()-1) fullFilename_=fullFilename_+dirfilename_[iname];
+		}
+      infilenamesStr_ = fullFilename_;
+      infilenames_ = dirfilename_;
+	}
+
+
 }
 
 // quadInterpolate function from Nick

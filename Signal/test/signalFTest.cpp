@@ -113,8 +113,8 @@ void OptionParser(int argc, char *argv[]){
         if (iname<(dirfilename_.size()-1)) fullFilename_=fullFilename_+dirfilename_[iname]+",";
         if (iname==dirfilename_.size()-1) fullFilename_=fullFilename_+dirfilename_[iname];
 		}
+	   filename_ = fullFilename_;
 	}
-	filename_ = fullFilename_;
 
 
 
