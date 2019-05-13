@@ -68,9 +68,20 @@ Two short scipts are needed to do this renaming and shifting of the mass : renam
 Options have to be specified when running these scripts, otherwise defults directories and signal names will be used.
 ```
 cd flashggFinalFit/Signal/test/
+python reweightNodes.py
 python renameDatasets.py
 python shiftDatasets.py
 ```
+If you did run the trees in flashgg and now need to convert them to workspaces you need to use the following scipts:
+ ```
+ trees2ws.py
+ trees2ws2.py
+ ```
+ The first one is great for the singleHiggs as the files are small and not reweithing needs to be done.
+ For the nodes it is not that easy, because you need to reweight every benchmark and save one file per benchmark. Thus it is done separately for systematics shapes (saving only needed variables) and for systematics that are saved as weights (saving needed variables + needed weights).After that for the nodes you need to run
+ ```
+ reweightNodes_new.py
+ ```
 Once workspaces are prepared, we can start building a signal model.
 
 First we run *signalFtest* to determine the number of gausians needed to describe signal 
@@ -82,11 +93,11 @@ After the config file is prepared, we can the script to create a Signal and Reso
 
 To make plots of the signal/resonant bkg model script is available : *./bin/makeParametricSignalModelPlots*
 
-To make life easier I have prepared *run.sh* script in Signal folder with the exact commands written.
+To make life easier I have prepared *runSignalScripts_bbgg.sh* script in Signal folder with the exact commands written.
 Folders, names of the files, processes you want to run on have to be modified.
 ```
 cd FlashggFinalFit/Signal/
-source run.sh
+source runSignalScripts_bbgg.sh
 ```
 
 ### Background Model 
