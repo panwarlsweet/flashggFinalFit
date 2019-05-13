@@ -46,7 +46,7 @@ def getSystLabelsWeights(isMET = False):
     systlabels += jetsystlabels
     if isMET:
         systlabels += metsystlabels
-    systlabels=['']
+   # systlabels=['']
 
     #systweights = ["UnmatchedPUWeight", "MvaLinearSyst", "LooseMvaSF", "PreselSF", "electronVetoSF", "TriggerWeight", "FracRVWeight", "FracRVNvtxWeight", "ElectronWeight", "MuonIDWeight", "MuonIsoWeight", "JetBTagCutWeight"] #, "JetBTagReshapeWeight"]
     systweights = ["PreselSF", "electronVetoSF", "TriggerWeight"] 
@@ -123,7 +123,8 @@ def add_dataset_to_workspace(data=None,ws=None,name=None,systematics_labels=[],a
   arg_set = ROOT.RooArgSet(ws.var("weight"))
   variables = ["CMS_hgg_mass","dZ"] #ttHScore
   if add_benchmarks :
-     variables.append("benchmark_reweight_%s"%benchmark_num)
+     for benchmark_num in whichNodes:
+         variables.append("benchmark_reweight_%s"%benchmark_num)
      variables.append("event")
   if systematics_labels!=[] :
     directions = ["Up01sigma", "Down01sigma"]
@@ -131,6 +132,7 @@ def add_dataset_to_workspace(data=None,ws=None,name=None,systematics_labels=[],a
         for ddir in directions:
            variables.append(syst+ddir)
     variables.append('centralObjectWeight')
+  print variables
   for var in variables :
       arg_set.add(ws.var(var))
 
@@ -151,12 +153,12 @@ def add_dataset_to_workspace(data=None,ws=None,name=None,systematics_labels=[],a
 
     w_val = row['weight']
 
-    if add_benchmarks :
-      benchmark_value = row["benchmark_reweight_%s"%benchmark_num]
-      new_weight = benchmark_value / benchmark_norm
-      if row["event"]%2!=0 : 
-          w_val = 0.
-      else : w_val = w_val*new_weight*2. ## because discaring exactly half of events 
+  #  if add_benchmarks :
+  #    benchmark_value = row["benchmark_reweight_%s"%benchmark_num]
+  #    new_weight = benchmark_value / benchmark_norm
+  #    if row["event"]%2!=0 : 
+  #        w_val = 0.
+  #    else : w_val = w_val*new_weight*2. ## because discaring exactly half of events 
 
     roodataset.add( arg_set, w_val )
 
@@ -173,7 +175,7 @@ def get_options():
     #parser.add_option("--inp-files",type='string',dest='inp_files',default='VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8,ttHToGG_M125_13TeV_powheg_pythia8_v2,VBFHToGG_M-125_13TeV_powheg_pythia8,GluGluHToGG_M-125_13TeV_powheg_pythia8,GluGluToHHTo2B2G_node_SM_13TeV-madgraph'),  #2016
     #parser.add_option("--inp-files",type='string',dest='inp_files',default='ttHToGG_M125_13TeV_powheg_pythia8,GluGluHToGG_M-125_13TeV_powheg_pythia8,VBFHToGG_M-125_13TeV_powheg_pythia8,VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8,GluGluToHHTo2B2G_node_SM_13TeV-madgraph'), #2017
     parser.add_option("--inp-dir",type='string',dest="inp_dir",default='/work/nchernya/DiHiggs/inputs/06_05_2019/')
-    parser.add_option("--out-dir",type='string',dest="out_dir",default='/work/nchernya/DiHiggs/inputs/06_05_2019/systematics_nominal/')
+    parser.add_option("--out-dir",type='string',dest="out_dir",default='/work/nchernya/DiHiggs/inputs/06_05_2019/systematics/')
     parser.add_option("--cats",type='string',dest="cats",default='DoubleHTag_0,DoubleHTag_1,DoubleHTag_2,DoubleHTag_3,DoubleHTag_4,DoubleHTag_5,DoubleHTag_6,DoubleHTag_7,DoubleHTag_8,DoubleHTag_9,DoubleHTag_10,DoubleHTag_11')
     parser.add_option("--nosysts",action="store_true", dest="nosysts", default=False)
     parser.add_option("--year",type='string',dest="year",default='2016')
@@ -216,17 +218,20 @@ for num,f in enumerate(input_files):
 
 opt.inp_dir = opt.inp_dir + opt.year + '/'
 
+use_labels = True
 for num,f in enumerate(input_files):
  print 'doing file ',f
  tfile = ROOT.TFile(opt.inp_dir + f+".root")
  if not opt.add_benchmarks : whichNodes = [1]
- for benchmark_num in whichNodes:
+ #for benchmark_num in whichNodes:
+ for benchmark_num in [1]:
    systematics_datasets = [] 
    #define roo fit workspace
    ws = ROOT.RooWorkspace("cms_hgg_13TeV", "cms_hgg_13TeV")
    #Assemble roorealvariable set
-   add_mc_vars_to_workspace( ws,systematics[1] )  # do not add them for the main systematics file
-   #add_mc_vars_to_workspace( ws,add_benchmarks=opt.add_benchmarks)
+   #add_mc_vars_to_workspace( ws,systematics[1] )  # do not add them for the main systematics file
+   #add_mc_vars_to_workspace( ws,systematics[1], add_benchmarks=opt.add_benchmarks)
+   add_mc_vars_to_workspace( ws,add_benchmarks=opt.add_benchmarks)
    for syst in systematics[0] : 
       for cat in cats : 
          print 'doing cat ',cat
@@ -235,13 +240,15 @@ for num,f in enumerate(input_files):
          data = pd.DataFrame(tree2array(tfile.Get("tagsDumper/trees/%s"%name)))
          if syst!='' : 
              newname = target_names[num]+'_'+mass+'_'+cat+'_'+syst
-             if opt.add_benchmarks : newname =  newname.replace('nodesPlusSM','node_%s'%benchmark_num)
+            # if opt.add_benchmarks : newname =  newname.replace('nodesPlusSM','node_%s'%benchmark_num)
          else : 
              newname = target_names[num]+'_'+mass+'_'+cat
-             if opt.add_benchmarks : newname =  newname.replace('nodesPlusSM','node_%s'%benchmark_num)
+            # if opt.add_benchmarks : newname =  newname.replace('nodesPlusSM','node_%s'%benchmark_num)
  
-         if not opt.add_benchmarks : systematics_datasets += add_dataset_to_workspace( data, ws, newname,systematics[1]) #systemaitcs[1] : this should be done for nominal only, to add weights
-         else : systematics_datasets += add_dataset_to_workspace( data, ws, newname,sysematics[1],add_benchmarks=opt.add_benchmarks,benchmark_num=benchmark_num,benchmark_norm = calculate_benchmark_normalization(normalizations,opt.year,benchmark_num))
+         if not opt.add_benchmarks : systematics_datasets += add_dataset_to_workspace( data, ws, newname) #systemaitcs[1] : this should be done for nominal only, to add weights
+         else : systematics_datasets += add_dataset_to_workspace( data, ws, newname,add_benchmarks=opt.add_benchmarks,benchmark_num=benchmark_num,benchmark_norm = calculate_benchmark_normalization(normalizations,opt.year,benchmark_num))
+         #if not opt.add_benchmarks : systematics_datasets += add_dataset_to_workspace( data, ws, newname,systematics[1]) #systemaitcs[1] : this should be done for nominal only, to add weights
+         #else : systematics_datasets += add_dataset_to_workspace( data, ws, newname,systematics[1],add_benchmarks=opt.add_benchmarks,benchmark_num=benchmark_num,benchmark_norm = calculate_benchmark_normalization(normalizations,opt.year,benchmark_num))
          #print newname, " ::: Entries =", ws.data(newname).numEntries(), ", SumEntries =", ws.data(newname).sumEntries()
  
        #  for newmass in masses :
@@ -258,7 +265,8 @@ for num,f in enumerate(input_files):
              systematics_datasets += massname
          
    #export ws to file
-   if not opt.add_benchmarks : 
+  # if not opt.add_benchmarks : 
+   if opt.add_benchmarks : 
       f_out = ROOT.TFile.Open("%s/%s.root"%(opt.out_dir,target_files[num]),"RECREATE")
       dir_ws = f_out.mkdir("tagsDumper")
       dir_ws.cd()

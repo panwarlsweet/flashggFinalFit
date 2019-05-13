@@ -43,11 +43,13 @@ parser.add_option("--outdir", help="Output directory ")
 parser.add_option("--outtag", help="Output tag ")
 parser.add_option("--labels", help="Labels ")
 parser.add_option("--blind", help="Observed is present or not ",default=True)
+parser.add_option("--num-points", help="Which nodes to calculate limit on ",default=14,type=int,dest="num_points")
 
 (options,args)=parser.parse_args()
 outtags = options.outtag.split(',')
 labels = options.labels.split(',')
 indirs = options.indir.split(',')
+num_points = options.num_points
 
 thelabsize = 0.045
 ## make the plot
@@ -161,7 +163,11 @@ pt2.Draw()
 # pt4.Draw()
 agrExp_array=[]
 difference=[]
+difference1s=[]
+difference2s=[]
 values_array = [[],[],[],[]]
+values2s_array = [[],[],[],[]]
+values1s_array = [[],[],[],[]]
 for num,outtag in enumerate(outtags):
 
    values = parseFile('%s/benchmarks_limits_%s.txt'%(indirs[num],outtag))
@@ -169,10 +175,12 @@ for num,outtag in enumerate(outtags):
    agrExp_array.append(TGraphAsymmErrors())
    agrExp = agrExp_array[num]
 
-   for ipt in range(0, 13):  #13 = 12 nodes + 13th SM point
+   for ipt in range(0, num_points):  #13 = 12 nodes + 13th SM point + 14th box
       bn = ipt + 1
       agrExp.SetPoint(agrExp.GetN(),    bn, values[bn][0])
       values_array[num].append(values[bn][0])
+      values2s_array[num].append((values[bn][2]-values[bn][5])/2.)
+      values1s_array[num].append((values[bn][3]-values[bn][4])/2.)
 
    legend.AddEntry(agrExp, "Median expected %s"%labels[num], "p")
 
@@ -200,8 +208,10 @@ for num,outtag in enumerate(outtags):
 
    agrExp.Draw("PSAME")
 
-for point in range(0,13): 
+for point in range(0,num_points): 
    difference.append((values_array[0][point] -values_array[1][point] )/values_array[0][point]  )
+   difference2s.append((values2s_array[0][point] -values2s_array[1][point] )/values2s_array[0][point]  )
+   difference1s.append((values1s_array[0][point] -values1s_array[1][point] )/values1s_array[0][point]  )
 ######################
 
 
@@ -235,8 +245,17 @@ raw_input()
 
 c1.Print('%s/benchmark_plot_%s_combined.pdf'%(options.outdir,options.outtag[0]), 'pdf')
 
-for point in range(0,13): 
+for point in range(0,num_points): 
 	print point+1,'\t',
 print 
-for point in range(0,13): 
+print 'Central'
+for point in range(0,num_points): 
 	print round(difference[point],4),'\t',
+print 
+print '2s'
+for point in range(0,num_points): 
+	print round(difference2s[point],4),'\t',
+print 
+print '1s'
+for point in range(0,num_points): 
+	print round(difference1s[point],4),'\t',

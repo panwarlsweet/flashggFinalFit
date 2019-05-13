@@ -7,18 +7,20 @@ import numpy as np
 
 
 parser = OptionParser(option_list=[
-    make_option("--inp-files",type='string',dest='inp_files',default='output_GluGluToHHTo2B2G_node_SM_13TeV-madgraph'),
+   # make_option("--inp-files",type='string',dest='inp_files',default='output_GluGluToHHTo2B2G_node_SM_13TeV-madgraph'),
    # make_option("--inp-files",type='string',dest='inp_files',default='VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8,ttHToGG_M125_13TeV_powheg_pythia8_v2,VBFHToGG_M-125_13TeV_powheg_pythia8,GluGluHToGG_M-125_13TeV_powheg_pythia8,GluGluToHHTo2B2G_node_SM_13TeV-madgraph,bbHToGG_M-125_4FS_ybyt_13TeV_amcatnlo,bbHToGG_M-125_4FS_yb2_13TeV_amcatnlo,GluGluToHHTo2B2G_node_box_13TeV-madgraph,GluGluToHHTo2B2G_node_2_13TeV-madgraph,GluGluToHHTo2B2G_node_3_13TeV-madgraph,GluGluToHHTo2B2G_node_4_13TeV-madgraph,GluGluToHHTo2B2G_node_5_13TeV-madgraph,GluGluToHHTo2B2G_node_6_13TeV-madgraph,GluGluToHHTo2B2G_node_7_13TeV-madgraph,GluGluToHHTo2B2G_node_8_13TeV-madgraph,GluGluToHHTo2B2G_node_9_13TeV-madgraph,GluGluToHHTo2B2G_node_10_13TeV-madgraph,GluGluToHHTo2B2G_node_11_13TeV-madgraph,GluGluToHHTo2B2G_node_11_13TeV-madgraph,GluGluToHHTo2B2G_node_12_13TeV-madgraph,GluGluToHHTo2B2G_node_13_13TeV-madgraph'),
-   # make_option("--inp-files",type='string',dest='inp_files',default='VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8,ttHToGG_M125_13TeV_powheg_pythia8_v2,VBFHToGG_M-125_13TeV_powheg_pythia8,GluGluHToGG_M-125_13TeV_powheg_pythia8,GluGluToHHTo2B2G_node_SM_13TeV-madgraph_generated'),  #2016
+    #make_option("--inp-files",type='string',dest='inp_files',default='VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8,ttHToGG_M125_13TeV_powheg_pythia8_v2,VBFHToGG_M-125_13TeV_powheg_pythia8,GluGluHToGG_M-125_13TeV_powheg_pythia8,GluGluToHHTo2B2G_node_SM_13TeV-madgraph_generated'),  #2016
+    make_option("--inp-files",type='string',dest='inp_files',default='GluGluToHHTo2B2G_node_SM_13TeV-madgraph'),  #2016
   #  make_option("--inp-files",type='string',dest='inp_files',default='ttHToGG_M125_13TeV_powheg_pythia8,GluGluHToGG_M-125_13TeV_powheg_pythia8,VBFHToGG_M-125_13TeV_powheg_pythia8,VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8,GluGluToHHTo2B2G_node_SM_13TeV-madgraph_generated'), #2017
   #  make_option("--inp-files",type='string',dest='inp_files',default=''),  #nodes
    # make_option("--inp-names",type='string',dest='inp_names',default='GluGluToHHTo2B2G_node_SM_13TeV_madgraph'),
    # make_option("--inp-dir",type='string',dest="inp_dir",default='/afs/cern.ch/work/n/nchernya/ETH/DiHiggs/root_file/13_12_2018/renamed2017/'),
    # make_option("--inp-dir",type='string',dest="inp_dir",default='/afs/cern.ch/work/n/nchernya/ETH/DiHiggs/root_file/13_12_2018/2016/'),
    # make_option("--inp-dir",type='string',dest="inp_dir",default='/work/nchernya/DiHiggs/inputs/03_04_2019/2016/'),
-    #make_option("--inp-dir",type='string',dest="inp_dir",default='/work/nchernya/DiHiggs/inputs/06_05_2019/systematics_nominal/'),
-    make_option("--inp-dir",type='string',dest="inp_dir",default='/work/nchernya/DiHiggs/inputs/06_05_2019/nominal_nodes_half/'),
-    make_option("--out-dir",type='string',dest="out_dir",default='/work/nchernya/DiHiggs/inputs/06_05_2019/'),
+  #  make_option("--inp-dir",type='string',dest="inp_dir",default='/work/nchernya/DiHiggs/inputs/25_04_2019/2016/'),
+  #  make_option("--out-dir",type='string',dest="out_dir",default='/work/nchernya/DiHiggs/inputs/25_04_2019/'),
+    make_option("--inp-dir",type='string',dest="inp_dir",default='/work/nchernya/DiHiggs/inputs/systematics_test_out/'),
+    make_option("--out-dir",type='string',dest="out_dir",default='/work/nchernya/DiHiggs/inputs/systematics_test_out/out/'),
     make_option("--cats",type='string',dest="cats",default='DoubleHTag_0,DoubleHTag_1,DoubleHTag_2,DoubleHTag_3,DoubleHTag_4,DoubleHTag_5,DoubleHTag_6,DoubleHTag_7,DoubleHTag_8,DoubleHTag_9,DoubleHTag_10,DoubleHTag_11'),
     make_option("--year",type='string',dest="year",default='2016'),
 ])
@@ -28,12 +30,12 @@ cats = options.cats.split(',')
 input_files = options.inp_files.split(',')
 
 ###################for nodes only#####################
-input_files=[]
-whichNodes = list(np.arange(0,12,1))
-whichNodes.append('SM')
-whichNodes.append('box')
-for i in whichNodes:
-	input_files.append('GluGluToHHTo2B2G_node_%s_13TeV-madgraph'%i)
+#input_files=[]
+#whichNodes = list(np.arange(0,12,1))
+#whichNodes.append('SM')
+#whichNodes.append('box')
+#for i in whichNodes:
+#	input_files.append('GluGluToHHTo2B2G_node_%s_13TeV-madgraph'%i)
 ######################################################
 
 input_names = []
@@ -58,19 +60,16 @@ for num,f in enumerate(input_files):
 			cat_datasets=[]
 			for cat in cats :
 				print 'doing cat ',cat
-				name = input_names[num]+'_125_'+cat
+				name = input_names[num]+'_'+cat
 				print 'name ',name
-				if value!=125:
-					#dataset = (ws.data(name)).Clone(input_names[num]+"_%d_"%value+cat)
-					dataset = (ws.data(name)).Clone(input_names[num]+"_%d_"%value+cat).reduce(RooArgSet(ws.var("CMS_hgg_mass"),ws.var("dZ"),ws.var("centralObjectWeight")))
-					dataset.Print()
-					dataset.changeObservableName("CMS_hgg_mass","CMS_hgg_mass_old")
-					oldmass = dataset.get()["CMS_hgg_mass_old"]
-					mass_new = RooFormulaVar( "CMS_hgg_mass", "CMS_hgg_mass", "(@0+%.1f)"%mass,RooArgList(oldmass) );
-				#	dataset.SetName(input_names[num]+"_%d_"%value+cat)
-					dataset.addColumn(mass_new).setRange(100,180)
-					dataset.Print()
-				else : dataset = (ws.data(name).reduce(RooArgSet(ws.var("CMS_hgg_mass"),ws.var("dZ"),ws.var("centralObjectWeight"))))
+				dataset = (ws.data(name)).Clone(input_names[num]+"_%d_"%value+cat)
+				dataset.Print()
+				dataset.changeObservableName("CMS_hgg_mass","CMS_hgg_mass_old")
+				oldmass = dataset.get()["CMS_hgg_mass_old"]
+				mass_new = RooFormulaVar( "CMS_hgg_mass", "CMS_hgg_mass", "(@0+%.1f)"%mass,RooArgList(oldmass) );
+			#	dataset.SetName(input_names[num]+"_%d_"%value+cat)
+				dataset.addColumn(mass_new).setRange(100,180)
+				dataset.Print()
 				cat_datasets.append(dataset)
 
 			f_new = options.out_dir + f +"_%d"%value

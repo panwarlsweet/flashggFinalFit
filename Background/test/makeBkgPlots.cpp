@@ -752,7 +752,7 @@ int main(int argc, char* argv[]){
 		("isFlashgg",  po::value<int>(&isFlashgg_)->default_value(1),  								    	        "Use Flashgg output ")
 		("flashggCats,f", po::value<string>(&flashggCatsStr_)->default_value("UntaggedTag_0,UntaggedTag_1,UntaggedTag_2,UntaggedTag_3,VBFTag_0,VBFTag_1,VBFTag_2,TTHHadronicTag,TTHLeptonicTag,VHHadronicTag,VHTightTag,VHLooseTag,VHEtTag"),       "Flashgg category names to consider")
 		("signalName", po::value<string>(&signalNameStr_)->default_value("GluGluToHHTo2B2G_node_SM_13TeV_madgraph_generated,GluGluToHHTo2B2G_node_SM_13TeV_madgraph_generated_2017"),       "Signal Name")
-		("singleHiggsNames", po::value<string>(&singleHiggsNamesStr_)->default_value("GluGluHToGG_M_125_13TeV_powheg_pythia8,VBFHToGG_M_125_13TeV_powheg_pythia8,ttHToGG_M125_13TeV_powheg_pythia8_v2,VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8,GluGluHToGG_M_125_13TeV_powheg_pythia8_2017,VBFHToGG_M_125_13TeV_powheg_pythia8_2017,ttHToGG_M125_13TeV_powheg_pythia8_2017,VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8_2017"),       "Signal Name")
+		("singleHiggsNames", po::value<string>(&singleHiggsNamesStr_)->default_value("ttHToGG_M125_13TeV_powheg_pythia8_v2,GluGluHToGG_M_125_13TeV_powheg_pythia8,VBFHToGG_M_125_13TeV_powheg_pythia8,VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8,GluGluHToGG_M_125_13TeV_powheg_pythia8_2017,VBFHToGG_M_125_13TeV_powheg_pythia8_2017,ttHToGG_M125_13TeV_powheg_pythia8_2017,VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8_2017"),       "Signal Name")
 		("verbose,v", 																																			"Verbose");
 	;
 	po::variables_map vm;
@@ -1077,10 +1077,11 @@ int main(int argc, char* argv[]){
 				MH->setVal(mhvalue_);
 		//		RooAbsPdf *sigPDF = (RooAbsPdf*)w_sig->pdf(Form("sigpdfrel%s_allProcs",catname.c_str()));
 				RooAbsPdf *sigPDF_bbgg = (RooAbsPdf*)w_sig->pdf(Form("extendhggpdfsmrel_13TeV_%s_%s",signalName_[0].c_str(),catname.c_str()));
+				RooAbsPdf *sigPDF_singleHiggs = (RooAbsPdf*)w_sig->pdf(Form("extendhggpdfsmrel_13TeV_%s_%s",singleHiggsNames_[0].c_str(),catname.c_str()));
             double normalization_bbgg = 0.;
 				double normalization_singleHiggs = 0.;
 				double scaleSignal = 10. ; //times to increase and SM xsec BR
-				double scaleSignal_SM = 33.49*0.58*0.00227*2; //times to increase and SM xsec BR
+				double scaleSignal_SM = 31.05*0.5824*0.00227*2; //times to increase and SM xsec BR
 		//		double scaleSignal = 1.; //times to increase and SM xsec BR
 				normalization_bbgg += ((RooAbsReal *)w_sig->function(Form("hggpdfsmrel_13TeV_%s_%s_norm",signalName_[1].c_str(),catname.c_str())))->getVal()*41.5*1000.;
 				std::cout << "Normalization bbgg "<< normalization_bbgg<<std::endl;
@@ -1103,17 +1104,24 @@ int main(int argc, char* argv[]){
 			//	sigPDF->plotOn(plot,Normalization(0.001*lumi->getVal()/*get intlumi (/fb) from ws, and divide by 100 for /pb */,RooAbsReal::RelativeExpected),LineColor(kBlue),LineWidth(3));
 				//sigPDF->plotOn(plot,Normalization(0.001*lumi->getVal(),RooAbsReal::RelativeExpected),LineColor(kBlue),LineWidth(3),FillColor(38),FillStyle(3001),DrawOption("F"));
 
-				sigPDF_bbgg->plotOn(plot,Normalization(normalization_bbgg*scaleSignal*scaleSignal_SM,RooAbsReal::NumEvent),LineColor(kViolet),LineWidth(3));//,AddTo(Form("first_%s",catname.c_str())));
-				 	std::cout << "HERE 1"<< std::endl;
-				sigPDF_bbgg->plotOn(plotLC,Normalization(normalization_bbgg*scaleSignal*scaleSignal_SM,RooAbsReal::NumEvent),LineColor(kViolet),LineWidth(3));
-				 	std::cout << "HERE2" << std::endl;
+				sigPDF_singleHiggs->plotOn(plot,Normalization(normalization_singleHiggs,RooAbsReal::NumEvent),LineColor(kBlue),LineWidth(3));
+				sigPDF_singleHiggs->plotOn(plot,Normalization(normalization_singleHiggs,RooAbsReal::NumEvent),LineColor(kBlue),LineWidth(3),FillColor(38),FillStyle(3001),DrawOption("F"));
+				sigPDF_singleHiggs->plotOn(plotLC,Normalization(normalization_singleHiggs,RooAbsReal::NumEvent),LineColor(kBlue),LineWidth(3));
+				
+				TObject *sigLeg = (TObject*)plot->getObject(plot->numItems()-1);
+				leg->AddEntry(sigLeg,Form("Single Higgs m_{H} = %.1f GeV",MH->getVal()),"L");
 
-		//		TObject *sigLeg = (TObject*)plot->getObject(plot->numItems()-1);
-	//			leg->AddEntry(sigLeg,Form("Single Higgs m_{H}=%.1fGeV",MH->getVal()),"L");
+				sigPDF_bbgg->plotOn(plot,Normalization(normalization_bbgg*scaleSignal*scaleSignal_SM,RooAbsReal::NumEvent),LineColor(kViolet),LineWidth(3));//,AddTo(Form("first_%s",catname.c_str())));
+				sigPDF_bbgg->plotOn(plotLC,Normalization(normalization_bbgg*scaleSignal*scaleSignal_SM,RooAbsReal::NumEvent),LineColor(kViolet),LineWidth(3));
+
+				std::cout << "[INFO] expected number of events in signal PDF " << sigPDF_bbgg->expectedEvents(*MH) << std::endl;	
+				std::cout << "[INFO] expected number of events in single Higgs PDF " << sigPDF_singleHiggs->expectedEvents(*MH) << std::endl;	
 
 		    	TObject *sigLeg_bbgg = (TObject*)plot->getObject(plot->numItems()-1);
 				leg->AddEntry(sigLeg_bbgg,Form("Signal SM x %.0f",scaleSignal),"L");
-//				outWS->import(*sigPDF);
+
+//				outWS->import(*sigPDF);		
+				outWS->import(*sigPDF_singleHiggs);
 				outWS->import(*sigPDF_bbgg);
 			}
 		}

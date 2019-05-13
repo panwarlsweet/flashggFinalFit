@@ -301,11 +301,6 @@ bkgFile = dataFile
 dataWS = 'multipdf'
 bkgWS = 'multipdf'
 #sigFile = 'CMS-HGG_%s_%dTeV_sigfit.root'%(file_ext,sqrts)
-sigFile = 'CMS-HGG_sigfit_%s_$PROC_$CAT.root'%(file_ext)
-sigFile = 'CMS-HGG_sigfit_%s_$PROC.root'%(file_ext)
-sigFile = 'CMS-HGG_sigfit_04_10_2018_deepCSV.root'
-sigFile = 'CMS-HGG_sigfit_30_10_2018_combo.root'
-sigFile = 'CMS-HGG_sigfit_13_12_2018_combo.root'
 sigFile = options.signalFile.split(',')[0]
 sigFiles = options.signalFile.split(',')
 if options.nodesFile=="" : nodesFile = ['',''] 
@@ -748,9 +743,12 @@ def getFlashggLineTheoryEnvelope(proc,cat,name,details):
 ###############################################################################
 # BR uncertainty
 brSyst = [0.0206,-0.0208] #13TeV Values, from YR4 taking  in quadrature THU (+1.73 -1.72), PU(mq) (+0.93,-0.99) , PU(as) (+0.61 -0.62)
+brSyst_bbgg = [0.02404,-0.02417] #13TeV Values, from YR4 taking  in quadrature THU (+1.73 -1.72), PU(mq) (+0.93,-0.99) , PU(as) (+0.61 -0.62)
 # lumi syst
 ####lumiSyst = 0.026 #8TeV Values
 #lumiSyst=0.062  #Correct for ICHEP 
+lumiSyst_2017=0.023  
+lumiSyst_2016=0.025  
 lumiSyst=0.025  #Correct for Moriond17
 
 ##Printing Functions
@@ -763,21 +761,29 @@ def printBRSyst():
       if '%s:%s'%(p,c) in options.toSkip: continue
       if p in bkgProcs:
         outFile.write('- ')
+      elif 'HHTo2B2G' in p:
+        outFile.write('%5.3f/%5.3f '%(1./(1.-brSyst_bbgg[1]),1.+brSyst_bbgg[0]))
       else:
          outFile.write('%5.3f/%5.3f '%(1./(1.-brSyst[1]),1.+brSyst[0]))
   outFile.write('\n')
   outFile.write('\n')
 
-def printLumiSyst():
+def printLumiSyst(year='2016'):
   print '[INFO] Lumi...'
-  outFile.write('%-35s   lnN   '%('lumi_%dTeV'%sqrts))
+  outFile.write('%-35s   lnN   '%('lumi_%dTeV_%s'%(sqrts,year)))
+  if '2017' in year : lumiSyst = lumiSyst_2017
+  if '2016' in year : lumiSyst = lumiSyst_2016
   for c in options.cats:
     for p in options.procs:
       if '%s:%s'%(p,c) in options.toSkip: continue
       if p in bkgProcs:
         outFile.write('- ')
-      else:
+      elif year in p :
         outFile.write('%5.3f '%(1.+lumiSyst))
+      elif year=='2016' and not '2017' in p :
+        outFile.write('%5.3f '%(1.+lumiSyst))
+      else : 
+        outFile.write('- ')
   outFile.write('\n')
   outFile.write('\n')
 
@@ -876,23 +882,27 @@ flashggSysts={}
 vtxSyst = 0.02 #updated for Moriond17
 
 #photon ID
-#flashggSysts['MvaShift'] =  'phoIdMva'
-#flashggSysts['LooseMvaSF'] =  'LooseMvaSF'
-#flashggSysts['PreselSF']    =  'PreselSF'
-#flashggSysts['SigmaEOverEShift'] = 'SigmaEOverEShift'
-#flashggSysts['ElectronWeight'] = 'eff_e'
-#flashggSysts['electronVetoSF'] = 'electronVetoSF'
-#flashggSysts['MuonWeight'] = 'eff_m'
-#flashggSysts['MuonMiniIsoWeight'] = 'eff_m_MiniIso'
-#flashggSysts['TriggerWeight'] = 'TriggerWeight'
-##flashggSysts['JetBTagWeight'] = 'eff_b'
-#flashggSysts['JetBTagCutWeight'] = 'eff_b'
-#flashggSysts['MvaLinearSyst'] = 'MvaLinearSyst'
-#flashggSysts[''] =  ''
-#flashggSysts['metPhoUncertainty'] = 'MET_PhotonScale'
-#flashggSysts['metUncUncertainty'] = 'MET_Unclustered'
-#flashggSysts['metJecUncertainty'] = 'MET_JEC'
-#flashggSysts['metJerUncertainty'] = 'MET_JER'
+##flashggSysts['MvaShift'] =  'phoIdMva'
+##flashggSysts['LooseMvaSF'] =  'LooseMvaSF'
+flashggSysts['PreselSF']    =  'PreselSF'
+flashggSysts['SigmaEOverEShift'] = 'SigmaEOverEShift'
+##flashggSysts['ElectronWeight'] = 'eff_e'
+flashggSysts['electronVetoSF'] = 'electronVetoSF'
+##flashggSysts['MuonWeight'] = 'eff_m'
+##flashggSysts['MuonMiniIsoWeight'] = 'eff_m_MiniIso'
+flashggSysts['TriggerWeight'] = 'TriggerWeight'
+###flashggSysts['JetBTagWeight'] = 'eff_b'
+##flashggSysts['JetBTagCutWeight'] = 'eff_b'
+##flashggSysts['MvaLinearSyst'] = 'MvaLinearSyst'
+##flashggSysts[''] =  ''
+##flashggSysts['metPhoUncertainty'] = 'MET_PhotonScale'
+##flashggSysts['metUncUncertainty'] = 'MET_Unclustered'
+##flashggSysts['metJecUncertainty'] = 'MET_JEC'
+##flashggSysts['metJerUncertainty'] = 'MET_JER'
+flashggSysts['JEC'] = 'JEC' 
+flashggSysts['JER'] = 'JER' 
+#flashggSysts['PUJIDShift'] = 'PUJIDShift' 
+
 
 #new ggH uncert prescription (replaces theory, JetVeto)
 if options.newGghScheme:
@@ -1119,6 +1129,7 @@ def getReweightedDataset(dataNOMINAL,syst):
       w_down = dataNOMINAL.get(i).getRealValue(weight_down.GetName())
       w_up = dataNOMINAL.get(i).getRealValue(weight_up.GetName())
       w_central = dataNOMINAL.get(i).getRealValue(weight_central.GetName())
+      print w_central,syst
       if (w_central==0.) :
         zeroWeightEvents=zeroWeightEvents+1.0
         if (zeroWeightEvents%1==0):
@@ -1176,10 +1187,14 @@ def getFlashggLine(proc,cat,syst):
   asymmetric=False 
   eventweight=False 
   #print "===========> SYST", syst ," PROC ", proc , ", TAG ", cat
-  dataSYMMETRIC =  inWS.data("%s_%d_13TeV_%s_%s"%(flashggProc[proc],options.mass,cat,syst)) #Will exist if the systematic is a symmetric uncertainty not stored as event weights
-  dataDOWN =  inWS.data("%s_%d_13TeV_%s_%sDown01sigma"%(flashggProc[proc],options.mass,cat,syst)) # will exist if teh systematic is an asymetric uncertainty not strore as event weights
-  dataUP =  inWS.data("%s_%d_13TeV_%s_%sUp01sigma"%(flashggProc[proc],options.mass,cat,syst))# will exist if teh systematic is an asymetric uncertainty not strore as event weights
-  dataNOMINAL =  inWS.data("%s_%d_13TeV_%s"%(flashggProc[proc],options.mass,cat)) #Nominal RooDataSet,. May contain required weights if UP/DOWN/SYMMETRIC roodatahists do not exist (ie systematic stored as event weigths)
+  #dataSYMMETRIC =  inWS.data("%s_%d_13TeV_%s_%s"%(flashggProc[proc],options.mass,cat,syst)) #Will exist if the systematic is a symmetric uncertainty not stored as event weights
+  #dataDOWN =  inWS.data("%s_%d_13TeV_%s_%sDown01sigma"%(flashggProc[proc],options.mass,cat,syst)) # will exist if teh systematic is an asymetric uncertainty not strore as event weights
+ # dataUP =  inWS.data("%s_%d_13TeV_%s_%sUp01sigma"%(flashggProc[proc],options.mass,cat,syst))# will exist if teh systematic is an asymetric uncertainty not strore as event weights
+ # dataNOMINAL =  inWS.data("%s_%d_13TeV_%s"%(flashggProc[proc],options.mass,cat)) #Nominal RooDataSet,. May contain required weights if UP/DOWN/SYMMETRIC roodatahists do not exist (ie systematic stored as event weigths)
+  dataSYMMETRIC =  inWS.data("%s_13TeV_%d_%s_%s"%(flashggProc[proc],options.mass,cat,syst)) #Will exist if the systematic is a symmetric uncertainty not stored as event weights
+  dataDOWN =  inWS.data("%s_13TeV_%d_%s_%sDown01sigma"%(flashggProc[proc],options.mass,cat,syst)) # will exist if teh systematic is an asymetric uncertainty not strore as event weights
+  dataUP =  inWS.data("%s_13TeV_%d_%s_%sUp01sigma"%(flashggProc[proc],options.mass,cat,syst))# will exist if teh systematic is an asymetric uncertainty not strore as event weights
+  dataNOMINAL =  inWS.data("%s_13TeV_%d_%s"%(flashggProc[proc],options.mass,cat)) #Nominal RooDataSet,. May contain required weights if UP/DOWN/SYMMETRIC roodatahists do not exist (ie systematic stored as event weigths)
   if (dataSYMMETRIC==None):
     if( (dataUP==None) or  (dataDOWN==None)) :
       print "[INFO] Systematic ", syst," stored as asymmetric event weights in RooDataSet"
@@ -1580,10 +1595,11 @@ if ((options.justThisSyst== "batch_split") or options.justThisSyst==""):
   #obs proc/tag bins
   printObsProcBinLines()
   #nuisance param systematics
-  printNuisParams()
+  #printNuisParams()
   printMultiPdf()
   printBRSyst()
-  printLumiSyst()
+  printLumiSyst(year='2016')
+  printLumiSyst(year='2017')
   #printTrigSyst() # now a weight in the main roodataset!
   printSimpleTTHSysts()
 
@@ -1591,7 +1607,7 @@ if (len(tthCats) > 0 ):  printTTHSysts()
 printTheorySysts()
 # lnN systematics
 printFlashggSysts()
-printUEPSSyst()
+#printUEPSSyst()
 #catgeory migrations
 #if (len(dijetCats) > 0 and len(tthCats)>0):  printVbfSysts()
 if (len(dijetCats) > 0 ):  printVbfSysts()
