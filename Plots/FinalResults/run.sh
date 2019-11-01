@@ -1,8 +1,6 @@
-DATE="06_05_2019"
+DATE="25_10_2019"
 OUTPUTDIR="output/"
-#OUTTAG="_SMgenerated_"$DATE
 SYSTEMATICS="_systematics"
-c="_systematics"
 OUTTAG="_SMgenerated_"${DATE}${SYSTEMATICS}
 DATACARD="Datacards/cms_HHbbgg_datacard_SMgenerated_${DATE}${SYSTEMATICS}.txt"
 
@@ -13,8 +11,8 @@ DATACARD="Datacards/cms_HHbbgg_datacard_SMgenerated_${DATE}${SYSTEMATICS}.txt"
 #fi
 
 #for node in `seq 0 -1`;
-#for node in SM `seq 0 11`;
-for node in SM box `seq 0 11`;
+#for node in SM box `seq 0 11`;
+for node in `seq 8 11`;
 do
    DATACARD="Datacards/cms_HHbbgg_datacard_node${node}_${DATE}${SYSTEMATICS}.txt"
    OUTTAG="_node${node}_${DATE}${SYSTEMATICS}"

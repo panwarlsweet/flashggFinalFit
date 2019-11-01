@@ -125,11 +125,12 @@ parser.add_option("--simplePdfWeights",default=False,action="store_true",help="C
 parser.add_option("--scaleFactors",help="Scale factor for spin model pass as e.g. gg_grav:1.351,qq_grav:1.027")
 parser.add_option("--quadInterpolate",type="int",default=0,help="Do a quadratic interpolation of flashgg templates back to 1 sigma from this sigma. 0 means off (default: %default)")
 parser.add_option("--mass",type="int",default=125,help="Mass at which to calculate the systematic variations (default: %default)")
-parser.add_option("--intLumi",type="float",default=3.71,help="Integrated Lumi (default: %default)")
-parser.add_option("--intLumi2017",type="float",default=41.5,help="Integrated Lumi for 2017 (default: %default)")
+parser.add_option("--intLumi2016",type="float",default=35.91,help="Integrated Lumi (default: %default)")
+parser.add_option("--intLumi2017",type="float",default=41.53,help="Integrated Lumi for 2017 (default: %default)")
+parser.add_option("--intLumi2018",type="float",default=59.35,help="Integrated Lumi for 2018 (default: %default)")
 parser.add_option("--newGghScheme",default=False,action="store_true",help="Use new WG1 scheme for ggH theory uncertainties" )
 parser.add_option("--doSTXS",default=False,action="store_true",help="Use STXS Stage 0 processes" )
-parser.add_option("--signalProc",default='GluGluToHHTo2B2G_node_SM_13TeV_madgraph,GluGluToHHTo2B2G_node_SM_13TeV_madgraph_2017',help="What to consider signal processes" )
+parser.add_option("--signalProc",default='hh_SM_generated_2016,hh_SM_generated_2017,hh_SM_generated_2018',help="What to consider signal processes" )
 (options,args)=parser.parse_args()
 allSystList=[]
 if options.submitSelf :
@@ -147,19 +148,15 @@ outFile = open(options.outfilename,'w')
 ###############################################################################
 ## PROCS HANDLING & DICT ######################################################
 ###############################################################################
-# convert flashgg style to combine style process
-#combProc = {'ggH':'ggH_hgg','VBF':'qqH_hgg','ggh':'ggH_hgg','vbf':'qqH_hgg','wzh':'VH','wh':'WH_hgg','zh':'ZH_hgg','tth':'ttH_hgg','bkg_mass':'bkg_mass','gg_grav':'ggH_hgg_ALT','qq_grav':'qqbarH_ALT'}
-#if options.doSTXS: 
-#  combProc = {'GG2H':'ggH_hgg','VBF':'qqH_hgg','TTH':'ttH_hgg','QQ2HLNU':'WH_lep_hgg','QQ2HLL':'ZH_lep_hgg','WH2HQQ':'WH_had_hgg','ZH2HQQ':'ZH_had_hgg','testBBH':'bbH_hgg','testTHQ':'tHq_hgg','testTHW':'tHW_hgg','bkg_mass':'bkg_mass'}
-#flashggProc = {'ggH_hgg':'ggh','qqH_hgg':'vbf','VH':'wzh','WH_hgg':'wh','ZH_hgg':'zh','ttH_hgg':'tth','bkg_mass':'bkg_mass','ggH_hgg_ALT':'gg_grav','qqbarH_ALT':'qq_grav'}
-#if options.doSTXS: 
-#  flashggProc = {'ggH_hgg':'GG2H','qqH_hgg':'VBF','ttH_hgg':'TTH','WH_lep_hgg':'QQ2HLNU','ZH_lep_hgg':'QQ2HLL','WH_had_hgg':'WH2HQQ','ZH_had_hgg':'ZH2HQQ','bbH_hgg':'testBBH','tHq_hgg':'testTHQ','tHW_hgg':'testTHW','bkg_mass':'bkg_mass'}
-#procId = {'ggH_hgg':0,'qqH_hgg':-1,'ttH_hgg':-2,'WH_lep_hgg':-2,'ZH_lep_hgg':-3,'WH_had_hgg':-4,'ZH_had_hgg':-5,'bbH_hgg':-6,'tHq_hgg':-7,'tHW_hgg':-8,'bkg_mass':1}
-#bkgProcs = ['bkg_mass','bbH_hgg','tHq_hgg','tHW_hgg'] #what to treat as background
 
 combProc = { 'bkg_mass':'bkg_mass'}
-allProcs = ["GluGluToHHTo2B2G_node_SM_13TeV_madgraph","GluGluToHHTo2B2G_node_SM_13TeV_madgraph_generated", "GluGluHToGG_M_125_13TeV_powheg_pythia8", "VBFHToGG_M_125_13TeV_powheg_pythia8","ttHToGG_M125_13TeV_powheg_pythia8_v2","VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8","bbHToGG_M_125_4FS_yb2_13TeV_amcatnlo""bbHToGG_M_125_4FS_ybyt_13TeV_amcatnlo",
-"GluGluToHHTo2B2G_node_SM_13TeV_madgraph_2017","GluGluToHHTo2B2G_node_SM_13TeV_madgraph_generated_2017","GluGluHToGG_M125_13TeV_amcatnloFXFX_pythia8_2017","GluGluHToGG_M_125_13TeV_powheg_pythia8_2017","VBFHToGG_M125_13TeV_amcatnlo_pythia8_2017","VBFHToGG_M_125_13TeV_powheg_pythia8_2017","ttHToGG_M125_13TeV_powheg_pythia8_2017","VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8_2017"]
+allProcsNames = 'hh_SM,hh_SM_generated,ggh,qqh,tth,vh'.split(',')
+allProcs = []
+for name in allProcsNames:
+   allProcs.append(name+'_2016')
+   allProcs.append(name+'_2017')
+   allProcs.append(name+'_2018')
+
 allNodes=[]
 for proc in allProcs:
    combProc[proc] = proc
@@ -167,23 +164,23 @@ whichNodes = list(np.arange(0,12,1))
 whichNodes.append('SM')
 whichNodes.append('box')
 for node in whichNodes:
-   proc = 'GluGluToHHTo2B2G_node_%s_13TeV_madgraph'%node
-   combProc[proc] = proc
-   allNodes.append(proc)
-   allProcs.append(proc)
-   proc = 'GluGluToHHTo2B2G_node_%s_13TeV_madgraph_2017'%node
-   combProc[proc] = proc
-   allProcs.append(proc)
-   allNodes.append(proc)
+   for y in ['2016','2017','2018']:
+     proc = 'hh_node_%s_%s'%(node,y)
+     combProc[proc] = proc
+     allNodes.append(proc)
+     allProcs.append(proc)
 
 	
 flashggProc = combProc
 
-#procId = {'GluGluToHHTo2B2G_node_SM_13TeV_madgraph':0,"GluGluHToGG_M_125_13TeV_powheg_pythia8":2,"VBFHToGG_M_125_13TeV_powheg_pythia8":3,"ttHToGG_M125_13TeV_powheg_pythia8_v2":4,"VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8":5,"bbHToGG_M_125_4FS_yb2_13TeV_amcatnlo":6,"bbHToGG_M_125_4FS_ybyt_13TeV_amcatnlo":7,
-#"GluGluToHHTo2B2G_node_SM_13TeV_madgraph_2017":-1,"GluGluHToGG_M125_13TeV_amcatnloFXFX_pythia8_2017":8,"VBFHToGG_M125_13TeV_amcatnlo_pythia8_2017":9,"ttHToGG_M125_13TeV_powheg_pythia8_2017":10,"VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8_2017":11,
-#'bkg_mass':1}
-procId = {"GluGluHToGG_M_125_13TeV_powheg_pythia8":2,"VBFHToGG_M_125_13TeV_powheg_pythia8":3,"ttHToGG_M125_13TeV_powheg_pythia8_v2":4,"VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8":5,"GluGluHToGG_M125_13TeV_amcatnloFXFX_pythia8_2017":6,"GluGluHToGG_M_125_13TeV_powheg_pythia8_2017":6,"VBFHToGG_M125_13TeV_amcatnlo_pythia8_2017":7,"VBFHToGG_M_125_13TeV_powheg_pythia8_2017":7,"ttHToGG_M125_13TeV_powheg_pythia8_2017":8,"VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8_2017":9,
-'bkg_mass':1}
+procId = {'bkg_mass':1}
+procNum=2
+for y in ['2016','2017','2018']:
+  for proc in allProcsNames:
+    if 'hh' not in proc:
+      procId[proc+'_%s'%y]=procNum
+      procNum+=1 
+
 signalProc = options.signalProc.split(',')
 id_num=0
 for proc in signalProc:
@@ -273,16 +270,16 @@ else: options.globalScalesCorr = options.globalScalesCorr.split(',')
 ###############################################################################
 ## OPEN WORKSPACE AND EXTRACT INFO # ##########################################
 sqrts=13
-print options.infilename
+print 'filename', options.infilename
 inWS = WSTFileWrapper(options.infilename,"tagsDumper/cms_hgg_%sTeV"%sqrts)
 #inWS = inFile.Get('wsig_13TeV')
 #if (inWS==None) : inWS = inFile.Get('tagsDumper/cms_hgg_%sTeV'%sqrts)
 #intL = inWS.var('IntLumi').getVal() #FIXME
 #intL = 2600
-intL = 1000* options.intLumi
+intL2016 = 1000* options.intLumi2016
 intL2017 = 1000* options.intLumi2017
+intL2018 = 1000* options.intLumi2018
 #sqrts = inWS.var('IntLumi').getVal() #FIXME
-print "[INFO] Get Intlumi from file, value : ", intL," pb^{-1}", " sqrts ", sqrts
 ###############################################################################
 
 
@@ -293,9 +290,6 @@ print "[INFO] Get Intlumi from file, value : ", intL," pb^{-1}", " sqrts ", sqrt
 file_ext = 'data'
 dataFile = 'CMS-HGG_%s_%dTeV_multipdf.root'%(file_ext,sqrts)
 bkgFile = 'CMS-HGG_%s_%dTeV_multipdf.root'%(file_ext,sqrts)
-dataFile = 'CMS-HGG_multipdf_HHbbgg_data2016_2017_13_12_2018.root'
-#dataFile = 'CMS-HGG_multipdf_HHbbgg_data2017_only_13_12_2018.root'
-#dataFile = 'CMS-HGG_multipdf_HHbbgg_data2016_only_13_12_2018.root'
 dataFile = options.dataFile
 bkgFile = dataFile 
 dataWS = 'multipdf'
@@ -303,7 +297,7 @@ bkgWS = 'multipdf'
 #sigFile = 'CMS-HGG_%s_%dTeV_sigfit.root'%(file_ext,sqrts)
 sigFile = options.signalFile.split(',')[0]
 sigFiles = options.signalFile.split(',')
-if options.nodesFile=="" : nodesFile = ['',''] 
+if options.nodesFile=="" : nodesFile = ['','',''] 
 else : nodesFile = options.nodesFile.split(',')
 #print "making sigfile " ,sigFile
 sigWS = 'wsig_%dTeV'%(sqrts)
@@ -331,10 +325,12 @@ else:
   fileDetails['qqH_hgg']       = [sigFile.replace('$PROC',"vbf"),sigWS,'hggpdfsmrel_%dTeV_vbf_$CHANNEL'%sqrts]
   fileDetails['ttH_hgg']       = [sigFile.replace('$PROC',"tth"),sigWS,'hggpdfsmrel_%dTeV_tth_$CHANNEL'%sqrts]
   for proc in allProcs:
-      if (proc in allNodes) and ('2017' in proc) : fileDetails[proc] = 	[nodesFile[1],sigWS,'hggpdfsmrel_%dTeV_%s_$CHANNEL'%(sqrts,proc)]
-      elif proc in allNodes : fileDetails[proc] = 	[nodesFile[0],sigWS,'hggpdfsmrel_%dTeV_%s_$CHANNEL'%(sqrts,proc)]
+      if (proc in allNodes) and ('2018' in proc) : fileDetails[proc] = 	[nodesFile[2],sigWS,'hggpdfsmrel_%dTeV_%s_$CHANNEL'%(sqrts,proc)]
+      elif (proc in allNodes) and ('2017' in proc): fileDetails[proc] = 	[nodesFile[1],sigWS,'hggpdfsmrel_%dTeV_%s_$CHANNEL'%(sqrts,proc)]
+      elif (proc in allNodes) and ('2016' in proc): fileDetails[proc] = 	[nodesFile[0],sigWS,'hggpdfsmrel_%dTeV_%s_$CHANNEL'%(sqrts,proc)]
+      elif ('2018' in proc) : fileDetails[proc] = 	[sigFiles[2],sigWS,'hggpdfsmrel_%dTeV_%s_$CHANNEL'%(sqrts,proc)]
       elif ('2017' in proc) : fileDetails[proc] = 	[sigFiles[1],sigWS,'hggpdfsmrel_%dTeV_%s_$CHANNEL'%(sqrts,proc)]
-      else : fileDetails[proc] = 	[sigFiles[0],sigWS,'hggpdfsmrel_%dTeV_%s_$CHANNEL'%(sqrts,proc)]
+      elif ('2016' in proc) : fileDetails[proc] = 	[sigFiles[0],sigWS,'hggpdfsmrel_%dTeV_%s_$CHANNEL'%(sqrts,proc)]
 
   if splitVH:
     fileDetails['WH_hgg']      =  [sigFile.replace('$PROC',"wh"),sigWS,'hggpdfsmrel_%dTeV_wh_$CHANNEL'%sqrts]
@@ -747,6 +743,7 @@ brSyst_bbgg = [0.02404,-0.02417] #13TeV Values, from YR4 taking  in quadrature T
 # lumi syst
 ####lumiSyst = 0.026 #8TeV Values
 #lumiSyst=0.062  #Correct for ICHEP 
+lumiSyst_2018=0.025  
 lumiSyst_2017=0.023  
 lumiSyst_2016=0.025  
 lumiSyst=0.025  #Correct for Moriond17
@@ -761,7 +758,7 @@ def printBRSyst():
       if '%s:%s'%(p,c) in options.toSkip: continue
       if p in bkgProcs:
         outFile.write('- ')
-      elif 'HHTo2B2G' in p:
+      elif 'hh' in p:
         outFile.write('%5.3f/%5.3f '%(1./(1.-brSyst_bbgg[1]),1.+brSyst_bbgg[0]))
       else:
          outFile.write('%5.3f/%5.3f '%(1./(1.-brSyst[1]),1.+brSyst[0]))
@@ -771,6 +768,7 @@ def printBRSyst():
 def printLumiSyst(year='2016'):
   print '[INFO] Lumi...'
   outFile.write('%-35s   lnN   '%('lumi_%dTeV_%s'%(sqrts,year)))
+  if '2018' in year : lumiSyst = lumiSyst_2018
   if '2017' in year : lumiSyst = lumiSyst_2017
   if '2016' in year : lumiSyst = lumiSyst_2016
   for c in options.cats:
@@ -779,8 +777,6 @@ def printLumiSyst(year='2016'):
       if p in bkgProcs:
         outFile.write('- ')
       elif year in p :
-        outFile.write('%5.3f '%(1.+lumiSyst))
-      elif year=='2016' and not '2017' in p :
         outFile.write('%5.3f '%(1.+lumiSyst))
       else : 
         outFile.write('- ')
@@ -816,7 +812,6 @@ def printUEPSSyst():
     uepsFiles['PS'] = options.uepsfilename.split(',UEPS,')[1].split(',')
     print uepsFiles['PS']
     
-   # tpMap = {'GluGluToHHTo2B2G_node_SM_13TeV_madgraph':'GluGluToHHTo2B2G_node_SM_13TeV_madgraph', "GluGluHToGG_M_125_13TeV_powheg_pythia8":"GluGluHToGG_M_125_13TeV_powheg_pythia8","VBFHToGG_M_125_13TeV_powheg_pythia8":"VBFHToGG_M_125_13TeV_powheg_pythia8" ,"VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8":"VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8","bbHToGG_M_125_4FS_yb2_13TeV_amcatnlo":"bbHToGG_M_125_4FS_yb2_13TeV_amcatnlo","bbHToGG_M_125_4FS_ybyt_13TeV_amcatnlo":"bbHToGG_M_125_4FS_ybyt_13TeV_amcatnlo",'GG2H':'ggh','VBF':'vbf','TTH':'tth','QQ2HLNU':'wh','QQ2HLL':'zh','WH2HQQ':'wh','ZH2HQQ':'zh','bkg_mass':'bkg_mass'}
     tpMap =combProc
     
     lines = {}
@@ -884,13 +879,13 @@ vtxSyst = 0.02 #updated for Moriond17
 #photon ID
 ##flashggSysts['MvaShift'] =  'phoIdMva'
 ##flashggSysts['LooseMvaSF'] =  'LooseMvaSF'
-flashggSysts['PreselSF']    =  'PreselSF'
-flashggSysts['SigmaEOverEShift'] = 'SigmaEOverEShift'
+#flashggSysts['PreselSF']    =  'PreselSF'
+#flashggSysts['SigmaEOverEShift'] = 'SigmaEOverEShift'
 ##flashggSysts['ElectronWeight'] = 'eff_e'
-flashggSysts['electronVetoSF'] = 'electronVetoSF'
+#flashggSysts['electronVetoSF'] = 'electronVetoSF'
 ##flashggSysts['MuonWeight'] = 'eff_m'
 ##flashggSysts['MuonMiniIsoWeight'] = 'eff_m_MiniIso'
-flashggSysts['TriggerWeight'] = 'TriggerWeight'
+#flashggSysts['TriggerWeight'] = 'TriggerWeight'
 ###flashggSysts['JetBTagWeight'] = 'eff_b'
 ##flashggSysts['JetBTagCutWeight'] = 'eff_b'
 ##flashggSysts['MvaLinearSyst'] = 'MvaLinearSyst'
@@ -899,8 +894,8 @@ flashggSysts['TriggerWeight'] = 'TriggerWeight'
 ##flashggSysts['metUncUncertainty'] = 'MET_Unclustered'
 ##flashggSysts['metJecUncertainty'] = 'MET_JEC'
 ##flashggSysts['metJerUncertainty'] = 'MET_JER'
-flashggSysts['JEC'] = 'JEC' 
-flashggSysts['JER'] = 'JER' 
+#flashggSysts['JEC'] = 'JEC' 
+#flashggSysts['JER'] = 'JER' 
 #flashggSysts['PUJIDShift'] = 'PUJIDShift' 
 
 
@@ -1097,9 +1092,9 @@ def printObsProcBinLines():
           else: scale *= tthHadRateScale
       #  if ('node_') in p and (not 'generated' in p): 
       #      scale*=2.
+        if '2018' in p : outFile.write('%7.1f '%(intL2018*scale))
         if '2017' in p : outFile.write('%7.1f '%(intL2017*scale))
-        else : outFile.write('%7.1f '%(intL*scale))
-      #  outFile.write('%7.1f '%(intL*scale))
+        if '2016' in p : outFile.write('%7.1f '%(intL2016*scale))
   outFile.write('\n')
   outFile.write('\n')
 ###############################################################################
@@ -1600,6 +1595,7 @@ if ((options.justThisSyst== "batch_split") or options.justThisSyst==""):
   printBRSyst()
   printLumiSyst(year='2016')
   printLumiSyst(year='2017')
+  printLumiSyst(year='2018')
   #printTrigSyst() # now a weight in the main roodataset!
   printSimpleTTHSysts()
 

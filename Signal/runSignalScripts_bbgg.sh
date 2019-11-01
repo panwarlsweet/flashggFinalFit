@@ -1,17 +1,16 @@
 doFTEST=0
-doFIT=0
-doPACKAGER=1
+doFIT=1
+doPACKAGER=0
 doCALCPHOSYST=0
 MASS=''
 
-YEAR=""
-YEAR2="2016"
-#YEAR="_2017"
-#YEAR2="2017"
+#YEAR="2016"
+YEAR="2017"
+#YEAR="2018"
 
-DATE="06_05_2019"
-#EXT="singleHiggs"$YEAR2
-EXT="nodes"$YEAR2
+DATE="25_10_2019"
+#EXT="singleHiggs"$YEAR
+EXT="nodes"$YEAR
 PHOTONSYSTFILE=dat/photonCatSyst.dat # without systematics
 #PHOTONSYSTFILE=dat/photonCatSyst_${EXT}.dat
 
@@ -20,17 +19,18 @@ OUTDIR="output/out_fit_${DATE}_${EXT}"
 if [ $doFTEST -gt 0 ]; then
    OUTDIR="output/out_${DATE}_${EXT}"
    #MASS=_125
-   doFIT=0
+ #  doFIT=0
 fi
 CONFIGDAT="output/out_${DATE}_${EXT}/dat/newConfig_${EXT}.dat"
 #runLocal='--runLocal'
 runLocal=''
 
 BATCH=T3CH
-DEFAULTQUEUE="short.q -l h_vmem=6g"
-CATS="DoubleHTag_0,DoubleHTag_1,DoubleHTag_2,DoubleHTag_3,DoubleHTag_4,DoubleHTag_5,DoubleHTag_6,DoubleHTag_7,DoubleHTag_8,DoubleHTag_9,DoubleHTag_10,DoubleHTag_11"
+DEFAULTQUEUE="short.q -l h_vmem=6g"  #increase memory for systematics -l h_vmem=6g
+#CATS="DoubleHTag_0,DoubleHTag_1,DoubleHTag_2,DoubleHTag_3,DoubleHTag_4,DoubleHTag_5,DoubleHTag_6,DoubleHTag_7,DoubleHTag_8,DoubleHTag_9,DoubleHTag_10,DoubleHTag_11"
+CATS="DoubleHTag_0,DoubleHTag_1,DoubleHTag_3,DoubleHTag_9,DoubleHTag_11"
 REFTAG="DoubleHTag_0"
-INTLUMI=77.4
+INTLUMI=136.8
 
 SCALES="HighR9EE,LowR9EE,HighR9EB,LowR9EB"
 SMEARS="HighR9EERho,LowR9EERho,HighR9EEPhi,LowR9EEPhi,HighR9EBPhi,LowR9EBPhi,HighR9EBRho,LowR9EBRho"
@@ -38,24 +38,22 @@ SCALESCORR="MaterialCentralBarrel,MaterialOuterBarrel,MaterialForward"
 SCALESGLOBAL="NonLinearity,Geant4,LightYield,Absolute"
 
 ##############for tests##############
-#PROCS="GluGluToHHTo2B2G_node_SM_13TeV_madgraph_generated_2017"
-#REFPROC="GluGluToHHTo2B2G_node_SM_13TeV_madgraph_generated_2017"
-#INFILES="output_GluGluToHHTo2B2G_node_SM_13TeV-madgraph_generated_2017$MASS"
+#PROCS="hh_SM_generated_${YEAR}"
+#REFPROC="hh_SM_generated_${YEAR}"
+#INFILES="output_hh_SM_generated_${YEAR}"
 #####################################
 
+#############SINGLE HIGGS ############
+#PROCS="hh_SM_generated_${YEAR},ggh_${YEAR},tth_${YEAR},qqh_${YEAR},vh_${YEAR}"
+#REFPROC="tth_${YEAR}"
+#INFILES="output_hh_SM_generated_${YEAR},output_ggh_${YEAR},output_tth_${YEAR},output_qqh_${YEAR},output_vh_${YEAR}"
 
-##############2016#############
-#PROCS="GluGluToHHTo2B2G_node_SM_13TeV_madgraph_generated,GluGluHToGG_M_125_13TeV_powheg_pythia8,VBFHToGG_M_125_13TeV_powheg_pythia8,ttHToGG_M125_13TeV_powheg_pythia8_v2,VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8"
-#REFPROC="ttHToGG_M125_13TeV_powheg_pythia8_v2"
-#INFILES="output_GluGluToHHTo2B2G_node_SM_13TeV-madgraph_generated$MASS,output_GluGluHToGG_M-125_13TeV_powheg_pythia8$MASS,output_VBFHToGG_M-125_13TeV_powheg_pythia8$MASS,output_ttHToGG_M125_13TeV_powheg_pythia8_v2$MASS,output_VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8$MASS"
-##############2017##############
-#PROCS="GluGluToHHTo2B2G_node_SM_13TeV_madgraph_generated_2017,GluGluHToGG_M_125_13TeV_powheg_pythia8_2017,VBFHToGG_M_125_13TeV_powheg_pythia8_2017,ttHToGG_M125_13TeV_powheg_pythia8_2017,VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8_2017"
-#REFPROC="ttHToGG_M125_13TeV_powheg_pythia8_2017"
-#INFILES="output_GluGluToHHTo2B2G_node_SM_13TeV-madgraph_generated_2017$MASS,output_GluGluHToGG_M-125_13TeV_powheg_pythia8_2017$MASS,output_VBFHToGG_M-125_13TeV_powheg_pythia8_2017$MASS,output_ttHToGG_M125_13TeV_powheg_pythia8_2017$MASS,output_VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8_2017$MASS"
 #############NODES ############
-PROCS="GluGluToHHTo2B2G_node_SM_13TeV_madgraph$YEAR,GluGluToHHTo2B2G_node_box_13TeV_madgraph$YEAR,GluGluToHHTo2B2G_node_0_13TeV_madgraph$YEAR,GluGluToHHTo2B2G_node_1_13TeV_madgraph$YEAR,GluGluToHHTo2B2G_node_2_13TeV_madgraph$YEAR,GluGluToHHTo2B2G_node_3_13TeV_madgraph$YEAR,GluGluToHHTo2B2G_node_4_13TeV_madgraph$YEAR,GluGluToHHTo2B2G_node_5_13TeV_madgraph$YEAR,GluGluToHHTo2B2G_node_6_13TeV_madgraph$YEAR,GluGluToHHTo2B2G_node_7_13TeV_madgraph$YEAR,GluGluToHHTo2B2G_node_8_13TeV_madgraph$YEAR,GluGluToHHTo2B2G_node_9_13TeV_madgraph$YEAR,GluGluToHHTo2B2G_node_10_13TeV_madgraph$YEAR,GluGluToHHTo2B2G_node_11_13TeV_madgraph$YEAR"
-REFPROC="GluGluToHHTo2B2G_node_SM_13TeV_madgraph$YEAR"
-INFILES="output_GluGluToHHTo2B2G_node_SM_13TeV-madgraph$YEAR$MASS,output_GluGluToHHTo2B2G_node_box_13TeV-madgraph$YEAR$MASS,output_GluGluToHHTo2B2G_node_0_13TeV-madgraph$YEAR$MASS,output_GluGluToHHTo2B2G_node_1_13TeV-madgraph$YEAR$MASS,output_GluGluToHHTo2B2G_node_2_13TeV-madgraph$YEAR$MASS,output_GluGluToHHTo2B2G_node_3_13TeV-madgraph$YEAR$MASS,output_GluGluToHHTo2B2G_node_4_13TeV-madgraph$YEAR$MASS,output_GluGluToHHTo2B2G_node_5_13TeV-madgraph$YEAR$MASS,output_GluGluToHHTo2B2G_node_6_13TeV-madgraph$YEAR$MASS,output_GluGluToHHTo2B2G_node_7_13TeV-madgraph$YEAR$MASS,output_GluGluToHHTo2B2G_node_8_13TeV-madgraph$YEAR$MASS,output_GluGluToHHTo2B2G_node_9_13TeV-madgraph$YEAR$MASS,output_GluGluToHHTo2B2G_node_10_13TeV-madgraph$YEAR$MASS,output_GluGluToHHTo2B2G_node_11_13TeV-madgraph$YEAR$MASS"
+REFPROC="hh_node_SM_$YEAR"
+#PROCS="hh_node_SM_$YEAR,hh_node_box_$YEAR,hh_node_0_$YEAR,hh_node_1_$YEAR,hh_node_2_$YEAR,hh_node_3_$YEAR,hh_node_4_$YEAR,hh_node_5_$YEAR,hh_node_6_$YEAR,hh_node_7_$YEAR,hh_node_8_$YEAR,hh_node_9_$YEAR,hh_node_10_$YEAR,hh_node_11_$YEAR"
+#INFILES="output_hh_node_SM_$YEAR,output_hh_node_box_$YEAR,output_hh_node_0_$YEAR,output_hh_node_1_$YEAR,output_hh_node_2_$YEAR,output_hh_node_3_$YEAR,output_hh_node_4_$YEAR,output_hh_node_5_$YEAR,output_hh_node_6_$YEAR,output_hh_node_7_$YEAR,output_hh_node_8_$YEAR,output_hh_node_9_$YEAR,output_hh_node_10_$YEAR,output_hh_node_11_$YEAR"
+PROCS="hh_node_SM_$YEAR,hh_node_4_$YEAR,hh_node_6_$YEAR,hh_node_7_$YEAR,hh_node_9_$YEAR,hh_node_10_$YEAR,hh_node_11_$YEAR"
+INFILES="output_hh_node_SM_$YEAR,output_hh_node_4_$YEAR,output_hh_node_6_$YEAR,output_hh_node_7_$YEAR,output_hh_node_9_$YEAR,output_hh_node_10_$YEAR,output_hh_node_11_$YEAR"
 ################################
 
 
@@ -111,7 +109,7 @@ if [ $doFTEST -gt 0 ]; then
       if (( $FAIL > 0 )) ; then 
           echo "ERROR at least one job failed :"
           ls -l $OUTDIR/fTestJobs/sub* | grep "\.fail"
-          exit 1
+          return 
       fi
       sleep 10
     done
@@ -154,10 +152,10 @@ fi
 
 
 
-################################DO NOT USE PACKAGER . IT IS MESSED UP IN CURRENT MASTER BRANCH############
+################################DO NOT USE PACKAGER FOR THE LIMITS . IT IS MESSED UP IN CURRENT MASTER BRANCH. BUT IT IS STILL CAN BE USED FOR PLOTTING############
 PROC_SM="GluGluToHHTo2B2G_node_SM_13TeV_madgraph$YEAR"
 LUMI=35.9
-if [ $YEAR2 == "2017" ]; then
+if [ $YEAR == "2017" ]; then
 	LUMI=41.5
 fi
 
@@ -168,8 +166,8 @@ if [ $doPACKAGER -gt 0 ]; then
 	#ls $PWD/$OUTDIR/CMS-HGG_sigfit_*.root > out.txt
 	#echo "ls ../Signal/$OUTDIR/CMS-HGG_sigfit_${EXT}_*.root > out.txt"
 	#inputfile="output/out_fit_06_05_2019_nodes2016/SM_node_2016.txt"
-	ls $PWD/$OUTDIR/CMS-HGG_sigfit_${EXT}_GluGluToHHTo2B2G_node_SM_13TeV_madgraph${YEAR}_DoubleHTag_*.root > $OUTDIR/SM_node_$YEAR2.txt
-	inputfile="$OUTDIR/SM_node_$YEAR2.txt"
+	ls $PWD/$OUTDIR/CMS-HGG_sigfit_${EXT}_GluGluToHHTo2B2G_node_SM_13TeV_madgraph${YEAR}_DoubleHTag_*.root > $OUTDIR/SM_node_$YEAR.txt
+	inputfile="$OUTDIR/SM_node_$YEAR.txt"
 	counter=0
 	while read p ; do
 	  if (($counter==0)); then
@@ -184,7 +182,7 @@ fi
 
 #./bin/PackageOutput  --skipMasses 120,130 -i $SIGFILES --procs $PROC_SM -l $LUMI -p $OUTDIR/sigfit -W wsig_13TeV -f $CATS -L 120 -H 130 -o $OUTDIR/CMS-HGG_sigfit_${EXT}_SMonly_${DATE}.root > package.out
 
-./bin/makeParametricSignalModelPlots -i  ${OUTDIR}/CMS-HGG_sigfit_${EXT}_SMonly_${DATE}.root -o $OUTDIR/signalModel -p GluGluToHHTo2B2G_node_SM_13TeV_madgraph$YEAR -f $CATS 
+#./bin/makeParametricSignalModelPlots -i  ${OUTDIR}/CMS-HGG_sigfit_${EXT}_SMonly_${DATE}.root -o $OUTDIR/signalModel -p GluGluToHHTo2B2G_node_SM_13TeV_madgraph$YEAR -f $CATS 
 
 #echo "./bin/PackageOutput -i $SIGFILES --procs $PROCS -l $INTLUMI -p $OUTDIR/sigfit -W wsig_13TeV -f $CATS -L 120 -H 130 -o $OUTDIR/CMS-HGG_sigfit_$EXT.root"
 #./bin/PackageOutput  --skipMasses 120,130 -i $SIGFILES --procs $PROCS -l $INTLUMI -p $OUTDIR/sigfit -W wsig_13TeV -f $CATS -L 120 -H 130 -o $OUTDIR/CMS-HGG_sigfit_${EXT}_test.root > package.out

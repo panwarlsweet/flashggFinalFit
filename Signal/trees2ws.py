@@ -204,7 +204,7 @@ for num,f in enumerate(input_files):
       target_names.append(f +'_generated_%s_13TeV'%year) 
       target_files.append('output_' + f + '_generated_%s'%year )
    else :
-      target_names.append(name +'_%s_13TeV'%year)
+      target_names.append(f +'_%s_13TeV'%year)
       target_files.append('output_' + f +'_%s'%year )
 
 #opt.inp_dir = opt.inp_dir+'/' + year + '/'
@@ -218,8 +218,8 @@ for num,f in enumerate(input_files):
    #define roo fit workspace
    ws = ROOT.RooWorkspace("cms_hgg_13TeV", "cms_hgg_13TeV")
    #Assemble roorealvariable set
-   add_mc_vars_to_workspace( ws,systematics[0] )  # do not add them for the main systematics file
-   #add_mc_vars_to_workspace( ws,add_benchmarks=opt.add_benchmarks)
+   #add_mc_vars_to_workspace( ws,systematics[0] )  # do not add them for the main systematics file
+   add_mc_vars_to_workspace( ws,systematics[0],add_benchmarks=opt.add_benchmarks)
    for syst in [systematics[0]] : 
       for cat in cats : 
          print 'doing cat ',cat
@@ -235,14 +235,18 @@ for num,f in enumerate(input_files):
              if opt.add_benchmarks : newname =  newname.replace('hh','hh_node_%s'%benchmark_num)
  
          if not opt.add_benchmarks : systematics_datasets += add_dataset_to_workspace( data, ws, newname,systematics[0]) #systemaitcs[1] : this should be done for nominal only, to add weights
-         else : systematics_datasets += add_dataset_to_workspace( data, ws, newname,sysematics[1],add_benchmarks=opt.add_benchmarks,benchmark_num=benchmark_num,benchmark_norm = calculate_benchmark_normalization(normalizations,year,benchmark_num))
+         else : systematics_datasets += add_dataset_to_workspace( data, ws, newname,systematics[0],add_benchmarks=opt.add_benchmarks,benchmark_num=benchmark_num,benchmark_norm = calculate_benchmark_normalization(normalizations,year,benchmark_num))
          #print newname, " ::: Entries =", ws.data(newname).numEntries(), ", SumEntries =", ws.data(newname).sumEntries()
  
          for newmass in masses :
        #  for newmass in [] :
              value = newmass + int(mass) 
-             if syst!='' : massname = target_names[num]+'_%d_'%value+cat+'_'+syst
-             else : massname = target_names[num]+"_%d_"%value+cat
+             if syst!='' : 
+               massname = target_names[num]+'_%d_'%value+cat+'_'+syst
+               if opt.add_benchmarks : massname =  massname.replace('hh','hh_node_%s'%benchmark_num)
+             else : 
+               massname = target_names[num]+"_%d_"%value+cat
+               if opt.add_benchmarks : massname =  massname.replace('hh','hh_node_%s'%benchmark_num)
              newdataset = (ws.data(newname)).Clone(massname)
              newdataset.changeObservableName("CMS_hgg_mass","CMS_hgg_mass_old")
              oldmass = newdataset.get()["CMS_hgg_mass_old"]
@@ -252,17 +256,11 @@ for num,f in enumerate(input_files):
              systematics_datasets += massname
          
    #export ws to file
-   if not opt.add_benchmarks : 
-      f_out = ROOT.TFile.Open("%s/%s.root"%(opt.out_dir,target_files[num]),"RECREATE")
-      dir_ws = f_out.mkdir("tagsDumper")
-      dir_ws.cd()
-      ws.Write()
-      f_out.Close()
-   else :  
-      f_new_out = f.replace('hh','node_%s'%benchmark_num).replace('_correctedcfg','')
-      if '2017' in year : f_new_out = f_new_out+'_2017' 
-      f_out = ROOT.TFile.Open("%s/%s.root"%(opt.out_dir,f_new_out),"RECREATE")
-      dir_ws = f_out.mkdir("tagsDumper")
-      dir_ws.cd()
-      ws.Write()
-      f_out.Close()
+   outname = target_files[num]
+   if opt.add_benchmarks : 
+      outname = outname.replace('hh','hh_node_%s'%benchmark_num)
+   f_out = ROOT.TFile.Open("%s/%s.root"%(opt.out_dir,outname),"RECREATE")
+   dir_ws = f_out.mkdir("tagsDumper")
+   dir_ws.cd()
+   ws.Write()
+   f_out.Close()

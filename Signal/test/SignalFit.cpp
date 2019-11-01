@@ -474,10 +474,6 @@ int main(int argc, char *argv[]){
   // reference details for low stats cats
   // need to make this configurable ?! -LC
   //referenceProc_="ggh";
-  referenceProc_="GluGluToHHTo2B2G_node_SM_13TeV_madgraph_2017";
-  referenceProc_="ttHToGG_M125_13TeV_powheg_pythia8_2017";
-  referenceProc_="ttHToGG_M125_13TeV_powheg_pythia8_v2";
-  referenceProc_="GluGluToHHTo2B2G_node_0_13TeV_madgraph";
   referenceProc_=procs_[0] ;
   if( !(optReferenceProc_.empty()) ){
     referenceProc_ = optReferenceProc_;
