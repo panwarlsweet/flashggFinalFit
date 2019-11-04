@@ -21,22 +21,25 @@ int main ()
 {
 //	 float kl = 1.;
 //	 float kt = 1.;
-	 int Nkl=3;
+	 int Nkl=21;
     int Nkt=1;
-	 float klmin=0;
-	 float klmax=2;
+	 float klmin=-10;
+	 float klmax=10;
 	 float ktmin=1;
 	 float ktmax=1;
 	
 	 TString s;
-	 TString year = "2016";
+	 TString year = "2018";
+ //   TString inMapFile   = "HHreweight_2016nodes_18092019.root" ;
+//   TString inMapFile   = "HHreweight_2017nodes_08072019.root" ;
+    TString inMapFile   = "HHreweight_2018nodes_08072019.root" ;
 	 TString addname = "_13TeV_125_13TeV_";
 	 TString processName = "hh";
     TString inputDir = "/work/nchernya/DiHiggs/inputs/25_10_2019/trees/";
+    TString outDir = "kl_kt/";
 	 TString filename = s.Format("output_%s_%s.root",processName.Data(),year.Data()); 
 
     string coeffFile  = "coefficientsByBin_extended_3M_costHHSim_19-4.txt";
-    TString inMapFile   = "HHreweight_2016nodes_18092019.root" ;
     TString inHistoName = "allHHNodeMap2D";
     TFile* fHHDynamicRew = new TFile(inputDir+inMapFile);
     TH2* hhreweighterInputMap =  (TH2*) fHHDynamicRew->Get(inHistoName);
@@ -123,7 +126,7 @@ int main ()
 			std::string output_kt = boost::replace_all_copy(std::to_string(kt), ".", "d");
 			output_kt = boost::replace_all_copy(output_kt, "-", "m");
 			output_kt = boost::replace_all_copy(output_kt, "+", "p");
-			string out_txt = (string)inputDir + "/reweighting_kl_"+output_kl+"_kt_"+output_kt+".txt";
+			string out_txt = (string)inputDir + (string)outDir +"/reweighting_"+(string)year+"_kl_"+output_kl+"_kt_"+output_kt+".txt";
 			//out.open(s.Format("%s/reweighting_kl_%s_kt_%s.txt",inputDir.Data(),output_kl,output_kt));
 			out.open(out_txt);
 
