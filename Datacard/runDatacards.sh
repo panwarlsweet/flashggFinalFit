@@ -28,8 +28,8 @@ SCALESGLOBAL=""
 SMSIGNAL="hh_SM_generated_2016,hh_SM_generated_2017,hh_SM_generated_2018"
 #./makeParametricModelDatacardFLASHgg.py -i $SYSINPUTFILE -s $SIGNALFILE --signalProc $SMSIGNAL -d $DATAFILE -p $PROCS,$SMSIGNAL -c $CATS --photonCatScales $SCALES --photonCatSmears $SMEARS  --globalScales $SCALESGLOBAL --photonCatScalesCorr $SCALESCORR --isMultiPdf --intLumi2016 $INTLUMI2016 --intLumi2017 $INTLUMI2017 --intLumi2018 $INTLUMI2018 -o outputs/cms_HHbbgg_datacard_SMgenerated_${DATE}_systematics.txt
 
-#for node in `seq 0 -1`;
-for node in `seq 0 11` SM box;
+for node in `seq 0 -1`;
+#for node in `seq 0 11` SM box;
 do
    nodename="hh_node_${node}_2016,hh_node_${node}_2017,hh_node_${node}_2018"
    outname="outputs/cms_HHbbgg_datacard_node${node}_${DATE}_systematics.txt"
@@ -37,3 +37,12 @@ do
   ./makeParametricModelDatacardFLASHgg.py -i $SYSINPUTFILE -s $SIGNALFILE --nodesFile $NODESFILE --signalProc $nodename -d $DATAFILE -p $PROCS,$nodename -c $CATS --photonCatScales ../Signal/dat/photonCatSyst.dat --photonCatSmears ../Signal/dat/photonCatSyst.dat --isMultiPdf  -o ${outname} --intLumi2016 $INTLUMI2016 --intLumi2017 $INTLUMI2017 --intLumi2018 $INTLUMI2018
   echo ./makeParametricModelDatacardFLASHgg.py -i $SYSINPUTFILE -s $SIGNALFILE --nodesFile $NODESFILE --signalProc $nodename -d $DATAFILE -p $PROCS,$nodename -c $CATS --photonCatScales ../Signal/dat/photonCatSyst.dat --photonCatSmears ../Signal/dat/photonCatSyst.dat --isMultiPdf  -o ${outname} --intLumi2016 $INTLUMI2016 --intLumi2017 $INTLUMI2017 --intLumi2018 $INTLUMI2018
 done
+
+
+########################kl kt scan##########################
+klkt_dir="/work/nchernya/DiHiggs/inputs/25_10_2019/trees/kl_kt/"
+SMcard="outputs/cms_HHbbgg_datacard_nodeSM_25_10_2019_systematics.txt"
+nodename="hh_node_SM_2016,hh_node_SM_2017,hh_node_SM_2018"
+outname="outputs/tmp.txt"
+SYSINPUTFILE="/work/nchernya/DiHiggs/inputs/${DATE}/output_hh_SM_generated_2016.root" # if no systematics, then whatever file is ok
+./makeParametricModelDatacardFLASHgg.py -i $SYSINPUTFILE -s $SIGNALFILE --nodesFile $NODESFILE --signalProc $nodename -d $DATAFILE -p $PROCS,$nodename -c $CATS --photonCatScales ../Signal/dat/photonCatSyst.dat --photonCatSmears ../Signal/dat/photonCatSyst.dat --isMultiPdf  -o ${outname} --intLumi2016 $INTLUMI2016 --intLumi2017 $INTLUMI2017 --intLumi2018 $INTLUMI2018 --hhReweightDir $klkt_dir --hhReweightSM $SMcard --do_kl_scan 

@@ -8,6 +8,8 @@
 ###############################################################################
 import os,sys,copy,math
 import numpy as np
+import shutil
+import json
 ###############################################################################
 
 ###############################################################################
@@ -131,6 +133,9 @@ parser.add_option("--intLumi2018",type="float",default=59.35,help="Integrated Lu
 parser.add_option("--newGghScheme",default=False,action="store_true",help="Use new WG1 scheme for ggH theory uncertainties" )
 parser.add_option("--doSTXS",default=False,action="store_true",help="Use STXS Stage 0 processes" )
 parser.add_option("--signalProc",default='hh_SM_generated_2016,hh_SM_generated_2017,hh_SM_generated_2018',help="What to consider signal processes" )
+parser.add_option("--hhReweightDir",default='/work/nchernya/DiHiggs/inputs/25_10_2019/trees/kl_kt/',help="hh reweighting directory with all txt files" )
+parser.add_option("--hhReweightSM",default='',help="hh base SM card to start from" )
+parser.add_option("--do_kl_scan",default=False,action="store_true",help="do kl scan?" )
 (options,args)=parser.parse_args()
 allSystList=[]
 if options.submitSelf :
@@ -764,6 +769,39 @@ def printBRSyst():
          outFile.write('%5.3f/%5.3f '%(1./(1.-brSyst[1]),1.+brSyst[0]))
   outFile.write('\n')
   outFile.write('\n')
+
+
+def printReweightingKlKt(years='2016,2017,2018'.split(',')):
+  print '[INFO] kl kt reweighting...'
+  with open(options.hhReweightDir+"config.json","r") as rew_json:
+    rew_dict = json.load(rew_json)
+  for ikl in range(0,rew_dict['Nkl']):
+    kl = rew_dict['klmin'] + ikl*(rew_dict['klmax']-rew_dict['klmin']+1)/rew_dict['Nkl']
+    kl_str = ("{:.6f}".format(kl)).replace('.','d').replace('-','m') 
+    for ikt in range(0,rew_dict['Nkt']):
+      kt = rew_dict['ktmin'] + ikt*(rew_dict['ktmax']-rew_dict['ktmin']+1)/rew_dict['Nkt']
+      kt_str = ("{:.6f}".format(kt)).replace('.','d').replace('-','m') 
+
+      hhcard_name = options.hhReweightSM.replace('.txt','_kl_%s_kt_%s.txt'%(kl_str,kt_str))
+      os.system('cp %s %s'%(options.hhReweightSM,hhcard_name))  
+      outNew = open(hhcard_name,'a')
+      for year in years:
+        rew_values = [] #for 12 cats
+        with open(options.hhReweightDir+"reweighting_%s_kl_%s_kt_%s.txt"%(year,kl_str,kt_str),"r") as rew_values_file:
+          for line in rew_values_file.readlines():
+            rew_values.append(float(line.strip()))
+        for cat_num,c in enumerate(options.cats):
+          for p in options.procs:
+            if '%s:%s'%(p,c) in options.toSkip: continue
+            if (year in p) and (p in signalProc) :
+             outNew.write('%s  rateParam  '%('kl_hh_%dTeV_%s'%(sqrts,year)))
+             outNew.write('%s_13TeV '%(c))
+             outNew.write('%s '%(p))
+             rew = rew_values[cat_num]
+             outNew.write('%.4f '%(rew))
+             outNew.write('\n')
+             outNew.write('nuisance  edit  freeze %s'%('kl_hh_%dTeV_%s'%(sqrts,year)))
+             outNew.write('\n')
 
 def printLumiSyst(year='2016'):
   print '[INFO] Lumi...'
@@ -1584,6 +1622,13 @@ def printMultiPdf():
 
 print "JustThisSyst == " , options.justThisSyst
 if ((options.justThisSyst== "batch_split") or options.justThisSyst==""):
+
+####################################Reweighting kl kt start##################
+  if options.do_kl_scan :
+     printReweightingKlKt(years='2016,2017,2018'.split(','))
+     exit()
+####################################Reweighting kl kt  done##################
+  
   printPreamble()
   #shape systematic files
   printFileOptions()
@@ -1609,6 +1654,7 @@ printFlashggSysts()
 if (len(dijetCats) > 0 ):  printVbfSysts()
 #other 
 #printLepSysts() #obsolete
+
 
 print "################## all sys list #######################"
 print allSystList
