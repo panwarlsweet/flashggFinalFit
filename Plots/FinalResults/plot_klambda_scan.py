@@ -400,7 +400,7 @@ Graph_syst_Scale.SetFillStyle(3001)
 
 
 hframe = ROOT.TH1F('hframe', '', 100, -20, 20)
-hframe.SetMinimum(0.01)
+hframe.SetMinimum(0.0)
 hframe.SetMaximum(3.)
 
 hframe.GetYaxis().SetTitleSize(0.047)

@@ -794,13 +794,14 @@ def printReweightingKlKt(years='2016,2017,2018'.split(',')):
           for p in options.procs:
             if '%s:%s'%(p,c) in options.toSkip: continue
             if (year in p) and (p in signalProc) :
-             outNew.write('%s  rateParam  '%('kl_hh_%dTeV_%s'%(sqrts,year)))
+             rateParamName = 'kl_hh_%dTeV_%s_%s'%(sqrts,c,year)
+             outNew.write('%s  rateParam  '%(rateParamName))
              outNew.write('%s_13TeV '%(c))
              outNew.write('%s '%(p))
              rew = rew_values[cat_num]
              outNew.write('%.4f '%(rew))
              outNew.write('\n')
-             outNew.write('nuisance  edit  freeze %s'%('kl_hh_%dTeV_%s'%(sqrts,year)))
+             outNew.write('nuisance  edit  freeze %s'%(rateParamName))
              outNew.write('\n')
 
 def printLumiSyst(year='2016'):

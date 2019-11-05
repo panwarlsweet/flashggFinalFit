@@ -21,22 +21,22 @@ int main ()
 {
 //	 float kl = 1.;
 //	 float kt = 1.;
-	 int Nkl=21;
+	 int Nkl=2;
     int Nkt=1;
-	 float klmin=-10;
-	 float klmax=10;
+	 float klmin=0;
+	 float klmax=1;
 	 float ktmin=1;
 	 float ktmax=1;
 	
 	 TString s;
-	 TString year = "2018";
- //   TString inMapFile   = "HHreweight_2016nodes_18092019.root" ;
+	 TString year = "2016";
+    TString inMapFile   = "HHreweight_2016nodes_18092019.root" ;
 //   TString inMapFile   = "HHreweight_2017nodes_08072019.root" ;
-    TString inMapFile   = "HHreweight_2018nodes_08072019.root" ;
+//    TString inMapFile   = "HHreweight_2018nodes_08072019.root" ;
 	 TString addname = "_13TeV_125_13TeV_";
 	 TString processName = "hh";
     TString inputDir = "/work/nchernya/DiHiggs/inputs/25_10_2019/trees/";
-    TString outDir = "kl_kt/";
+    TString outDir = "kl_kt_test/";
 	 TString filename = s.Format("output_%s_%s.root",processName.Data(),year.Data()); 
 
     string coeffFile  = "coefficientsByBin_extended_3M_costHHSim_19-4.txt";
@@ -56,9 +56,10 @@ int main ()
 	 }
 	 cats[NGENCATS-1] = "NoTag_0";
 
-	 float  mhh, cosTheta, weight, benchmark_reweight_SM;
+	 float  mhh, cosTheta, weight, benchmark_reweight_SM, benchmark_reweight_box;
   
     TFile* fIn = TFile::Open(inputDir+filename);
+	 TH1F *hMhh_kl10 = new TH1F("hMhh_kl5","hMhh_kl5",100,250,1000);/// only for a test
 	 TDirectory* dirGen1 = fIn->GetDirectory("genDiphotonDumper");
 	 TDirectory* dirGen2 = dirGen1->GetDirectory("trees");
     float sum_gen_w_SM= 0;
@@ -66,6 +67,7 @@ int main ()
 	 for (int cat=0;cat<NGENCATS;cat++){
     	TTree *ch_gen = (TTree*)dirGen2->Get(s.Format("%s%s%s%s",processName.Data(),year.Data(),addname.Data(),cats[cat].Data()));
       ch_gen->SetBranchAddress("benchmark_reweight_SM", &benchmark_reweight_SM);
+      ch_gen->SetBranchAddress("benchmark_reweight_box", &benchmark_reweight_box);
 	   ch_gen->SetBranchAddress("weight", &weight);	
 		ch_gen->SetBranchAddress("absCosThetaStar_CS", &cosTheta);
       ch_gen->SetBranchAddress("mhh", &mhh);
@@ -77,11 +79,14 @@ int main ()
 				float kl = klmin + ikl*(klmax-klmin+1)/Nkl;
 				for(int ikt=0; ikt<Nkt; ++ikt){
 	  				float kt = ktmin + ikt*(ktmax-ktmin+1)/Nkt; 
-					sum_gen_w[ikl+Nkl*ikt] += weight*hhreweighter->getWeight(kl, kt, 0., 0., 0., mhh, cosTheta);	
+					sum_gen_w[ikl+Nkl*ikt] += weight*hhreweighter->getWeight(kl, kt, 0., 0., 0., mhh, cosTheta);
+               if (kl==10.) hMhh_kl10->Fill(mhh,weight*hhreweighter->getWeight(kl, kt, 0., 0., 0., mhh, cosTheta)); // for a test only	
 				}
 			}		
       }
     }
+
+
 
 	 TDirectory* dir1 = fIn->GetDirectory("tagsDumper");
 	 TDirectory* dir2 = dir1->GetDirectory("trees");
@@ -90,6 +95,7 @@ int main ()
 	 for (int cat=0;cat<NCATS;cat++){
 	   TTree *ch_reco = (TTree*)dir2->Get(s.Format("%s%s%s%s",processName.Data(),year.Data(),addname.Data(),cats[cat].Data()));
       ch_reco->SetBranchAddress("benchmark_reweight_SM", &benchmark_reweight_SM);
+      ch_reco->SetBranchAddress("benchmark_reweight_box", &benchmark_reweight_box);
     	ch_reco->SetBranchAddress("weight", &weight);
    	ch_reco->SetBranchAddress("genAbsCosThetaStar_CS", &cosTheta);
     	ch_reco->SetBranchAddress("genMhh", &mhh);
@@ -110,14 +116,16 @@ int main ()
 	//std::map<string, float> dictionary = {0};
 	//dictionary[cats_names[cat]] = reweight_cat[cat];
 	float reweight_cat_SM[NCATS] = {0,0,0,0,0,0,0,0,0,0,0,0};
-	for (int cat=0;cat<NCATS;cat++)
+	for (int cat=0;cat<NCATS;cat++){
 		reweight_cat_SM[cat] = sum_w_cats_SM[cat]/sum_gen_w_SM;
+	}
 
 	for(int ikl=0; ikl<Nkl; ++ikl){
 		float kl = klmin + ikl*(klmax-klmin+1)/Nkl;
 		for(int ikt=0; ikt<Nkt; ++ikt){
 	  		float kt = ktmin + ikt*(ktmax-ktmin+1)/Nkt; 
 	 		float reweight_cat[NCATS] = {0,0,0,0,0,0,0,0,0,0,0,0};
+			cout<<" kl  "<<kl<<endl;
 
 			ofstream out;
 			std::string output_kl = boost::replace_all_copy(std::to_string(kl), ".", "d");
@@ -127,7 +135,6 @@ int main ()
 			output_kt = boost::replace_all_copy(output_kt, "-", "m");
 			output_kt = boost::replace_all_copy(output_kt, "+", "p");
 			string out_txt = (string)inputDir + (string)outDir +"/reweighting_"+(string)year+"_kl_"+output_kl+"_kt_"+output_kt+".txt";
-			//out.open(s.Format("%s/reweighting_kl_%s_kt_%s.txt",inputDir.Data(),output_kl,output_kt));
 			out.open(out_txt);
 
 	 		for (int cat=0;cat<NCATS;cat++){
@@ -137,8 +144,15 @@ int main ()
 				out<<reweight_cat[cat]<<endl;
 	 		}
 		}
-
 	}
+/*
+	string outroot_txt = (string)inputDir + (string)outDir +"/reweighting_root_"+(string)year+"_kl_5.root";
+	TFile *file = new TFile("output.root","NEW");
+	hMhh_kl10->Draw();
+	hMhh_kl10->Write();
+	file->Write();
+	file->Close();
+*/
 	fIn->Close();
 }
 
