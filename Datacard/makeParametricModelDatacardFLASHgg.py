@@ -776,10 +776,10 @@ def printReweightingKlKt(years='2016,2017,2018'.split(',')):
   with open(options.hhReweightDir+"config.json","r") as rew_json:
     rew_dict = json.load(rew_json)
   for ikl in range(0,rew_dict['Nkl']):
-    kl = rew_dict['klmin'] + ikl*(rew_dict['klmax']-rew_dict['klmin']+1)/rew_dict['Nkl']
+    kl = rew_dict['klmin'] + ikl*rew_dict['klstep']
     kl_str = ("{:.6f}".format(kl)).replace('.','d').replace('-','m') 
     for ikt in range(0,rew_dict['Nkt']):
-      kt = rew_dict['ktmin'] + ikt*(rew_dict['ktmax']-rew_dict['ktmin']+1)/rew_dict['Nkt']
+      kt = rew_dict['ktmin'] + ikt*rew_dict['ktstep']
       kt_str = ("{:.6f}".format(kt)).replace('.','d').replace('-','m') 
 
       hhcard_name = options.hhReweightSM.replace('.txt','_kl_%s_kt_%s.txt'%(kl_str,kt_str))

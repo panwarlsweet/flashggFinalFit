@@ -56,7 +56,7 @@ class Parallel:
 
 parser = OptionParser()
 parser.add_option("-d","--datfile",help="Pick up running options from datfile")
-parser.add_option("--hhReweightDir",default='/work/nchernya/DiHiggs/inputs/25_10_2019/trees/kl_kt/',help="hh reweighting directory with all txt files" )
+parser.add_option("--hhReweightDir",default='/work/nchernya/DiHiggs/inputs/25_10_2019/trees/kl_kt_finebinning/',help="hh reweighting directory with all txt files" )
 parser.add_option("-q","--queue",default='short.q',help="Which batch queue")
 parser.add_option("--dryRun",default=False,action="store_true",help="Dont submit")
 parser.add_option("--parallel",default=False,action="store_true",help="Run local fits in multithreading")
@@ -162,10 +162,10 @@ counter=0
 with open(opts.hhReweightDir+"config.json","r") as rew_json:
   rew_dict = json.load(rew_json)
 for ikl in range(0,rew_dict['Nkl']):
-  kl = rew_dict['klmin'] + ikl*(rew_dict['klmax']-rew_dict['klmin']+1)/rew_dict['Nkl']
+  kl = rew_dict['klmin'] + ikl*rew_dict['klstep']
   kl_str = ("{:.6f}".format(kl)).replace('.','d').replace('-','m') 
   for ikt in range(0,rew_dict['Nkt']):
-    kt = rew_dict['ktmin'] + ikt*(rew_dict['ktmax']-rew_dict['ktmin']+1)/rew_dict['Nkt']
+    kt = rew_dict['ktmin'] + ikt*rew_dict['ktstep']
     kt_str = ("{:.6f}".format(kt)).replace('.','d').replace('-','m') 
     hhcard_name = opts.datacard.replace('.txt','_kl_%s_kt_%s.txt'%(kl_str,kt_str))
     outtag = '_kl_%s_kt_%s'%(kl_str,kt_str)
