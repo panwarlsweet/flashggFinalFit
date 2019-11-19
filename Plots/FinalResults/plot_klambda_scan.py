@@ -81,7 +81,7 @@ parser.add_option("--hhReweightDir",default='/work/nchernya/DiHiggs/inputs/25_10
 parser.add_option("--indir", help="Input directory ")
 parser.add_option("--outdir", help="Output directory ")
 parser.add_option("--outtag", help="Output tag ")
-parser.add_option("--blind", action="store_false",help="Observed is present or not ",default=True)
+parser.add_option("--unblind", action="store_true",help="Observed is present or not ",default=True)
 (options,args)=parser.parse_args()
 ###########
 ###CREATE TAGS
@@ -123,7 +123,7 @@ for ikl in range(0,rew_dict['Nkl']):
 
 		fname = options.indir + '/' + 'higgsCombine_kl_%s_kt_%s.Asymptotic.mH125.root'%(kl_str,kt_str)
 		vals  = getVals(fname)
-		if options.blind : obs   = scaleToXS*0.0 ## FIXME
+		if not options.unblind : obs   = scaleToXS*0.0 ## FIXME
 		else : obs   = scaleToXS*vals[5][1] ## ??? which one
 		m2s_t = scaleToXS*vals[0][1]
 		m1s_t = scaleToXS*vals[1][1]
@@ -255,7 +255,7 @@ legend.SetFillColor(ROOT.kWhite)
 legend.SetBorderSize(0)
 # legend
 legend.SetHeader('95% CL upper limits')
-if not options.blind : legend.AddEntry(grobs,"Observed","l")
+if options.unblind : legend.AddEntry(grobs,"Observed","l")
 legend.AddEntry(grexp, "Median expected", "l")
 legend.AddEntry(gr1sigma, "68% expected", "f")
 legend.AddEntry(gr2sigma, "95% expected", "f")

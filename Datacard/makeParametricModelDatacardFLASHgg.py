@@ -136,6 +136,8 @@ parser.add_option("--signalProc",default='hh_SM_generated_2016,hh_SM_generated_2
 parser.add_option("--hhReweightDir",default='/work/nchernya/DiHiggs/inputs/25_10_2019/trees/kl_kt/',help="hh reweighting directory with all txt files" )
 parser.add_option("--hhReweightSM",default='',help="hh base SM card to start from" )
 parser.add_option("--do_kl_scan",default=False,action="store_true",help="do kl scan?" )
+parser.add_option("--do_kl_likelihood",default=False,action="store_true",help="prepare datacard for kl likelihood" )
+parser.add_option("--kl_fit_params",default='/work/nchernya/DiHiggs/CMSSW_7_4_7/src/flashggFinalFit/Plots/FinalResults/plots/yeilds_ratio_kl_25_10_2019_finekl_fitparams.json',help="rateParam as a function of kl parametrization" )
 (options,args)=parser.parse_args()
 allSystList=[]
 if options.submitSelf :
@@ -769,6 +771,33 @@ def printBRSyst():
          outFile.write('%5.3f/%5.3f '%(1./(1.-brSyst[1]),1.+brSyst[0]))
   outFile.write('\n')
   outFile.write('\n')
+
+
+def printKlLikelihood(years='2016,2017,2018'.split(',')):
+  print '[INFO] kl likelihood ..'
+  with open(options.kl_fit_params,"r") as fit_json:
+    fit_dict = json.load(fit_json)
+
+  hhcard_name = options.hhReweightSM.replace('.txt','_kl_likelihood.txt')
+  os.system('cp %s %s'%(options.hhReweightSM,hhcard_name))  
+  outNew = open(hhcard_name,'a')
+  outNew.write('kl extArg 1.0 [-20.0,20.0]\n')
+  for cat_num,c in enumerate(options.cats):
+     for ipar in range(0,3):
+        outNew.write('param%d_%s extArg %.4f\n'%(ipar,c,fit_dict[c]['p%d'%ipar]))
+     rateParamName = 'kl_hh_%dTeV_%s'%(sqrts,c)
+     outNew.write('%s  rateParam  '%(rateParamName))
+     outNew.write('%s_13TeV '%(c))
+     outNew.write('hh_* ')
+     outNew.write('(@1*@0*@0+@2*@0+@3) kl')
+     for ipar in range(0,3):
+        outNew.write(',')
+        outNew.write('param%d_%s'%(ipar,c))
+     outNew.write('\n')
+     #for ipar in range(0,3):
+     #   outNew.write('nuisance  edit  freeze param%d_%s\n'%(ipar,c))
+  
+
 
 
 def printReweightingKlKt(years='2016,2017,2018'.split(',')):
@@ -1629,6 +1658,11 @@ if ((options.justThisSyst== "batch_split") or options.justThisSyst==""):
      printReweightingKlKt(years='2016,2017,2018'.split(','))
      exit()
 ####################################Reweighting kl kt  done##################
+####################################kl likelihood start ##################
+  if options.do_kl_likelihood :
+     printKlLikelihood(years='2016,2017,2018'.split(','))
+     exit()
+####################################kl likelihood done ##################
   
   printPreamble()
   #shape systematic files

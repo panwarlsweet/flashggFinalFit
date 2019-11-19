@@ -56,7 +56,10 @@ class Parallel:
 
 parser = OptionParser()
 parser.add_option("-d","--datfile",help="Pick up running options from datfile")
+parser.add_option("--freeze_kl_fit_params",default = "--freezeNuisances param0_DoubleHTag_0,param1_DoubleHTag_0,param2_DoubleHTag_0,param0_DoubleHTag_1,param1_DoubleHTag_1,param2_DoubleHTag_1,param0_DoubleHTag_2,param1_DoubleHTag_2,param2_DoubleHTag_2,param0_DoubleHTag_3,param1_DoubleHTag_3,param2_DoubleHTag_3,param0_DoubleHTag_4,param1_DoubleHTag_4,param2_DoubleHTag_4,param0_DoubleHTag_5,param1_DoubleHTag_5,param2_DoubleHTag_5,param0_DoubleHTag_6,param1_DoubleHTag_6,param2_DoubleHTag_6,param0_DoubleHTag_7,param1_DoubleHTag_7,param2_DoubleHTag_7,param0_DoubleHTag_8,param1_DoubleHTag_8,param2_DoubleHTag_8,param0_DoubleHTag_9,param1_DoubleHTag_9,param2_DoubleHTag_9,param0_DoubleHTag_10,param1_DoubleHTag_10,param2_DoubleHTag_10,param0_DoubleHTag_11,param1_DoubleHTag_11,param2_DoubleHTag_11")
 parser.add_option("--hhReweightDir",default='/work/nchernya/DiHiggs/inputs/25_10_2019/trees/kl_kt_finebinning/',help="hh reweighting directory with all txt files" )
+parser.add_option("--do_kl_scan",default=False,action="store_true",help="do kl scan?" )
+parser.add_option("--do_kl_likelihood",default=False,action="store_true",help="prepare datacard for kl likelihood" )
 parser.add_option("-q","--queue",default='short.q',help="Which batch queue")
 parser.add_option("--dryRun",default=False,action="store_true",help="Dont submit")
 parser.add_option("--parallel",default=False,action="store_true",help="Run local fits in multithreading")
@@ -79,12 +82,15 @@ specOpts.add_option("--justThisSyst",default=None)
 specOpts.add_option("--method",default=None)
 specOpts.add_option("--label",default=None)
 specOpts.add_option("--expected",type="int",default=1)
+specOpts.add_option("--toysFile",default="/output/Limits_25_10_2019_kllikelihood_fixed/higgsCombineSM_AsimovToy_fixed.GenerateOnly.mH120.25_10_2019.root")
 specOpts.add_option("--mh",type="float",default=None)
 specOpts.add_option("--expectSignal",type="float",default=None)
+specOpts.add_option("--jobs",type="int",default=None)
+specOpts.add_option("--pointsperjob",type="int",default=1)
 parser.add_option_group(specOpts)
 (opts,args) = parser.parse_args()
 
-allowedMethods = ['Asymptotic']
+allowedMethods = ['Asymptotic','MultiDimFit']
 
 defaults = copy(opts)
 print "INFO - queue ", opts.queue
@@ -147,7 +153,7 @@ def writePostamble(sub_file, exec_line,outtag):
 
 def writeAsymptotic(jobid,card,outtag):
     print '[INFO] Writing Asymptotic'
-    file = open('%s/sub_job%d.sh'%(opts.outDir,jobid),'w')
+    file = open('%s/Jobs/sub_job%d.sh'%(opts.outDir,jobid),'w')
     writePreamble(file)
     exec_line = ''
     exec_line +=  'combine %s/%s -n %s -M Asymptotic -m 125.00 --cminDefaultMinimizerType=Minuit2 -L $CMSSW_BASE/lib/$SCRAM_ARCH/libHiggsAnalysisGBRLikelihood.so  --rRelAcc 0.001 '%(os.getcwd(),card,outtag)
@@ -156,19 +162,45 @@ def writeAsymptotic(jobid,card,outtag):
     writePostamble(file,exec_line,outtag)
 
 
+
+def writeMultiDimFit(card,outtag=""):
+    print "[INFO] writing multidim fit"
+    for i in range(opts.jobs):
+       file = open('%s/Jobs/sub_job_kl_%d.sh'%(opts.outDir,i),'w')
+       writePreamble(file)
+       exec_line = ''
+       exec_line += 'combine %s/%s -M MultiDimFit --algo grid --points %s -P kl --floatOtherPOIs 0 --setPhysicsModelParameterRanges kl=-10,15 --setPhysicsModelParameters r=1 --firstPoint=%d --lastPoint=%d -n MultiDimJob%d -L $CMSSW_BASE/lib/$SCRAM_ARCH/libHiggsAnalysisGBRLikelihood.so %s '%(os.getcwd(),card,opts.pointsperjob*opts.jobs,i*opts.pointsperjob,(i+1)*opts.pointsperjob-1,i,opts.freeze_kl_fit_params)
+       if opts.S0: exec_line += ' -s 0 '
+       if opts.expected: exec_line += ' -t -1 --toysFile %s'%opts.toysFile
+       writePostamble(file,exec_line,"MultiDimJob%d"%i)
+
+
+
+
+def checkValidMethod():
+  print "[INFO] checking valid methods"
+  if opts.method not in allowedMethods: sys.exit('%s is not a valid method'%opts.method)
+
+
 #######################################
+checkValidMethod()
 system('mkdir -p %s/Jobs/'%opts.outDir)
-counter=0
-with open(opts.hhReweightDir+"config.json","r") as rew_json:
-  rew_dict = json.load(rew_json)
-for ikl in range(0,rew_dict['Nkl']):
-  kl = rew_dict['klmin'] + ikl*rew_dict['klstep']
-  kl_str = ("{:.6f}".format(kl)).replace('.','d').replace('-','m') 
-  for ikt in range(0,rew_dict['Nkt']):
-    kt = rew_dict['ktmin'] + ikt*rew_dict['ktstep']
-    kt_str = ("{:.6f}".format(kt)).replace('.','d').replace('-','m') 
-    hhcard_name = opts.datacard.replace('.txt','_kl_%s_kt_%s.txt'%(kl_str,kt_str))
-    outtag = '_kl_%s_kt_%s'%(kl_str,kt_str)
-    print "job ", counter , " , kl =  ", kl, " ,kt =  ", kt, '  outtag = ',outtag
-    writeAsymptotic(counter,hhcard_name,outtag)
-    counter =  counter+1
+if opts.do_kl_scan:
+  counter=0
+  with open(opts.hhReweightDir+"config.json","r") as rew_json:
+    rew_dict = json.load(rew_json)
+  for ikl in range(0,rew_dict['Nkl']):
+    kl = rew_dict['klmin'] + ikl*rew_dict['klstep']
+    kl_str = ("{:.6f}".format(kl)).replace('.','d').replace('-','m') 
+    for ikt in range(0,rew_dict['Nkt']):
+      kt = rew_dict['ktmin'] + ikt*rew_dict['ktstep']
+      kt_str = ("{:.6f}".format(kt)).replace('.','d').replace('-','m') 
+      hhcard_name = opts.datacard.replace('.txt','_kl_%s_kt_%s.txt'%(kl_str,kt_str))
+      outtag = '_kl_%s_kt_%s'%(kl_str,kt_str)
+      print "job ", counter , " , kl =  ", kl, " ,kt =  ", kt, '  outtag = ',outtag
+      writeAsymptotic(counter,hhcard_name,outtag)
+      counter =  counter+1
+elif opts.do_kl_likelihood:
+    hhcard_name = opts.datacard.replace('.txt','_kl_likelihood_fixed.txt')
+    writeMultiDimFit(hhcard_name)
+
