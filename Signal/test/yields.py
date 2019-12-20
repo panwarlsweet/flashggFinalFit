@@ -13,14 +13,14 @@ date = '25_10_2019'
 #filename_bkg = '/work/nchernya/DiHiggs/CMSSW_7_4_7/src/flashggFinalFit/Background/outputs/CMS-HGG_multipdf_HHbbgg_2016_2017_%s.root'%date
 
 #filename = '/work/nchernya/DiHiggs/CMSSW_7_4_7/src/flashggFinalFit/Signal/output/CMS-HGG_sigfit_all2016_2017_2018_%s.root'%date
-filename = '/work/nchernya/DiHiggs/CMSSW_7_4_7/src/flashggFinalFit/Signal/output/CMS-HGG_sigfit_allAndNodes2016_2017_2018_25_10_2019.root'
+filename = '/work/nchernya/DiHiggs/CMSSW_7_4_7/src/flashggFinalFit/Signal/output/CMS-HGG_sigfit_2016_2017_2018_25_10_2019.root' #CMS-HGG_sigfit_allAndNodes2016_2017_2018_25_10_2019.root'
 #filename = '/work/nchernya/DiHiggs/CMSSW_7_4_7/src/flashggFinalFit/Plots/FinalResults/inputs/CMS-HGG_sigfit_nodes2018_25_10_2019.root'
 filename_bkg = '/work/nchernya/DiHiggs/CMSSW_7_4_7/src/flashggFinalFit/Background/outputs/CMS-HGG_multipdf_HHbbgg_2016_2017_2018_%s.root'%date
 wsname = 'wsig_13TeV'
 wsname_bkg = 'multipdf'
 
-symbol = ''  #for keynote
-#symbol = '&'  #for latex
+#symbol = ''  #for keynote
+symbol = '&'  #for latex
 
 num_cat = 12
 lumi_2016=35.9*1000
@@ -28,7 +28,8 @@ lumi_2017=41.5*1000
 lumi_2018=59.5*1000
 SMsignal=31.05*0.58*0.00227*2  #new most updated x-sec
 
-names="hh_SM_generated_2016,tth_2016,ggh_2016,qqh_2016,vh_2016,hh_SM_generated_2017,tth_2017,ggh_2017,qqh_2017,vh_2017,hh_SM_generated_2018,tth_2018,ggh_2018,qqh_2018,vh_2018".split(',')
+#names="hh_SM_generated_2016,tth_2016,ggh_2016,qqh_2016,vh_2016,hh_SM_generated_2017,tth_2017,ggh_2017,qqh_2017,vh_2017,hh_SM_generated_2018,tth_2018,ggh_2018,qqh_2018,vh_2018".split(',')
+names="hh_node_SM_2016,tth_2016,ggh_2016,qqh_2016,vh_2016,hh_node_SM_2017,tth_2017,ggh_2017,qqh_2017,vh_2017,hh_node_SM_2018,tth_2018,ggh_2018,qqh_2018,vh_2018".split(',')
 #names="hh_node_SM_2016,hh_node_box_2016,hh_node_SM_2017,hh_node_box_2017,hh_node_SM_2018,hh_node_box_2018".split(',')
 #names="hh_node_SM_2018,hh_node_box_2018".split(',')
 
@@ -62,19 +63,24 @@ for name in names:
 		entries_per_cat[name].append(count)
 	#	print '%.2f\t'%(count),
 		print '%.4f\t'%(count),'%s'%symbol,
-	print '%.2f'%sum
+	if symbol=='&' : 
+	  print '%.2f \\\\'%sum
+	else : print '%.2f'%sum
 
 
 
 filename_bkg_2016 = '/work/nchernya/DiHiggs/inputs/%s/output_DoubleEG_2016_%s.root'%(date,date)
 filename_bkg_2017 = '/work/nchernya/DiHiggs/inputs/%s/output_DoubleEG_2017_%s.root'%(date,date)
+filename_bkg_2018 = '/work/nchernya/DiHiggs/inputs/%s/output_DoubleEG_2018_%s.root'%(date,date)
 filename_bkg_total = '/work/nchernya/DiHiggs/inputs/%s/output_DoubleEG_2016_2017_2018_%s.root'%(date,date)
 #filename_bkg_total = '/work/nchernya/DiHiggs/inputs/%s/output_DoubleEG_2016_2017_%s.root'%(date,date)
-#years=['2016','2017','Total']
-years=['Total']
+years=['2016','2017','Total']
+#years=['2016']
+#years=['Total']
 print 'Data with blinded 115 < Mgg < 135'
-#for num,name in enumerate([filename_bkg_2016,filename_bkg_2017,filename_bkg_total]):
-for num,name in enumerate([filename_bkg_total]):
+for num,name in enumerate([filename_bkg_2016,filename_bkg_2017,filename_bkg_2018,filename_bkg_total]):
+#for num,name in enumerate([filename_bkg_2016]):
+#for num,name in enumerate([filename_bkg_total]):
 	tfile = TFile(name)
 	wsname_bkg = 'tagsDumper/cms_hgg_13TeV'
 	ws_bkg = tfile.Get(wsname_bkg)
@@ -93,9 +99,11 @@ for num,name in enumerate([filename_bkg_total]):
 	#	print '%d\t'%(entries),'&',
 		print '%d\t'%(entries_blinded),'%s'%symbol,
 		entries_per_cat['Data'+years[num]].append(entries_blinded)
-	print '%d\t'%(sum_bkg)
+	if symbol=='&' : 
+	  print '%d\t \\\\'%(sum_bkg)
+	else : print '%d\t'%(sum_bkg)
 
 
 
-result = open("full_yields2_%s.txt"%date,"w")
+result = open("full_yields_latex_%s.txt"%date,"w")
 result.write(json.dumps(entries_per_cat))

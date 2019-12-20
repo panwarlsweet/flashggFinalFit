@@ -5,8 +5,8 @@ doCALCPHOSYST=0
 MASS=''
 
 #YEAR="2016"
-#YEAR="2017"
-YEAR="2018"
+YEAR="2017"
+#YEAR="2018"
 
 DATE="25_10_2019"
 #EXT="singleHiggs"$YEAR
@@ -27,8 +27,8 @@ runLocal=''
 
 BATCH=T3CH
 DEFAULTQUEUE="short.q -l h_vmem=6g"  #increase memory for systematics -l h_vmem=6g
-#CATS="DoubleHTag_0,DoubleHTag_1,DoubleHTag_2,DoubleHTag_3,DoubleHTag_4,DoubleHTag_5,DoubleHTag_6,DoubleHTag_7,DoubleHTag_8,DoubleHTag_9,DoubleHTag_10,DoubleHTag_11"
-CATS="DoubleHTag_0,DoubleHTag_1,DoubleHTag_3,DoubleHTag_9,DoubleHTag_11"
+CATS="DoubleHTag_0,DoubleHTag_1,DoubleHTag_2,DoubleHTag_3,DoubleHTag_4,DoubleHTag_5,DoubleHTag_6,DoubleHTag_7,DoubleHTag_8,DoubleHTag_9,DoubleHTag_10,DoubleHTag_11"
+#CATS="DoubleHTag_0,DoubleHTag_1,DoubleHTag_3,DoubleHTag_9,DoubleHTag_11"
 REFTAG="DoubleHTag_0"
 INTLUMI=136.8
 
