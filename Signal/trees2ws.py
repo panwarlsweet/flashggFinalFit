@@ -1,4 +1,5 @@
 import pandas as pd
+import root_pandas as rpd
 import numpy as np
 import ROOT
 import json
@@ -8,17 +9,17 @@ from root_numpy import tree2array
 from optparse import OptionParser
 
 ###BSM nodes for HHbbgg
-whichNodes = list(np.arange(0,12,1))
-whichNodes.append('SM')
-whichNodes.append('box')
+whichNodes = ['SM']
+#whichNodes = list(np.arange(0,12,1))
+#whichNodes.append('SM')
+#whichNodes.append('box')
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 def getSystLabelsWeights(isMET = False):
     phosystlabels=[]
     jetsystlabels=[]
     metsystlabels=[]
-   # systlabels=['']
-    systlabels=[]
+    systlabels=['']
     for direction in ["Up","Down"]:
      #   phosystlabels.append("MvaShift%s01sigma" % direction)
         phosystlabels.append("SigmaEOverEShift%s01sigma" % direction)
@@ -46,10 +47,9 @@ def getSystLabelsWeights(isMET = False):
     systlabels += jetsystlabels
     if isMET:
         systlabels += metsystlabels
-    systlabels=['']
 
     #systweights = ["UnmatchedPUWeight", "MvaLinearSyst", "LooseMvaSF", "PreselSF", "electronVetoSF", "TriggerWeight", "FracRVWeight", "FracRVNvtxWeight", "ElectronWeight", "MuonIDWeight", "MuonIsoWeight", "JetBTagCutWeight"] #, "JetBTagReshapeWeight"]
-    systweights = ["PreselSF", "electronVetoSF", "TriggerWeight"] 
+    systweights = ["JetBTagReshapeWeight","PreselSF", "electronVetoSF", "TriggerWeight","LooseMvaSF"] 
     return systlabels,systweights
 
 
@@ -62,6 +62,10 @@ def add_mc_vars_to_workspace(ws=None, systematics_labels=[],add_benchmarks = Fal
   weight = ROOT.RooRealVar("weight","weight",1)
   weight.setConstant(False)
   getattr(ws, 'import')(weight)
+  
+  btagweight = ROOT.RooRealVar("btagReshapeWeight","btagReshapeWeight",1)
+  btagweight.setConstant(False)
+  getattr(ws, 'import')(btagweight)
 
   CMS_hgg_mass = ROOT.RooRealVar("CMS_hgg_mass","CMS_hgg_mass",125,100,180)
   CMS_hgg_mass.setConstant(False)
@@ -73,17 +77,17 @@ def add_mc_vars_to_workspace(ws=None, systematics_labels=[],add_benchmarks = Fal
   dZ.setBins(40)
   getattr(ws, 'import')(dZ)
 
-  ttHScore = ROOT.RooRealVar("ttHScore","ttHScore",0.5,0.,1.)
-  ttHScore.setConstant(False)
-  ttHScore.setBins(40)
-  getattr(ws, 'import')(ttHScore)
+ # ttHScore = ROOT.RooRealVar("ttHScore","ttHScore",0.5,0.,1.)
+ # ttHScore.setConstant(False)
+ # ttHScore.setBins(40)
+ # getattr(ws, 'import')(ttHScore)
 
   if add_benchmarks: 
-     for benchmark_num in whichNodes:
-         benchmark = ROOT.RooRealVar("benchmark_reweight_%s"%benchmark_num,"benchmark_reweight_%s"%benchmark_num,0,100.) 
-         benchmark.setConstant(False)
-         benchmark.setBins(40)
-         getattr(ws, 'import')(benchmark)
+    # for benchmark_num in whichNodes:
+    #     benchmark = ROOT.RooRealVar("benchmark_reweight_%s"%benchmark_num,"benchmark_reweight_%s"%benchmark_num,0,100.) 
+    #     benchmark.setConstant(False)
+     #    benchmark.setBins(40)
+     #    getattr(ws, 'import')(benchmark)
      eventNumber = ROOT.RooRealVar("event","event",0,1000000.) 
      eventNumber.setConstant(False)
      eventNumber.setBins(40)
@@ -121,9 +125,9 @@ def add_dataset_to_workspace(data=None,ws=None,name=None,systematics_labels=[],a
 
   #define argument set  
   arg_set = ROOT.RooArgSet(ws.var("weight"))
-  variables = ["CMS_hgg_mass","dZ", "ttHScore"] #ttHScore
+  variables = ["CMS_hgg_mass","dZ", "btagReshapeWeight"] #ttHScore
   if add_benchmarks :
-     variables.append("benchmark_reweight_%s"%benchmark_num)
+  #   variables.append("benchmark_reweight_%s"%benchmark_num)
      variables.append("event")
   if systematics_labels!=[] :
     directions = ["Up01sigma", "Down01sigma"]
@@ -132,10 +136,20 @@ def add_dataset_to_workspace(data=None,ws=None,name=None,systematics_labels=[],a
            variables.append(syst+ddir)
     variables.append('centralObjectWeight')
   for var in variables :
+      print var
       arg_set.add(ws.var(var))
 
   #define roodataset to add to workspace
   roodataset = ROOT.RooDataSet (name, name, arg_set, "weight" )
+
+  if add_benchmarks :
+      data['weight'] *= data["benchmark_reweight_%s"%benchmark_num]/benchmark_norm
+
+#Restore normalization from the btag reshaping weights#
+  integral_denom  = sum(data['weight'])
+  integral_nominator  = sum(data['weight']/data['btagReshapeWeight'])
+  if integral_denom!=0 : data['weight'] *= integral_nominator/integral_denom
+#######################################################
 
   #Fill the dataset with values
   for index,row in data.iterrows():
@@ -149,11 +163,10 @@ def add_dataset_to_workspace(data=None,ws=None,name=None,systematics_labels=[],a
     w_val = row['weight']
 
     if add_benchmarks :
-      benchmark_value = row["benchmark_reweight_%s"%benchmark_num]
-      new_weight = benchmark_value / benchmark_norm
       if row["event"]%2!=0 : 
           w_val = 0.
-      else : w_val = w_val*new_weight*2. ## because discaring exactly half of events 
+      else : w_val = w_val*2. ## because discaring exactly half of events 
+
 
     roodataset.add( arg_set, w_val )
 
@@ -166,20 +179,21 @@ def add_dataset_to_workspace(data=None,ws=None,name=None,systematics_labels=[],a
 def get_options():
 
     parser = OptionParser()
-    parser.add_option("--inp-files",type='string',dest='inp_files',default='ggh,qqh,tth,vh')  
-    parser.add_option("--inp-dir",type='string',dest="inp_dir",default='/work/nchernya/DiHiggs/inputs/25_10_2019/trees/')
-    parser.add_option("--out-dir",type='string',dest="out_dir",default='/work/nchernya/DiHiggs/inputs/25_10_2019/')
+    #parser.add_option("--inp-files",type='string',dest='inp_files',default='qqh,tth,vh,ggh')  
+    parser.add_option("--inp-files",type='string',dest='inp_files',default='hh')  
+    parser.add_option("--inp-dir",type='string',dest="inp_dir",default='/work/nchernya/DiHiggs/inputs/20_12_2019/trees/')
+    parser.add_option("--out-dir",type='string',dest="out_dir",default='/work/nchernya/DiHiggs/inputs/20_12_2019/')
     parser.add_option("--cats",type='string',dest="cats",default='DoubleHTag_0,DoubleHTag_1,DoubleHTag_2,DoubleHTag_3,DoubleHTag_4,DoubleHTag_5,DoubleHTag_6,DoubleHTag_7,DoubleHTag_8,DoubleHTag_9,DoubleHTag_10,DoubleHTag_11')
     parser.add_option("--nosysts",action="store_true", dest="nosysts", default=False)
     parser.add_option("--year",type='string',dest="year",default='2016')
     parser.add_option("--add_benchmarks",action="store_true", dest="add_benchmarks",default=False)
-    parser.add_option("--config",type='string',dest="config",default='/work/nchernya/DiHiggs/inputs/25_10_2019/reweighting_normalization_19_09_2019.json')
+    parser.add_option("--config",type='string',dest="config",default='/work/nchernya/DiHiggs/inputs/20_12_2019/reweighting_normalization_18_12_2019.json')
     return parser.parse_args()
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  
 
 (opt,args) = get_options()
 year=opt.year
-if opt.nosysts : systematics = ['']
+if opt.nosysts : systematics = [''],[]
 else : systematics = getSystLabelsWeights()
 mass = '125'
 masses = [-5,5.]
@@ -194,11 +208,7 @@ if opt.add_benchmarks : print 'Adding benchmarks'
 
 for num,f in enumerate(input_files):
    name=f
-###############Tmp. next time they will all have the same names############
-   if 'qqh' in f and year=='2016':  name='qqh_amc'  #tmp
-   if 'ggh' in f and year=='2016':  name='ggh_amc' #tmp
    if 'hh_SM' in f and not opt.add_benchmarks: name='hh'
-###########################################################################
    input_names.append(name+year+'_13TeV_125_13TeV')
    if 'hh' in f and not opt.add_benchmarks:
       target_names.append(f +'_generated_%s_13TeV'%year) 
@@ -209,9 +219,11 @@ for num,f in enumerate(input_files):
 
 #opt.inp_dir = opt.inp_dir+'/' + year + '/'
 
+data_structure = pd.DataFrame(data=None)
 for num,f in enumerate(input_files):
- print 'doing file ',f
+ print 'doing file ',f,input_names[num]
  tfile = ROOT.TFile(opt.inp_dir + "output_"+f+"_%s.root"%year)
+ tfilename = opt.inp_dir + "output_"+f+"_%s.root"%year
  if not opt.add_benchmarks : whichNodes = [1]
  for benchmark_num in whichNodes:
    systematics_datasets = [] 
@@ -219,27 +231,39 @@ for num,f in enumerate(input_files):
    ws = ROOT.RooWorkspace("cms_hgg_13TeV", "cms_hgg_13TeV")
    #Assemble roorealvariable set
    #add_mc_vars_to_workspace( ws,systematics[0] )  # do not add them for the main systematics file
-   add_mc_vars_to_workspace( ws,systematics[0],add_benchmarks=opt.add_benchmarks)
-   for syst in [systematics[0]] : 
-      for cat in cats : 
+   #add_mc_vars_to_workspace( ws,systematics[0],add_benchmarks=opt.add_benchmarks)
+   systematics_to_run_with = systematics[0]
+   if  not opt.nosysts : systematics_to_run_with = systematics[1] #systemaitcs[1] : this should be done for nominal only, to add weights
+   add_mc_vars_to_workspace( ws,systematics_to_run_with,add_benchmarks=opt.add_benchmarks)
+   for syst in systematics[0] : 
+      for cat_num,cat in enumerate(cats) : 
          print 'doing cat ',cat
          if syst!='' : name = input_names[num]+'_'+cat+'_'+syst
          else : name = input_names[num]+'_'+cat
          if 'ggh' in f and year=='2016':  name='GluGluHToGG_M125_13TeV_amcatnloFXFX_pythia8_13TeV_'+cat #tmp
-         data = pd.DataFrame(tree2array(tfile.Get("tagsDumper/trees/%s"%name)))
+         #data = pd.DataFrame(tree2array(tfile.Get("tagsDumper/trees/%s"%name)))
+         if (tfile.Get("tagsDumper/trees/%s"%name).GetEntries())!=0 :
+            data = rpd.read_root(tfilename,'tagsDumper/trees/%s'%name)
+            if cat_num == 0 :  data_structure = pd.DataFrame(data=None, columns=data.columns) 
+         else :
+            "USER WARNING : 0 events in ",f," syst ",syst," ,cat = ",cat 
+            data = data_structure 
          if syst!='' : 
              newname = target_names[num]+'_'+mass+'_'+cat+'_'+syst
              if opt.add_benchmarks : newname =  newname.replace('hh','hh_node_%s'%benchmark_num)
          else : 
              newname = target_names[num]+'_'+mass+'_'+cat
              if opt.add_benchmarks : newname =  newname.replace('hh','hh_node_%s'%benchmark_num)
- 
-         if not opt.add_benchmarks : systematics_datasets += add_dataset_to_workspace( data, ws, newname,systematics[0]) #systemaitcs[1] : this should be done for nominal only, to add weights
-         else : systematics_datasets += add_dataset_to_workspace( data, ws, newname,systematics[0],add_benchmarks=opt.add_benchmarks,benchmark_num=benchmark_num,benchmark_norm = calculate_benchmark_normalization(normalizations,year,benchmark_num))
+         
+         if syst=='' and not opt.nosysts : systematics_labels = systematics[1] #systemaitcs[1] : this should be done for nominal only, to add weights
+         else : systematics_labels =[] #systemaitcs[1] : this should be done for nominal only, to add weights
+         if not opt.add_benchmarks : systematics_datasets += add_dataset_to_workspace( data, ws, newname,systematics_labels) #systemaitcs[1] : this should be done for nominal only, to add weights
+         else : systematics_datasets += add_dataset_to_workspace( data, ws, newname,systematics_labels,add_benchmarks=opt.add_benchmarks,benchmark_num=benchmark_num,benchmark_norm = calculate_benchmark_normalization(normalizations,year,benchmark_num))
          #print newname, " ::: Entries =", ws.data(newname).numEntries(), ", SumEntries =", ws.data(newname).sumEntries()
- 
-         for newmass in masses :
-       #  for newmass in [] :
+
+         masses_array = masses
+         if syst!='' and not opt.nosysts : masses_array = [] # for nominal systematics consider all masses, for systematics Up/Down only nominal mass 
+         for newmass in masses_array :
              value = newmass + int(mass) 
              if syst!='' : 
                massname = target_names[num]+'_%d_'%value+cat+'_'+syst

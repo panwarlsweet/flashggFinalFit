@@ -1,20 +1,20 @@
 doFTEST=0
-doFIT=0
-doPACKAGER=1
+doFIT=1
+doPACKAGER=0
 doCALCPHOSYST=0
 MASS=''
 
 #YEAR="2016"
-YEAR="2017"
-#YEAR="2018"
+#YEAR="2017"
+YEAR="2018"
 
-DATE="25_10_2019"
-#EXT="singleHiggs"$YEAR
-EXT="nodes"$YEAR
+DATE="20_12_2019"
+EXT="singleHiggs"$YEAR
+#EXT="nodes"$YEAR
 PHOTONSYSTFILE=dat/photonCatSyst.dat # without systematics
 #PHOTONSYSTFILE=dat/photonCatSyst_${EXT}.dat
 
-INDIR="/mnt/t3nfs01/data01/shome/nchernya/DiHiggs/inputs/${DATE}/"
+INDIR="/work/nchernya/DiHiggs/inputs/${DATE}/"
 OUTDIR="output/out_fit_${DATE}_${EXT}"
 if [ $doFTEST -gt 0 ]; then
    OUTDIR="output/out_${DATE}_${EXT}"
@@ -26,8 +26,9 @@ CONFIGDAT="output/out_${DATE}_${EXT}/dat/newConfig_${EXT}.dat"
 runLocal=''
 
 BATCH=T3CH
-DEFAULTQUEUE="short.q -l h_vmem=6g"  #increase memory for systematics -l h_vmem=6g
+DEFAULTQUEUE="short.q " #for slurm not used  #-l h_vmem=6g"  #increase memory for systematics -l h_vmem=6g
 CATS="DoubleHTag_0,DoubleHTag_1,DoubleHTag_2,DoubleHTag_3,DoubleHTag_4,DoubleHTag_5,DoubleHTag_6,DoubleHTag_7,DoubleHTag_8,DoubleHTag_9,DoubleHTag_10,DoubleHTag_11"
+#CATS="DoubleHTag_0"
 #CATS="DoubleHTag_0,DoubleHTag_1,DoubleHTag_3,DoubleHTag_9,DoubleHTag_11"
 REFTAG="DoubleHTag_0"
 INTLUMI=136.8
@@ -37,23 +38,26 @@ SMEARS="HighR9EERho,LowR9EERho,HighR9EEPhi,LowR9EEPhi,HighR9EBPhi,LowR9EBPhi,Hig
 SCALESCORR="MaterialCentralBarrel,MaterialOuterBarrel,MaterialForward"
 SCALESGLOBAL="NonLinearity,Geant4,LightYield,Absolute"
 
-##############for tests##############
-#PROCS="hh_SM_generated_${YEAR}"
-#REFPROC="hh_SM_generated_${YEAR}"
-#INFILES="output_hh_SM_generated_${YEAR}"
-#####################################
-
 #############SINGLE HIGGS ############
 #PROCS="hh_SM_generated_${YEAR},ggh_${YEAR},tth_${YEAR},qqh_${YEAR},vh_${YEAR}"
-#REFPROC="tth_${YEAR}"
 #INFILES="output_hh_SM_generated_${YEAR},output_ggh_${YEAR},output_tth_${YEAR},output_qqh_${YEAR},output_vh_${YEAR}"
+PROCS="ggh_${YEAR},tth_${YEAR},qqh_${YEAR},vh_${YEAR}"
+REFPROC="tth_${YEAR}"
+INFILES="output_ggh_${YEAR},output_tth_${YEAR},output_qqh_${YEAR},output_vh_${YEAR}"
 
+###tests##
+PROCS="tth_${YEAR}"
+REFPROC="tth_${YEAR}"
+INFILES="output_tth_${YEAR}"
+CATS="DoubleHTag_1,DoubleHTag_4,DoubleHTag_5,DoubleHTag_8"
 #############NODES ############
-REFPROC="hh_node_SM_$YEAR"
-#PROCS="hh_node_SM_$YEAR,hh_node_box_$YEAR,hh_node_0_$YEAR,hh_node_1_$YEAR,hh_node_2_$YEAR,hh_node_3_$YEAR,hh_node_4_$YEAR,hh_node_5_$YEAR,hh_node_6_$YEAR,hh_node_7_$YEAR,hh_node_8_$YEAR,hh_node_9_$YEAR,hh_node_10_$YEAR,hh_node_11_$YEAR"
-#INFILES="output_hh_node_SM_$YEAR,output_hh_node_box_$YEAR,output_hh_node_0_$YEAR,output_hh_node_1_$YEAR,output_hh_node_2_$YEAR,output_hh_node_3_$YEAR,output_hh_node_4_$YEAR,output_hh_node_5_$YEAR,output_hh_node_6_$YEAR,output_hh_node_7_$YEAR,output_hh_node_8_$YEAR,output_hh_node_9_$YEAR,output_hh_node_10_$YEAR,output_hh_node_11_$YEAR"
-PROCS="hh_node_SM_$YEAR,hh_node_4_$YEAR,hh_node_6_$YEAR,hh_node_7_$YEAR,hh_node_9_$YEAR,hh_node_10_$YEAR,hh_node_11_$YEAR"
-INFILES="output_hh_node_SM_$YEAR,output_hh_node_4_$YEAR,output_hh_node_6_$YEAR,output_hh_node_7_$YEAR,output_hh_node_9_$YEAR,output_hh_node_10_$YEAR,output_hh_node_11_$YEAR"
+#REFPROC="hh_node_SM_$YEAR"
+##PROCS="hh_node_SM_$YEAR,hh_node_box_$YEAR,hh_node_0_$YEAR,hh_node_1_$YEAR,hh_node_2_$YEAR,hh_node_3_$YEAR,hh_node_4_$YEAR,hh_node_5_$YEAR,hh_node_6_$YEAR,hh_node_7_$YEAR,hh_node_8_$YEAR,hh_node_9_$YEAR,hh_node_10_$YEAR,hh_node_11_$YEAR"
+##INFILES="output_hh_node_SM_$YEAR,output_hh_node_box_$YEAR,output_hh_node_0_$YEAR,output_hh_node_1_$YEAR,output_hh_node_2_$YEAR,output_hh_node_3_$YEAR,output_hh_node_4_$YEAR,output_hh_node_5_$YEAR,output_hh_node_6_$YEAR,output_hh_node_7_$YEAR,output_hh_node_8_$YEAR,output_hh_node_9_$YEAR,output_hh_node_10_$YEAR,output_hh_node_11_$YEAR"
+##PROCS="hh_node_SM_$YEAR,hh_node_4_$YEAR,hh_node_6_$YEAR,hh_node_7_$YEAR,hh_node_9_$YEAR,hh_node_10_$YEAR,hh_node_11_$YEAR"
+##INFILES="output_hh_node_SM_$YEAR,output_hh_node_4_$YEAR,output_hh_node_6_$YEAR,output_hh_node_7_$YEAR,output_hh_node_9_$YEAR,output_hh_node_10_$YEAR,output_hh_node_11_$YEAR"
+#PROCS="hh_node_SM_$YEAR"
+#INFILES="output_hh_node_SM_$YEAR"
 ################################
 
 
@@ -92,7 +96,7 @@ if [ $doFTEST -gt 0 ]; then
     echo "-->Determine Number of gaussians"
     echo "=============================="
     echo "./python/submitSignaFTest.py --procs $PROCS --flashggCats $CATS --outDir $OUTDIR -i $INFILES  --indir $INDIR   --batch $BATCH -q '$DEFAULTQUEUE'"
-    ./python/submitSignaFTest.py --procs $PROCS --flashggCats $CATS --outDir $OUTDIR -i $INFILES --indir $INDIR    --batch $BATCH -q "$DEFAULTQUEUE" $runLocal
+    ./python/submitSignaFTest.py --procs $PROCS --flashggCats $CATS --outDir $OUTDIR -i $INFILES --indir $INDIR    --batch $BATCH $runLocal  -q "$DEFAULTQUEUE" 
 
     PEND=`ls -l $OUTDIR/fTestJobs/sub*| grep -v "\.run" | grep -v "\.done" | grep -v "\.fail" | grep -v "\.err" |grep -v "\.log"  |wc -l`
     TOTAL=`ls -l $OUTDIR/fTestJobs/sub*| grep "\.sh"  |wc -l`
@@ -136,8 +140,8 @@ fi
 ############################################################
 
 if [ $doFIT -gt 0 ]; then
-  echo "./python/submitSignalFit.py --indir $INDIR -i $INFILES -d ${CONFIGDAT} --mhLow=120 --mhHigh=130 --procs $PROCS -s $PHOTONSYSTFILE --changeIntLumi ${INTLUMI} --refProc $REFPROC --refTag $REFTAG -p $OUTDIR/sigfit  --batch $BATCH -q "$DEFAULTQUEUE"  -f $CATS  -o ${OUTDIR}/CMS-HGG_sigfit_${EXT}.root $runLocal"
-  ./python/submitSignalFit.py --indir $INDIR -i $INFILES -d ${CONFIGDAT} --mhLow=120 --mhHigh=130 --procs $PROCS -s $PHOTONSYSTFILE --changeIntLumi ${INTLUMI} --refProc $REFPROC --refTag $REFTAG -p $OUTDIR/sigfit  --batch $BATCH -q "$DEFAULTQUEUE"  -f $CATS  -o ${OUTDIR}/CMS-HGG_sigfit_${EXT}.root $runLocal
+  echo "./python/submitSignalFit.py --indir $INDIR -i $INFILES -d ${CONFIGDAT} --mhLow=120 --mhHigh=130 --procs $PROCS -s $PHOTONSYSTFILE --changeIntLumi ${INTLUMI} --refProc $REFPROC --refTag $REFTAG -p $OUTDIR/sigfit  --batch $BATCH  -f $CATS  -o ${OUTDIR}/CMS-HGG_sigfit_${EXT}.root $runLocal -q "$DEFAULTQUEUE" " 
+  ./python/submitSignalFit.py --indir $INDIR -i $INFILES -d ${CONFIGDAT} --mhLow=120 --mhHigh=130 --procs $PROCS -s $PHOTONSYSTFILE --changeIntLumi ${INTLUMI} --refProc $REFPROC --refTag $REFTAG -p $OUTDIR/sigfit  --batch $BATCH -f $CATS  -o ${OUTDIR}/CMS-HGG_sigfit_${EXT}.root $runLocal -q "$DEFAULTQUEUE" 
 
   echo "python mergeWorkspaces.py ${OUTDIR}/CMS-HGG_sigfit_${EXT}_${DATE}.root ${OUTDIR}/CMS-HGG_sigfit_*.root"
 fi

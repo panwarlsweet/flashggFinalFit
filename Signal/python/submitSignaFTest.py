@@ -114,23 +114,37 @@ def writePreamble(sub_file):
   #print "[INFO] writing preamble"
   sub_file.write('#!/bin/bash\n')
   if (opts.batch == "T3CH"):
+      sub_file.write('#SBATCH --job-name=test_combine_slurm\n')
+      sub_file.write('#SBATCH --account=t3\n')
+      sub_file.write('#SBATCH --nodes=1\n')
+      sub_file.write('#SBATCH -o %s.log\n'%os.path.abspath(sub_file.name))
+      sub_file.write('#SBATCH -o %s.err\n'%os.path.abspath(sub_file.name))
+      sub_file.write('set -x\n')
+  if (opts.batch == "T3CH_qsub"):
       sub_file.write('set -x\n')
   sub_file.write('touch %s.run\n'%os.path.abspath(sub_file.name))
   sub_file.write('cd %s\n'%os.getcwd())
-  if (opts.batch == "T3CH"):
+  if (opts.batch == "T3CH_qsub"):
       sub_file.write('source $VO_CMS_SW_DIR/cmsset_default.sh\n')
       sub_file.write('source /mnt/t3nfs01/data01/swshare/glite/external/etc/profile.d/grid-env.sh\n')
       sub_file.write('export SCRAM_ARCH=slc6_amd64_gcc481\n')
       sub_file.write('export LD_LIBRARY_PATH=/swshare/glite/d-cache/dcap/lib/:$LD_LIBRARY_PATH\n')
       sub_file.write('set +x\n') 
   sub_file.write('eval `scramv1 runtime -sh`\n')
-  if (opts.batch == "T3CH"):
+  if (opts.batch == "T3CH_qsub"):
       sub_file.write('set -x\n') 
   sub_file.write('cd -\n')
-  if (opts.batch == "T3CH" ) : sub_file.write('cd $TMPDIR\n')
-  sub_file.write('number=$RANDOM\n')
-  sub_file.write('mkdir -p scratch_$number\n')
-  sub_file.write('cd scratch_$number\n')
+  if (opts.batch == "T3CH_qsub" ) : sub_file.write('cd $TMPDIR\n')
+  if (opts.batch == "T3CH" ) : sub_file.write('cd /scratch/$USER/\n')
+  if (opts.batch == "T3CH" ) : 
+      sub_file.write('user $USER\n')
+      sub_file.write('tmpdir=/scratch/$USER/$RANDOM\n')
+      sub_file.write('mkdir -p $tmpdir\n')
+      sub_file.write('cd $tmpdir\n')
+  else :
+      sub_file.write('number=$RANDOM\n')
+      sub_file.write('mkdir -p scratch_$number\n')
+      sub_file.write('cd scratch_$number\n')
 
 
 def writePostamble(sub_file, exec_line):
@@ -143,7 +157,8 @@ def writePostamble(sub_file, exec_line):
   sub_file.write('\t touch %s.fail\n'%os.path.abspath(sub_file.name))
   sub_file.write('fi\n')
   sub_file.write('rm -f %s.run\n'%os.path.abspath(sub_file.name))
-  sub_file.write('rm -rf scratch_$number\n')
+  if (opts.batch == "T3CH" ) : sub_file.write('rm -rf $tmpdir\n')
+  else : sub_file.write('rm -rf scratch_$number\n')
   sub_file.close()
   system('chmod +x %s'%os.path.abspath(sub_file.name))
   if opts.runLocal:
@@ -155,8 +170,12 @@ def writePostamble(sub_file, exec_line):
     system('rm -f %s.err'%os.path.abspath(sub_file.name))
     if (opts.batch == "LSF") : system('bsub -q %s -o %s.log %s'%(opts.queue,os.path.abspath(sub_file.name),os.path.abspath(sub_file.name)))
     if (opts.batch == "IC") : system('qsub -q %s -o %s.log -e %s.err %s > out.txt'%(opts.queue,os.path.abspath(sub_file.name),os.path.abspath(sub_file.name),os.path.abspath(sub_file.name)))
-    if (opts.batch == "T3CH") : 
+    if (opts.batch == "T3CH_qsub") : 
           command = 'qsub -q %s -o %s.log -e %s.err %s > out.txt'%(opts.queue,os.path.abspath(sub_file.name),os.path.abspath(sub_file.name),os.path.abspath(sub_file.name))
+          print command
+          system(command)
+    if (opts.batch == "T3CH") : 
+          command = 'sbatch %s > out.txt'%(os.path.abspath(sub_file.name))
           print command
           system(command)
 
