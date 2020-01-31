@@ -77,11 +77,11 @@ def functionGF_kl_wrap (x,par):
 ################################################################################################
 ###########OPTIONS
 parser = OptionParser()
-parser.add_option("--hhReweightDir",default='/work/nchernya/DiHiggs/inputs/25_10_2019/trees/kl_kt_finebinning/',help="hh reweighting directory with all txt files" )
+parser.add_option("--hhReweightDir",default='/work/nchernya/DiHiggs/inputs/24_01_2020/categorizedTrees/kl_kt_finebinning//',help="hh reweighting directory with all txt files" )
 parser.add_option("--indir", help="Input directory ")
 parser.add_option("--outdir", help="Output directory ")
 parser.add_option("--outtag", help="Output tag ")
-parser.add_option("--unblind", action="store_true",help="Observed is present or not ",default=True)
+parser.add_option("--unblind", action="store_true",help="Observed is present or not ",default=False)
 (options,args)=parser.parse_args()
 ###########
 ###CREATE TAGS

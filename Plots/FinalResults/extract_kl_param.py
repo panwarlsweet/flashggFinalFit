@@ -28,7 +28,7 @@ def functionGF_kl_wrap (x,par):
 parser = OptionParser()
 parser.add_option("-y","--years", default='2016,2017,2018',help="years to consider")
 parser.add_option("-c","--cats",default="DoubleHTag_0,DoubleHTag_1,DoubleHTag_2,DoubleHTag_3,DoubleHTag_4,DoubleHTag_5,DoubleHTag_6,DoubleHTag_7,DoubleHTag_8,DoubleHTag_9,DoubleHTag_10,DoubleHTag_11")
-parser.add_option("--hhReweightDir",default='/work/nchernya/DiHiggs/inputs/25_10_2019/trees/kl_kt_finebinning/',help="hh reweighting directory with all txt files" )
+parser.add_option("--hhReweightDir",default='/work/nchernya/DiHiggs/inputs/24_01_2020/categorizedTrees/kl_kt_finebinning/',help="hh reweighting directory with all txt files" )
 parser.add_option("--outdir", help="Output directory ")
 parser.add_option("--outtag", help="Output tag ")
 (options,args)=parser.parse_args()

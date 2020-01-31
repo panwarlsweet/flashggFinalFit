@@ -137,7 +137,7 @@ parser.add_option("--hhReweightDir",default='/work/nchernya/DiHiggs/inputs/25_10
 parser.add_option("--hhReweightSM",default='',help="hh base SM card to start from" )
 parser.add_option("--do_kl_scan",default=False,action="store_true",help="do kl scan?" )
 parser.add_option("--do_kl_likelihood",default=False,action="store_true",help="prepare datacard for kl likelihood" )
-parser.add_option("--kl_fit_params",default='/work/nchernya/DiHiggs/CMSSW_7_4_7/src/flashggFinalFit/Plots/FinalResults/plots/yeilds_ratio_kl_25_10_2019_finekl_fitparams.json',help="rateParam as a function of kl parametrization" )
+parser.add_option("--kl_fit_params",default='/work/nchernya/DiHiggs/CMSSW_7_4_7/src/flashggFinalFit/Plots/FinalResults/plots/yeilds_ratio_kl_xsec_24_01_2020_fitparams.json',help="rateParam as a function of kl parametrization" )
 (options,args)=parser.parse_args()
 allSystList=[]
 if options.submitSelf :

@@ -11,7 +11,8 @@
 #include <fstream>
 #include "HHReweight5D.h"
 #include <vector>
-#include <boost/algorithm/string/replace.hpp>
+#include <algorithm>
+#include <string>
 
 
 using namespace std;
@@ -29,15 +30,15 @@ int main ()
 	 float ktmax=1;
 
 	 TString s;
-	 TString year = "2016";
-    TString inMapFile   = "HHreweight_2016nodes_18092019.root" ;
-//   TString inMapFile   = "HHreweight_2017nodes_08072019.root" ;
-//    TString inMapFile   = "HHreweight_2018nodes_08072019.root" ;
+	 TString year = "2018";
+//    TString inMapFile   = "HHreweight_2016_15112019.root" ;
+//   TString inMapFile   = "HHreweight_2017_15112019.root" ;
+    TString inMapFile   = "HHreweight_2018_15112019.root" ;
 	 TString addname = "_13TeV_125_13TeV_";
 	 TString processName = "hh";
-    TString inputDir = "/work/nchernya/DiHiggs/inputs/25_10_2019/trees/";
+    TString inputDir = "/work/nchernya/DiHiggs/inputs/24_01_2020/categorizedTrees/";
     TString outDir = "kl_kt_finebinning/";
-	 TString filename = s.Format("output_%s_%s.root",processName.Data(),year.Data()); 
+	 TString filename = s.Format("output_%s_%s_treesCats_test.root",processName.Data(),year.Data()); 
 
     string coeffFile  = "coefficientsByBin_extended_3M_costHHSim_19-4.txt";
     TString inHistoName = "allHHNodeMap2D";
@@ -128,12 +129,14 @@ int main ()
 		//	cout<<" kl  "<<kl<<endl;
 
 			ofstream out;
-			std::string output_kl = boost::replace_all_copy(std::to_string(kl), ".", "d");
-			output_kl = boost::replace_all_copy(output_kl, "-", "m");
-			output_kl = boost::replace_all_copy(output_kl, "+", "p");
-			std::string output_kt = boost::replace_all_copy(std::to_string(kt), ".", "d");
-			output_kt = boost::replace_all_copy(output_kt, "-", "m");
-			output_kt = boost::replace_all_copy(output_kt, "+", "p");
+			std::string output_kl = std::to_string(kl);
+			std::replace(output_kl.begin(), output_kl.end(), '.', 'd');
+			std::replace(output_kl.begin(), output_kl.end(), '-', 'm');
+			std::replace(output_kl.begin(), output_kl.end(), '+', 'p');
+			std::string output_kt = std::to_string(kt);
+			std::replace(output_kt.begin(), output_kt.end(), '.', 'd');
+			std::replace(output_kt.begin(), output_kt.end(), '-', 'm');
+			std::replace(output_kt.begin(), output_kt.end(), '+', 'p');
 			string out_txt = (string)inputDir + (string)outDir +"/reweighting_"+(string)year+"_kl_"+output_kl+"_kt_"+output_kt+".txt";
 			out.open(out_txt);
 
