@@ -146,7 +146,8 @@ def add_dataset_to_workspace(data=None,ws=None,name=None,systematics_labels=[],b
       data['weight'] *= data["benchmark_reweight_%s"%benchmark_num]/benchmark_norm
 
 #Restore normalization from the btag reshaping weights#
-  data['weight'] *= btag_norm
+  #data['weight'] *= btag_norm
+  data['weight'] /= data["btagReshapeWeight"] #undo btag weights
 #######################################################
 
   #Fill the dataset with values
@@ -179,9 +180,15 @@ def get_options():
     parser = OptionParser()
     #parser.add_option("--inp-files",type='string',dest='inp_files',default='qqh,tth,vh,ggh')  
     parser.add_option("--inp-files",type='string',dest='inp_files',default='hh')  
-    parser.add_option("--inp-dir",type='string',dest="inp_dir",default='/work/nchernya/DiHiggs/inputs/20_12_2019/trees/')
-    parser.add_option("--out-dir",type='string',dest="out_dir",default='/work/nchernya/DiHiggs/inputs/20_12_2019/')
+    parser.add_option("--inp-dir",type='string',dest="inp_dir",default='/work/nchernya/DiHiggs/inputs/24_01_2020/trees/')
+    parser.add_option("--out-dir",type='string',dest="out_dir",default='/work/nchernya/DiHiggs/inputs/27_01_2020/')
     parser.add_option("--cats",type='string',dest="cats",default='DoubleHTag_0,DoubleHTag_1,DoubleHTag_2,DoubleHTag_3,DoubleHTag_4,DoubleHTag_5,DoubleHTag_6,DoubleHTag_7,DoubleHTag_8,DoubleHTag_9,DoubleHTag_10,DoubleHTag_11')
+    #parser.add_option("--MVAcats",type='string',dest="MVAcats",default='0.44,0.67,0.79,1')
+    #parser.add_option("--MXcats",type='string',dest="MXcats",default='250,385,470,640,10000,250,345,440,515,10000,250,330,365,545,10000')
+    parser.add_option("--MVAcats",type='string',dest="MVAcats",default='0.33,0.55,0.68,1')
+    parser.add_option("--MXcats",type='string',dest="MXcats",default='250,360,470,600,10000,250,330,365,540,10000,250,330,360,615,10000')
+    parser.add_option("--ttHScore",type='float',dest="ttHScore",default=0.26)
+    parser.add_option("--doCategorization",action="store_true", dest="doCategorization",default=False)
     parser.add_option("--nosysts",action="store_true", dest="nosysts", default=False)
     parser.add_option("--year",type='string',dest="year",default='2016')
     parser.add_option("--add_benchmarks",action="store_true", dest="add_benchmarks",default=False)
@@ -197,6 +204,18 @@ else : systematics = getSystLabelsWeights()
 mass = '125'
 masses = [-5,5.]
 cats = opt.cats.split(',')
+MVAcats = opt.MVAcats.split(',')
+MXcats = opt.MXcats.split(',')
+nMVA =len(MVAcats)-1 
+nMX = int(len(cats)/(len(MVAcats)-1))
+cat_def = {}
+for mva_num in range(0,nMVA):
+  for mx_num in range(0,nMX):
+    cat_num = mva_num*nMX+mx_num 
+    cat_name = "DoubleHTag_%d"%(cat_num)
+    cat_def[cat_name] = {"MVA" : [],"MX":[]}
+    cat_def[cat_name]["MVA"] = [float(MVAcats[nMVA - mva_num]),float(MVAcats[nMVA - (mva_num+1)])]
+    cat_def[cat_name]["MX"] = [float(MXcats[mva_num*(nMX+1) + (nMX - mx_num)]),float(MXcats[mva_num*(nMX+1) + (nMX - (mx_num+1))])]
 input_files = opt.inp_files.split(',')
 input_names = []
 target_names = []
@@ -222,7 +241,6 @@ for num,f in enumerate(input_files):
 data_structure = pd.DataFrame(data=None)
 for num,f in enumerate(input_files):
  print 'doing file ',f,input_names[num]
- if 'hh' in f and year=='2016':  f='hh_nodes_5_12'
  tfile = ROOT.TFile(opt.inp_dir + "output_"+f+"_%s.root"%year)
  tfilename = opt.inp_dir + "output_"+f+"_%s.root"%year
  if not opt.add_benchmarks : whichNodes = [1]
@@ -238,13 +256,19 @@ for num,f in enumerate(input_files):
       for cat_num,cat in enumerate(cats) : 
          print 'doing cat ',cat
          btag_renorm  = btag_normalization_dict["%s%s"%(input_files[num],year)]
-         if syst!='' : name = input_names[num]+'_'+cat+'_'+syst
-         else : name = input_names[num]+'_'+cat
-         if 'ggh' in f and year=='2016':  name='GluGluHToGG_M125_13TeV_amcatnloFXFX_pythia8_13TeV_'+cat #tmp
+         if syst!='' : 
+             name = input_names[num]+'_'+cat+'_'+syst
+             initial_name = input_names[num]+'_DoubleHTag_0_' + syst
+         else : 
+             name = input_names[num]+'_'+cat
+             initial_name = input_names[num]+'_DoubleHTag_0'
+         selection = "(MX <= %.2f and MX > %.2f) and (HHbbggMVA <= %.2f and HHbbggMVA > %.2f) and (ttHScore >= %.2f)"%(cat_def[cat]["MX"][0],cat_def[cat]["MX"][1],cat_def[cat]["MVA"][0],cat_def[cat]["MVA"][1],opt.ttHScore)
+         if not opt.doCategorization : 
+				initial_name = name
+				selection = ""
          #data = pd.DataFrame(tree2array(tfile.Get("tagsDumper/trees/%s"%name)))
-         if (tfile.Get("tagsDumper/trees/%s"%name).GetEntries())!=0 :
-            data = rpd.read_root(tfilename,'tagsDumper/trees/%s'%name)
-            if 'hh' in f and year=='2016': data =data.append(rpd.read_root(opt.inp_dir+"output_hh_wo_node_5_12_2016.root",'tagsDumper/trees/%s'%name),ignore_index=True)
+         if (tfile.Get("tagsDumper/trees/%s"%initial_name).GetEntries())!=0 :
+            data = rpd.read_root(tfilename,'tagsDumper/trees/%s'%initial_name).query(selection)
             if cat_num == 0 :  data_structure = pd.DataFrame(data=None, columns=data.columns) 
          else :
             "USER WARNING : 0 events in ",f," syst ",syst," ,cat = ",cat 

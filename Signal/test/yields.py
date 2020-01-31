@@ -7,7 +7,7 @@ from math import sqrt
 import json
 
 #date = '06_05_2019' 
-date = '20_12_2019'
+date = '25_10_2019'
 
 #filename = '/work/nchernya/DiHiggs/CMSSW_7_4_7/src/flashggFinalFit/Signal/output/CMS-HGG_sigfit_all2016_2017_%s.root'%date
 #filename_bkg = '/work/nchernya/DiHiggs/CMSSW_7_4_7/src/flashggFinalFit/Background/outputs/CMS-HGG_multipdf_HHbbgg_2016_2017_%s.root'%date
@@ -20,8 +20,8 @@ filename_bkg = '/work/nchernya/DiHiggs/CMSSW_7_4_7/src/flashggFinalFit/Backgroun
 wsname = 'wsig_13TeV'
 wsname_bkg = 'multipdf'
 
-#symbol = ''  #for keynote
-symbol = '&'  #for latex
+symbol = ''  #for keynote
+#symbol = '&'  #for latex
 
 num_cat = 12
 lumi_2016=35.9*1000
@@ -76,7 +76,7 @@ filename_bkg_2017 = '/work/nchernya/DiHiggs/inputs/%s/output_DoubleEG_2017_%s.ro
 filename_bkg_2018 = '/work/nchernya/DiHiggs/inputs/%s/output_DoubleEG_2018_%s.root'%(date,date)
 filename_bkg_total = '/work/nchernya/DiHiggs/inputs/%s/output_DoubleEG_2016_2017_2018_%s.root'%(date,date)
 #filename_bkg_total = '/work/nchernya/DiHiggs/inputs/%s/output_DoubleEG_2016_2017_%s.root'%(date,date)
-years=['2016','2017','Total']
+years=['2016','2017','2018','Total']
 #years=['2016']
 #years=['Total']
 print 'Data with blinded 115 < Mgg < 135'
