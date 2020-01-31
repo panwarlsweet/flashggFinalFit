@@ -58,6 +58,7 @@ for num,f in enumerate(input_files):
 
 
 data_structure = pd.DataFrame(data=None)
+gen_data_structure = pd.DataFrame(data=None)
 data_all_cats = []
 gen_data_all_cats = []
 for num,f in enumerate(input_files):
@@ -66,10 +67,16 @@ for num,f in enumerate(input_files):
  tfilename = opt.inp_dir + "output_"+f+"_%s.root"%year
 ############Adding Gen info#############
  if opt.add_gen :
-   initial_name = input_names[num]+'_DoubleHTag_0'
-   gen_data_all_cats.append(rpd.read_root(tfilename,'genDiphotonDumper/trees/%s'%initial_name))
    initial_name = input_names[num]+'_NoTag_0'
-   gen_data_all_cats.append(rpd.read_root(tfilename,'genDiphotonDumper/trees/%s'%initial_name))
+   gen_data = rpd.read_root(tfilename,'genDiphotonDumper/trees/%s'%initial_name)
+   gen_data_all_cats.append(gen_data)
+   gen_data_structure = pd.DataFrame(data=None, columns=gen_data.columns) 
+   for cat_num,cat in enumerate(cats) : 
+     initial_name = input_names[num]+'_'+cat
+     if (tfile.Get("genDiphotonDumper/trees/%s"%initial_name).GetEntries())!=0 :
+        gen_data_all_cats.append(rpd.read_root(tfilename,'genDiphotonDumper/trees/%s'%initial_name))
+     else :
+        gen_data_all_cats.append(gen_data_structure)
 ########################################
  for cat_num,cat in enumerate(cats) : 
    print 'doing cat ',cat
@@ -93,15 +100,18 @@ for num,f in enumerate(input_files):
     name = input_names[num]+'_'+cats[df_num]
     if df_num==0 : mode = 'w'
     else : mode = 'a'
-    if opt.add_gen :
-      if df_num==0 : ##first lets add gen
-        gen_data_all_cats[0].to_root(f_out_name,key='gen_'+name, mode=mode)
-        mode = 'a'
-        gen_data_all_cats[1].to_root(f_out_name,key='gen_'+name.replace('DoubleHTag_0','NoTag_0'), mode=mode)
     df.to_root(f_out_name,key=name, mode=mode)
+
+ if opt.add_gen :
+   name = input_names[num]+'_NoTag_0'
+   mode = 'a'
+   gen_data_all_cats[0].to_root(f_out_name,key='gen_'+name, mode=mode)
+   for df_num in range(0,len(cats)):
+     name = input_names[num]+'_'+cats[df_num]
+     gen_data_all_cats[df_num+1].to_root(f_out_name,key='gen_'+name, mode=mode)
      
 
- f_tree_name = "%s/%s_treesCats.root"%(opt.out_dir,outname)
+ f_tree_name = "%s/%s_treesCats_test.root"%(opt.out_dir,outname)
  f_tree = ROOT.TFile.Open(f_out_name, "READ")
  out_file = ROOT.TFile.Open(f_tree_name, "RECREATE")
  outdir = out_file.mkdir("tagsDumper")
@@ -117,12 +127,15 @@ for num,f in enumerate(input_files):
    outdir = out_file.mkdir("genDiphotonDumper")
    outdir.cd()
    outdir2 = outdir.mkdir("trees")
-   for tag in ['DoubleHTag_0','NoTag_0']:
+   for tag in ['NoTag_0']+cats:
      name = 'gen_'+input_names[num]+'_'+tag
      t_tree = (f_tree.Get(name)).CloneTree()
+     t_tree.SetName(input_names[num]+'_'+tag)
      t_tree.SetDirectory(outdir2)
      outdir2.cd()
      t_tree.Write()
  out_file.Close()
+ if os.path.exists(f_out_name):
+     os.remove(f_out_name)
  
 
