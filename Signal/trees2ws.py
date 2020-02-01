@@ -180,7 +180,7 @@ def get_options():
     #parser.add_option("--inp-files",type='string',dest='inp_files',default='qqh,tth,vh,ggh')  
     parser.add_option("--inp-files",type='string',dest='inp_files',default='hh')  
     parser.add_option("--inp-dir",type='string',dest="inp_dir",default='/work/nchernya/DiHiggs/inputs/20_12_2019/trees/')
-    parser.add_option("--out-dir",type='string',dest="out_dir",default='/work/nchernya/DiHiggs/inputs/20_12_2019/')
+    parser.add_option("--out-dir",type='string',dest="out_dir",default='/work/nchernya/DiHiggs/inputs/20_12_2019/syst/')
     parser.add_option("--cats",type='string',dest="cats",default='DoubleHTag_0,DoubleHTag_1,DoubleHTag_2,DoubleHTag_3,DoubleHTag_4,DoubleHTag_5,DoubleHTag_6,DoubleHTag_7,DoubleHTag_8,DoubleHTag_9,DoubleHTag_10,DoubleHTag_11')
     parser.add_option("--nosysts",action="store_true", dest="nosysts", default=False)
     parser.add_option("--year",type='string',dest="year",default='2016')
@@ -240,11 +240,11 @@ for num,f in enumerate(input_files):
          btag_renorm  = btag_normalization_dict["%s%s"%(input_files[num],year)]
          if syst!='' : name = input_names[num]+'_'+cat+'_'+syst
          else : name = input_names[num]+'_'+cat
-         if 'ggh' in f and year=='2016':  name='GluGluHToGG_M125_13TeV_amcatnloFXFX_pythia8_13TeV_'+cat #tmp
+         #if 'ggh' in f and year=='2016':  name='GluGluHToGG_M125_13TeV_amcatnloFXFX_pythia8_13TeV_'+cat #tmp  
          #data = pd.DataFrame(tree2array(tfile.Get("tagsDumper/trees/%s"%name)))
          if (tfile.Get("tagsDumper/trees/%s"%name).GetEntries())!=0 :
             data = rpd.read_root(tfilename,'tagsDumper/trees/%s'%name)
-            if 'hh' in f and year=='2016': data =data.append(rpd.read_root(opt.inp_dir+"output_hh_wo_node_5_12_2016.root",'tagsDumper/trees/%s'%name),ignore_index=True)
+            #if 'hh' in f and year=='2016': data =data.append(rpd.read_root(opt.inp_dir+"output_hh_wo_node_5_12_2016.root",'tagsDumper/trees/%s'%name),ignore_index=True)  #just a tmp , ignore
             if cat_num == 0 :  data_structure = pd.DataFrame(data=None, columns=data.columns) 
          else :
             "USER WARNING : 0 events in ",f," syst ",syst," ,cat = ",cat 
@@ -257,8 +257,8 @@ for num,f in enumerate(input_files):
              if opt.add_benchmarks : newname =  newname.replace('hh','hh_node_%s'%benchmark_num)
          
          if syst=='' and not opt.nosysts : systematics_labels = systematics[1] #systemaitcs[1] : this should be done for nominal only, to add weights
-         else : systematics_labels =[] #systemaitcs[1] : this should be done for nominal only, to add weights
-         if not opt.add_benchmarks : systematics_datasets += add_dataset_to_workspace( data, ws, newname,systematics_labels,btag_norm = btag_renorm) #systemaitcs[1] : this should be done for nominal only, to add weights
+         else : systematics_labels =[] 
+         if not opt.add_benchmarks : systematics_datasets += add_dataset_to_workspace( data, ws, newname,systematics_labels,btag_norm = btag_renorm) # this should be done for nominal only, to add weights
          else : systematics_datasets += add_dataset_to_workspace( data, ws, newname,systematics_labels,btag_norm = btag_renorm, add_benchmarks=opt.add_benchmarks,benchmark_num=benchmark_num,benchmark_norm = calculate_benchmark_normalization(normalizations,year,benchmark_num))
          #print newname, " ::: Entries =", ws.data(newname).numEntries(), ", SumEntries =", ws.data(newname).sumEntries()
 

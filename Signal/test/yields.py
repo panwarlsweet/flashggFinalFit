@@ -107,5 +107,5 @@ for num,name in enumerate([filename_bkg_2016,filename_bkg_2017,filename_bkg_2018
 
 
 
-result = open("full_yields_latex_%s.txt"%date,"w")
+result = open("output_txt/full_yields_latex_%s.txt"%date,"w")
 result.write(json.dumps(entries_per_cat))

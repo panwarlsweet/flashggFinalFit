@@ -53,11 +53,16 @@ parser.add_option("--isobserved", help="Observed is present or not ",default=Fal
 (options,args)=parser.parse_args()
 
 labels = [] 
-for node in range(0,12):
-   label = "node%d"%node
+#for node in range(0,12):
+#   label = "node%d"%node
+#   labels.append(label)
+#labels.append("nodeSM")
+#labels.append("nodebox")
+
+for node in range(0,14):
+   label = "benchmarks_%d"%node
    labels.append(label)
-labels.append("nodeSM")
-labels.append("nodebox")
+
 
 plotUpperLimits(labels)
 

@@ -133,9 +133,11 @@ parser.add_option("--intLumi2018",type="float",default=59.35,help="Integrated Lu
 parser.add_option("--newGghScheme",default=False,action="store_true",help="Use new WG1 scheme for ggH theory uncertainties" )
 parser.add_option("--doSTXS",default=False,action="store_true",help="Use STXS Stage 0 processes" )
 parser.add_option("--signalProc",default='hh_SM_generated_2016,hh_SM_generated_2017,hh_SM_generated_2018',help="What to consider signal processes" )
+parser.add_option("--do_HHbbgg_systematics",default=False,action="store_true",help="Do systematics" )
 parser.add_option("--hhReweightDir",default='/work/nchernya/DiHiggs/inputs/25_10_2019/trees/kl_kt/',help="hh reweighting directory with all txt files" )
 parser.add_option("--hhReweightSM",default='',help="hh base SM card to start from" )
 parser.add_option("--do_kl_scan",default=False,action="store_true",help="do kl scan?" )
+parser.add_option("--do_benchmarks_scan",default=False,action="store_true",help="do BSM benchmarks scan?" )
 parser.add_option("--do_kl_likelihood",default=False,action="store_true",help="prepare datacard for kl likelihood" )
 parser.add_option("--kl_fit_params",default='/work/nchernya/DiHiggs/CMSSW_7_4_7/src/flashggFinalFit/Plots/FinalResults/plots/yeilds_ratio_kl_xsec_24_01_2020_fitparams.json',help="rateParam as a function of kl parametrization" )
 (options,args)=parser.parse_args()
@@ -156,6 +158,7 @@ outFile = open(options.outfilename,'w')
 ## PROCS HANDLING & DICT ######################################################
 ###############################################################################
 
+#Define all process of interest
 combProc = { 'bkg_mass':'bkg_mass'}
 allProcsNames = 'hh_SM,hh_SM_generated,ggh,qqh,tth,vh'.split(',')
 allProcs = []
@@ -798,6 +801,31 @@ def printKlLikelihood(years='2016,2017,2018'.split(',')):
      #   outNew.write('nuisance  edit  freeze param%d_%s\n'%(ipar,c))
   
 
+def printReweightingBenchmarks(years='2016,2017,2018'.split(',')):
+  print '[INFO] BSM benchmarks reweighting...'
+  Nbenchmarks = 14 #12 + SM + box
+  for inode in range(0,Nbenchmarks):
+      hhcard_name = options.hhReweightSM.replace('.txt','_benchmark_%d.txt'%(inode))
+      os.system('cp %s %s'%(options.hhReweightSM,hhcard_name))  
+      outNew = open(hhcard_name,'a')
+      for year in years:
+        rew_values = [] #for 12 cats
+        with open(options.hhReweightDir+"reweighting_%s_benchmark_%d.txt"%(year,inode),"r") as rew_values_file:
+          for line in rew_values_file.readlines():
+            rew_values.append(float(line.strip()))
+        for cat_num,c in enumerate(options.cats):
+          for p in options.procs:
+            if '%s:%s'%(p,c) in options.toSkip: continue
+            if (year in p) and (p in signalProc) :
+             rateParamName = 'benchmark_hh_%dTeV_%s_%s'%(sqrts,c,year)
+             outNew.write('%s  rateParam  '%(rateParamName))
+             outNew.write('%s_13TeV '%(c))
+             outNew.write('%s '%(p))
+             rew = rew_values[cat_num]
+             outNew.write('%.4f '%(rew))
+             outNew.write('\n')
+             outNew.write('nuisance  edit  freeze %s'%(rateParamName))
+             outNew.write('\n')
 
 
 def printReweightingKlKt(years='2016,2017,2018'.split(',')):
@@ -964,7 +992,19 @@ vtxSyst = 0.02 #updated for Moriond17
 ##flashggSysts['metJerUncertainty'] = 'MET_JER'
 #flashggSysts['JEC'] = 'JEC' 
 #flashggSysts['JER'] = 'JER' 
-#flashggSysts['PUJIDShift'] = 'PUJIDShift' 
+#flashggSysts['PUJIDShift'] = 'PUJIDShift'
+
+##HHbbgg systematics :
+if options.do_HHbbgg_systematics:
+  flashggSysts['LooseMvaSF'] =  'LooseMvaSF'
+  flashggSysts['PreselSF']    =  'PreselSF'
+  flashggSysts['SigmaEOverEShift'] = 'SigmaEOverEShift'
+  flashggSysts['electronVetoSF'] = 'electronVetoSF'
+  flashggSysts['TriggerWeight'] = 'TriggerWeight'
+  flashggSysts['JetBTagReshapeWeight'] = 'JetBTagReshapeWeight'
+  flashggSysts['JEC'] = 'JEC' 
+  flashggSysts['JER'] = 'JER' 
+ 
 
 
 #new ggH uncert prescription (replaces theory, JetVeto)
@@ -975,7 +1015,7 @@ if options.newGghScheme:
   flashggSysts['THU_ggH_Mig12'] = 'THU_ggH_Mig12'
   flashggSysts['THU_ggH_VBF2j'] = 'THU_ggH_VBF2j'
   flashggSysts['THU_ggH_VBF3j'] = 'THU_ggH_VBF3j'
-  flashggSysts['THU_ggH_PT60'] = 'THU_ggH_PT60'
+  flashggSysts['THU_ggH_PT60'] = '/HU_ggH_PT60'
   flashggSysts['THU_ggH_PT120'] = 'THU_ggH_PT120'
   flashggSysts['THU_ggH_qmtop'] = 'THU_ggH_qmtop'
 
@@ -1258,6 +1298,7 @@ def getFlashggLine(proc,cat,syst):
   dataDOWN =  inWS.data("%s_13TeV_%d_%s_%sDown01sigma"%(flashggProc[proc],options.mass,cat,syst)) # will exist if teh systematic is an asymetric uncertainty not strore as event weights
   dataUP =  inWS.data("%s_13TeV_%d_%s_%sUp01sigma"%(flashggProc[proc],options.mass,cat,syst))# will exist if teh systematic is an asymetric uncertainty not strore as event weights
   dataNOMINAL =  inWS.data("%s_13TeV_%d_%s"%(flashggProc[proc],options.mass,cat)) #Nominal RooDataSet,. May contain required weights if UP/DOWN/SYMMETRIC roodatahists do not exist (ie systematic stored as event weigths)
+  print 'trying to access : ',"%s_13TeV_%d_%s"%(flashggProc[proc],options.mass,cat)
   if (dataSYMMETRIC==None):
     if( (dataUP==None) or  (dataDOWN==None)) :
       print "[INFO] Systematic ", syst," stored as asymmetric event weights in RooDataSet"
@@ -1653,6 +1694,11 @@ def printMultiPdf():
 print "JustThisSyst == " , options.justThisSyst
 if ((options.justThisSyst== "batch_split") or options.justThisSyst==""):
 
+####################################Reweighting benchmarks start##################
+  if options.do_benchmarks_scan :
+     printReweightingBenchmarks(years='2016,2017,2018'.split(','))
+     exit()
+####################################Reweighting benchamrks  done##################
 ####################################Reweighting kl kt start##################
   if options.do_kl_scan :
      printReweightingKlKt(years='2016,2017,2018'.split(','))
@@ -1670,7 +1716,7 @@ if ((options.justThisSyst== "batch_split") or options.justThisSyst==""):
   #obs proc/tag bins
   printObsProcBinLines()
   #nuisance param systematics
-  #printNuisParams()
+  if options.do_HHbbgg_systematics : printNuisParams()
   printMultiPdf()
   printBRSyst()
   printLumiSyst(year='2016')

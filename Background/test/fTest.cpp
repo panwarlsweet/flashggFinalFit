@@ -900,7 +900,7 @@ vector<string> flashggCats_;
 
 						if ((prob < upperEnvThreshold) ) { // Looser requirements for the envelope
 
-							if (gofProb > 0.01 || order == truthOrder ) {  // Good looking fit or one of our regular truth functions
+							if (gofProb > 0.05 || order == truthOrder ) {  // Good looking fit or one of our regular truth functions
 
 								std::cout << "[INFO] Adding to Envelope " << bkgPdf->GetName() << " "<< gofProb 
 									<< " 2xNLL + c is " << myNll + bkgPdf->getVariables()->getSize() <<  std::endl;
