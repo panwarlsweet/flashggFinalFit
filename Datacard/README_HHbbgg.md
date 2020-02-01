@@ -1,6 +1,4 @@
 Datacard is created by running the scipt : *makeParametricModelDatacardFLASHgg.py*.
-**Beware** for lumi there are options for each year, one for 2016, 2017 and one for 2018 :
-*--intLumi2016*,*--intLumi2017*,*--intLumi2018*
 
 All of the commands are summarized in this bash scripts :
 ```
@@ -44,5 +42,76 @@ One can prepare several different datacards :
   https://github.com/chernyavskaya/flashggFinalFit/blob/fullRunII_Oct2019/Datacard/runDatacards.sh#L77-L86
   Using the bkg model created for BG in the 'Background' step
 
-ommands that I run can be found in *Datacard/run.sh*
+
+###  kl scan, BSM benchmarks, likelihood ###
+
+## kl scan and limits on the BSM benchmarks ##
+
+We have already prepared a SM datacard. Now in order to be able to run a kl scan (set upper limits for different values of kappa lambda), one has to reweight event yield in each category (DoubleHTag_0,..., DoubleHTag_11) to the event yields that are expected for a given value of kl or for a given BSM benchmark (12 benchmarks + box diagram whn kl = 0).
+
+To do so we have a simple and a very fast script : 
+https://github.com/chernyavskaya/flashggFinalFit/blob/fullRunII_Oct2019/Signal/HHreweighter/runHHReweighterNodes.cpp
+
+This script will be eventually substituted by a better one (we already have it written by Fabio Monti, but we still need to test it for certain scenarios).
+
+This script will take the doubleH ntuple (already categoriezed tree with both gen and reco information. In flashgg terms both reco and gren trees have to be present : tagsDumper/trees and genDiphotonDumper/trees). To be able to get the gen info in the trees one has to run flashgg ntuples with these commands :
+```
+doDoubleHGenAnalysis=True doubleHReweight=1 ForceGenDiphotonProduction=True
+```
+If you do have both gen and reco trees present, but without categorization, it is not a problem, you can categorize them first using this script : 
+https://github.com/chernyavskaya/flashggFinalFit/blob/fullRunII_Oct2019/Signal/trees2cats.py
+```
+cd flashggFinalFit/Signal/
+python trees2cats.py --doCategorization=True --add_gen = True --year = 2016/7/8
+```
+Now run the reweighting script with the grid of kl that you would like to see :
+https://github.com/chernyavskaya/flashggFinalFit/blob/fullRunII_Oct2019/Signal/HHreweighter/runHHReweighterNodes.cpp#L23-L30
+```
+c++ -lm -o runNodes runHHReweighterNodes.cpp HHReweight5D.cpp `root-config --glibs --cflags`
+./runNodes
+```
+This script has all input files, kl grid hardcoded, which is very suboptimal, however, since we will substitute this script with a better one in a very near future, for now one can use this one. kt = 1 should be always 1, because to do a 2D kl-kt scan we will use the other script (Fabio).
+
+Specify the same maps as specified in the flashgg : 
+https://github.com/cms-analysis/flashgg/blob/dev_legacy_runII/MetaData/data/MetaConditions/Era2016_RR-17Jul2018_v1.json#L190
+
+https://github.com/chernyavskaya/flashggFinalFit/blob/fullRunII_Oct2019/Signal/HHreweighter/runHHReweighterNodes.cpp#L34-L36
+
+This coefficient file is needed for the reweighting :
+https://github.com/chernyavskaya/flashggFinalFit/blob/fullRunII_Oct2019/Signal/HHreweighter/runHHReweighterNodes.cpp#L43
+ and can be found here : 
+ #ADD HERE#
+
+This script will create .txt files with the reweighting needed per category for each kl point and for 15 BSM points (12 nodes + SM + box + fake2017 (not needed, should be ignored)).
+
+Now you should create a short config with the kl grid info, example : 
+ #ADD HERE#
+
+__Now you are ready to create datacards for the kl points and for BSM benchmarks__ 
+Specify the directory with the .txt files and the config :
+https://github.com/chernyavskaya/flashggFinalFit/blob/fullRunII_Oct2019/Datacard/runDatacards.sh#L50
+Use these options to specify the name of SM datacard to start from, the config for the reweighting files and the directory where they are :
+https://github.com/chernyavskaya/flashggFinalFit/blob/fullRunII_Oct2019/Datacard/makeParametricModelDatacardFLASHgg.py#L137-L140
+
+
+## kl likelihood ##
+For the kl likelihood one needs to use the reweighting files created in the previous step for different values of kl. Then preform a parabolic fit in each category :
+
+```
+cd flashggFinalFit/Plots/FinalResults
+python extract_kl_param.py --outdir plots --outtag 25_10_2019_fineklbinning
+```
+https://github.com/chernyavskaya/flashggFinalFit/blob/fullRunII_Oct2019/Plots/FinalResults/extract_kl_param.py
+
+Specify the directory where the reweighting .txt files are located (kl reweighting from the previous step) :
+https://github.com/chernyavskaya/flashggFinalFit/blob/fullRunII_Oct2019/Plots/FinalResults/extract_kl_param.py#L31
+
+This script will produce a fit, save a plot and results as config file with a name : out_name+"_fitparams.json"
+
+We need this output file to create datacard to be able to get a kl likelihood : 
+https://github.com/chernyavskaya/flashggFinalFit/blob/fullRunII_Oct2019/Datacard/makeParametricModelDatacardFLASHgg.py#L141-L142
+Run : https://github.com/chernyavskaya/flashggFinalFit/blob/fullRunII_Oct2019/Datacard/runDatacards.sh#L68-L74
+
+
+
 
