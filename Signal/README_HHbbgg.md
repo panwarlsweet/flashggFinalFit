@@ -20,15 +20,14 @@ https://github.com/chernyavskaya/flashggFinalFit/blob/fullRunII_Oct2019/Signal/t
 In addition each benchmark has to be normalized to the total sum of all events (without any preselection), this is saved in this json which is specified in this line :
 https://github.com/chernyavskaya/flashggFinalFit/blob/fullRunII_Oct2019/Signal/trees2ws.py#L188
 and can be found here :
-#add json#
+https://github.com/chernyavskaya/flashggFinalFit/blob/fullRunII_Oct2019/MetaData_HHbbgg/reweighting_normalization_18_12_2019.json
 
 You might wonder why these lines are here :
 https://github.com/chernyavskaya/flashggFinalFit/blob/fullRunII_Oct2019/Signal/trees2ws.py#L213-L216
 This is done in case you are looking at the hh MC , but do not wish to do the reweighting, which means what you are taking not a real SM (in case of 2017/2018), in order to make sure one does not mix up these ones, 'generated' is added to the name.
 
 In order to preserve the normalization of the MC after applying the btag shape weight, signals and single higgs MC should be renormalized using the btag SF factors that are found in this json : 
-#add json#
-and has to be specified here :
+https://github.com/chernyavskaya/flashggFinalFit/blob/fullRunII_Oct2019/MetaData_HHbbgg/btagSF_15_01_2019.jsonand has to be specified here :
 https://github.com/chernyavskaya/flashggFinalFit/blob/fullRunII_Oct2019/Signal/trees2ws.py#L189
 
 By default this script is run with systematics, in order to run without systematics : --nosysts
