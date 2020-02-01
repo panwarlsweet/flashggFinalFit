@@ -146,8 +146,8 @@ def add_dataset_to_workspace(data=None,ws=None,name=None,systematics_labels=[],b
       data['weight'] *= data["benchmark_reweight_%s"%benchmark_num]/benchmark_norm
 
 #Restore normalization from the btag reshaping weights#
-  #data['weight'] *= btag_norm
-  data['weight'] /= data["btagReshapeWeight"] #undo btag weights
+  data['weight'] *= btag_norm
+  #data['weight'] /= data["btagReshapeWeight"] #undo btag weights for a test
 #######################################################
 
   #Fill the dataset with values
