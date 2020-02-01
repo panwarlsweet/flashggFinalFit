@@ -80,12 +80,12 @@ https://github.com/chernyavskaya/flashggFinalFit/blob/fullRunII_Oct2019/Signal/H
 This coefficient file is needed for the reweighting :
 https://github.com/chernyavskaya/flashggFinalFit/blob/fullRunII_Oct2019/Signal/HHreweighter/runHHReweighterNodes.cpp#L43
  and can be found here : 
- #ADD HERE#
+https://github.com/chernyavskaya/flashggFinalFit/blob/fullRunII_Oct2019/MetaData_HHbbgg/coefficientsByBin_extended_3M_costHHSim_19-4.txt
 
 This script will create .txt files with the reweighting needed per category for each kl point and for 15 BSM points (12 nodes + SM + box + fake2017 (not needed, should be ignored)).
 
 Now you should create a short config with the kl grid info, example : 
- #ADD HERE#
+https://github.com/chernyavskaya/flashggFinalFit/blob/fullRunII_Oct2019/MetaData_HHbbgg/config.json
 
 __Now you are ready to create datacards for the kl points and for BSM benchmarks__ 
 Specify the directory with the .txt files and the config :
