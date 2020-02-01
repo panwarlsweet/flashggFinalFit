@@ -1,6 +1,8 @@
 ### Running Signal and Single Higgs bkg models : 
 
-First, one has to prepare a workspaces from the flashgg ntuples (trees). When running flashgg workspaces with systematics, too much memory is taken and jobs do not finish. For this reason we create flashgg trees and then convert them to the workspaces.
+### First, one has to prepare a workspaces from the flashgg ntuples (trees).### 
+
+When running flashgg workspaces with systematics, too much memory is taken and jobs do not finish. For this reason we create flashgg trees and then convert them to the workspaces. If you alreeady have workspaces, then you can move on to the next step (running f-test and fit). 
 
 In flashgg one can specify the name of the output trees. Since different years of data taking are treated differently, we need to rename the workspaces to have a year in the name. I am doing it alerady at the stage of producing the flashgg ntuples. My convention for the names is the following : hh2016/2017/2018 for doubleH signal and vh2016(vh2017, vh2018), qqh(2016/2017/2018), ggh(..), tth(..) for single higgs. Most likely you will not have the same convention in the begining, it is not a problem but you have to make sure you adjust a bit the expected names in the scripts  (will be described further).
 
@@ -9,6 +11,7 @@ To create workspaces from trees :
 cd flashggFinalFit/Signal/
 python trees2ws.py --year 2016 ...and other options 
 ```
+
 You have to specify the location of the trees, the output directory, the names of the input files, etc in the . options : 
 https://github.com/chernyavskaya/flashggFinalFit/blob/fullRunII_Oct2019/Signal/trees2ws.py#L181-L189
 --add_benchmarks option is needed to do the reweighting of the signal to eiher SM signal or any of the 12 benchmarks. 
@@ -18,6 +21,7 @@ In addition each benchmark has to be normalized to the total sum of all events (
 https://github.com/chernyavskaya/flashggFinalFit/blob/fullRunII_Oct2019/Signal/trees2ws.py#L188
 and can be found here :
 #add json#
+
 You might wonder why these lines are here :
 https://github.com/chernyavskaya/flashggFinalFit/blob/fullRunII_Oct2019/Signal/trees2ws.py#L213-L216
 This is done in case you are looking at the hh MC , but do not wish to do the reweighting, which means what you are taking not a real SM (in case of 2017/2018), in order to make sure one does not mix up these ones, 'generated' is added to the name.
@@ -42,7 +46,7 @@ https://github.com/chernyavskaya/flashggFinalFit/blob/fullRunII_Oct2019/Signal/t
 
 These scripts are relatively fast for single Higgs. HH samples for 2017 and 2018 are vrey large though, and processing with systematics takes about 30 min. 
 
-Now you have the workspaces ready, we can move on to the signal model. 
+### Now you have the workspaces ready, we can move on to the signal model. ###
 
 First we run *signalFtest* to determine the number of gausians needed to describe signal 
 (for more info see general README in Signal directory). Beware that this script is not perfect and one has to look at the plots produced 
@@ -51,7 +55,13 @@ and maybe adjust the *config.dat* file that was written in flashggFinalFit/Signa
 After the config file is prepared, we can run script to create a Signal and Resonant Single Higgs bkg models 
 (for now it is counted as signal, but in final datacards we specify it is background).
 
-To make it easier I prepared a pretty general bash script to execute all steps : https://github.com/chernyavskaya/flashggFinalFit/blob/fullRunII_Oct2019/Signal/runSignalScripts_bbgg.sh
+To make it easier I prepared a pretty general bash script to execute all steps : 
+```
+cd flashggFinalFit/Signal/
+source runSignalScripts_bbgg.sh
+```
+
+https://github.com/chernyavskaya/flashggFinalFit/blob/fullRunII_Oct2019/Signal/runSignalScripts_bbgg.sh
 https://github.com/chernyavskaya/flashggFinalFit/blob/fullRunII_Oct2019/Signal/runSignalScripts_bbgg.sh#L1
 You do not have to use it, you can run each step one by one if you wish. I submit jobs for each process and each category, but you can run it locally https://github.com/chernyavskaya/flashggFinalFit/blob/fullRunII_Oct2019/Signal/runSignalScripts_bbgg.sh#L25
 
