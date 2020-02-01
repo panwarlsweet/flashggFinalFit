@@ -1,8 +1,8 @@
 ### Running Signal and Single Higgs bkg models : 
 
-### First, one has to prepare a workspaces from the flashgg ntuples (trees).### 
+### First, one has to prepare a workspaces from the flashgg ntuples (trees). ### 
 
-When running flashgg workspaces with systematics, too much memory is taken and jobs do not finish. For this reason we create flashgg trees and then convert them to the workspaces. If you alreeady have workspaces, then you can move on to the next step (running f-test and fit). 
+When running flashgg workspaces with systematics, too much memory is taken and jobs do not finish. For this reason we create flashgg trees (dumpTrees = True , dumpWorkspaces = False) and then convert them to the workspaces. If you alreeady have workspaces (dumpWorkspaces = True), then you can move on to the next step (running f-test and fit). 
 
 In flashgg one can specify the name of the output trees. Since different years of data taking are treated differently, we need to rename the workspaces to have a year in the name. I am doing it alerady at the stage of producing the flashgg ntuples. My convention for the names is the following : hh2016/2017/2018 for doubleH signal and vh2016(vh2017, vh2018), qqh(2016/2017/2018), ggh(..), tth(..) for single higgs. Most likely you will not have the same convention in the begining, it is not a problem but you have to make sure you adjust a bit the expected names in the scripts  (will be described further).
 
