@@ -46,6 +46,3 @@ Folders, names of the files, processes you want to run on have to be modified.
 cd flashggFinalFit/Background
 source run.sh
 ```
-
-
-You might want to create a BG model using MC. For this you need to prepare a workspace with the correct SF (MC->Data) and 
