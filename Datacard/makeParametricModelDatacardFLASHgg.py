@@ -1726,7 +1726,7 @@ if ((options.justThisSyst== "batch_split") or options.justThisSyst==""):
      printLumiSyst(year='2016')
      printLumiSyst(year='2017')
      printLumiSyst(year='2018')
-     printNuisParams()
+     printFlashggSysts()
 
 
 #if (len(tthCats) > 0 ):  printTTHSysts()
