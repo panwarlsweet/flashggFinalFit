@@ -1715,18 +1715,19 @@ if ((options.justThisSyst== "batch_split") or options.justThisSyst==""):
   printFileOptions()
   #obs proc/tag bins
   printObsProcBinLines()
+  printMultiPdf()
   #nuisance param systematics
   #printMultiPdf()
   #printBRSyst()
   #printTrigSyst() # now a weight in the main roodataset!
   #printSimpleTTHSysts()
   if options.do_HHbbgg_systematics : 
-     printMultiPdf()
      printBRSyst()
      printLumiSyst(year='2016')
      printLumiSyst(year='2017')
      printLumiSyst(year='2018')
      printFlashggSysts()
+     printTheorySysts()
 
 
 #if (len(tthCats) > 0 ):  printTTHSysts()
