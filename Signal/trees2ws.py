@@ -222,7 +222,7 @@ for num,f in enumerate(input_files):
 data_structure = pd.DataFrame(data=None)
 for num,f in enumerate(input_files):
  print 'doing file ',f,input_names[num]
- if 'hh' in f and year=='2016':  f='hh_nodes_5_12'
+ #if 'hh' in f and year=='2016':  f='hh_nodes_5_12'
  tfile = ROOT.TFile(opt.inp_dir + "output_"+f+"_%s.root"%year)
  tfilename = opt.inp_dir + "output_"+f+"_%s.root"%year
  if not opt.add_benchmarks : whichNodes = [1]
