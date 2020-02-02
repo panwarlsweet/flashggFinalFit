@@ -1716,23 +1716,27 @@ if ((options.justThisSyst== "batch_split") or options.justThisSyst==""):
   #obs proc/tag bins
   printObsProcBinLines()
   #nuisance param systematics
-  if options.do_HHbbgg_systematics : printNuisParams()
-  printMultiPdf()
-  printBRSyst()
-  printLumiSyst(year='2016')
-  printLumiSyst(year='2017')
-  printLumiSyst(year='2018')
+  #printMultiPdf()
+  #printBRSyst()
   #printTrigSyst() # now a weight in the main roodataset!
-  printSimpleTTHSysts()
+  #printSimpleTTHSysts()
+  if options.do_HHbbgg_systematics : 
+     printMultiPdf()
+     printBRSyst()
+     printLumiSyst(year='2016')
+     printLumiSyst(year='2017')
+     printLumiSyst(year='2018')
+     printNuisParams()
 
-if (len(tthCats) > 0 ):  printTTHSysts()
-printTheorySysts()
+
+#if (len(tthCats) > 0 ):  printTTHSysts()
+#printTheorySysts()
 # lnN systematics
-printFlashggSysts()
+#printFlashggSysts()
 #printUEPSSyst()
 #catgeory migrations
 #if (len(dijetCats) > 0 and len(tthCats)>0):  printVbfSysts()
-if (len(dijetCats) > 0 ):  printVbfSysts()
+#if (len(dijetCats) > 0 ):  printVbfSysts()
 #other 
 #printLepSysts() #obsolete
 
