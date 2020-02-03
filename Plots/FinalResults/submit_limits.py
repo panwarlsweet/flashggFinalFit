@@ -73,7 +73,7 @@ parser.add_option("--hadd",help="Trawl passed directory and hadd files. To be us
 parser.add_option("--resubmitFailures",help=" Provide directory and the script will find failed jobs and resubmit them")
 parser.add_option("-v","--verbose",default=False,action="store_true")
 parser.add_option("--poix",default="r")
-parser.add_option("--S0",default=False,action="store_true",help="Stats only")
+parser.add_option("--S0",default=False,action="store_true",help="Stats only, not sure this will work, please make sure it does take into account discrete profiling. Risk at your own risk.")
 parser.add_option("--batch",default="T3CH",help="Which batch system to use (LSF,IC)")
 parser.add_option("--prefix",default="./")
 parser.add_option("--freezeAll",default=False,action="store_true",help="Freeze all nuisances")
