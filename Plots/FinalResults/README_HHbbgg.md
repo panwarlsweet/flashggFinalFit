@@ -37,7 +37,7 @@ python plot_klambda_scan.py --indir output/Limits_24_01_2020_klkt/ --outdir plot
 ## Running kl-likelihood ##
 Convert datacard to a workspace :
 ```
-text2workspace.py Datacards/cms_HHbbgg_datacard_nodeSM_24_01_2020_kl_likelihood.txt
+text2workspace.py Datacards/cms_HHbbgg_datacard_nodeSM_24_01_2020_kl_likelihood.txt  --channel-masks
 ```
 
 First you need to generate Asimov SM toy : 
