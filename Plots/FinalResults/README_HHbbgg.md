@@ -61,7 +61,7 @@ hadd higgsCombineMultiDim_all_$OUTTAG.MultiDimFit.mH120.root  *.root
 
 To plot the kl-likelihood :
 ```
-python plot_kllikelihood.py --indir output/Limits_24_01_2020_kllikelihood/ --outdir plots/ --outtag 24_01_2020_kllikelihood --infilehiggsCombineMultiDim_all_24_01_2020.MultiDimFit.mH120.root
+python plot_kllikelihood.py --indir output/Limits_24_01_2020_kllikelihood/ --outdir plots/ --outtag 24_01_2020_kllikelihood --infile higgsCombineMultiDim_all_24_01_2020.MultiDimFit.mH120.root
 ```
 To plot a zoomed version of the plot, pass --zoom : 
 ```
