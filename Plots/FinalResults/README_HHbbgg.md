@@ -54,6 +54,11 @@ This will consider all categories, if you want to do it only for some categories
 ```
 python submit_limits.py --method  MultiDimFit --do_kl_likelihood  --datacard Datacards/cms_HHbbgg_datacard_nodeSM_24_01_2020_kl_likelihood.root --jobs 10 --pointsperjob 15 --outDir output/Limits_24_01_2020_kllikelihood/ --channels_to_run all,DoubleHTag_0,DoubleHTag_1,DoubleHTag_2,DoubleHTag_3,DoubleHTag_4,DoubleHTag_5,DoubleHTag_6,DoubleHTag_7,DoubleHTag_8,DoubleHTag_9,DoubleHTag_10,DoubleHTag_11 --outtag 24_01_2020 --toysFile output/Limits_24_01_2020_kllikelihood/higgsCombineSM_AsimovToy_all_24_01_2020.GenerateOnly.mH120.123456.root
 ```
+Once all the jobs are done, hadd the jobs files :
+```
+hadd higgsCombineMultiDim_all_$OUTTAG.MultiDimFit.mH120.root  *.root
+```
+
 To plot the kl-likelihood :
 ```
 python plot_kllikelihood.py --indir output/Limits_24_01_2020_kllikelihood/ --outdir plots/ --outtag 24_01_2020_kllikelihood --infilehiggsCombineMultiDim_all_24_01_2020.MultiDimFit.mH120.root
