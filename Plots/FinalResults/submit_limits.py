@@ -173,7 +173,7 @@ def writeAsymptotic(jobid,card,outtag):
     file = open('%s/Jobs/sub_job%d.sh'%(opts.outDir,jobid),'w')
     writePreamble(file)
     exec_line =  'combine %s/%s -n %s -M Asymptotic -m 125.00 --cminDefaultMinimizerType=Minuit2 -L $CMSSW_BASE/lib/$SCRAM_ARCH/libHiggsAnalysisGBRLikelihood.so  --rRelAcc 0.001 '%(os.getcwd(),card,outtag)
-    if opts.S0: exec_line += ' -s 0 '
+    if opts.S0: exec_line += ' -S 0 '
     if opts.expected: exec_line += ' --run=blind -t -1'
     writePostamble(file,exec_line,outtag)
 
@@ -190,7 +190,7 @@ def writeMultiDimFitLikelihood(card,toysFile,channels="all",kl_range="-10,15"):
        file = open('%s/Jobs/sub_%s_job_kl_%d.sh'%(opts.outDir,channels,i),'w')
        writePreamble(file)
        exec_line = 'combine %s/%s -M MultiDimFit --algo grid --points %s -P kl --floatOtherPOIs 0 --setPhysicsModelParameterRanges kl=%s --setPhysicsModelParameters r=1%s --firstPoint=%d --lastPoint=%d -n MultiDim_%s_%s_Job%d -L $CMSSW_BASE/lib/$SCRAM_ARCH/libHiggsAnalysisGBRLikelihood.so %s '%(os.getcwd(),card,opts.pointsperjob*opts.jobs,kl_range,mask_str,i*opts.pointsperjob,(i+1)*opts.pointsperjob-1,channels,opts.outtag,i,opts.freeze_kl_fit_params)
-       if opts.S0: exec_line += ' -s 0 '
+       if opts.S0: exec_line += ' -S 0 '
        if opts.expected: exec_line += ' -t -1 --toysFile %s'%toysFile
        writePostamble(file,exec_line,"MultiDim_%s_%s_Job%d"%(channels,opts.outtag,i))
 
