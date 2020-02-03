@@ -42,7 +42,7 @@ text2workspace.py Datacards/cms_HHbbgg_datacard_nodeSM_24_01_2020_kl_likelihood.
 
 First you need to generate Asimov SM toy : 
 ```
-python submit_limits.py --method GenerateOnly --generateAsimovHHSM --datacard Datacards/cms_HHbbgg_datacard_nodeSM_24_01_2020_kl_likelihood.root --outDir output/Limits_24_01_2020_klkt/ --channels_to_run all --outtag 24_01_2020 —toysFile output/Limits_24_01_2020_klkt/higgsCombineSM_AsimovToy_all_24_01_2020.GenerateOnly.mH120.123456.root
+python submit_limits.py --method GenerateOnly --generateAsimovHHSM --datacard Datacards/cms_HHbbgg_datacard_nodeSM_24_01_2020_kl_likelihood.root --outDir output/Limits_24_01_2020_klkt/ --channels_to_run all --outtag 24_01_2020 
 ```
 
 Then you can run d MultiDim fit : 
