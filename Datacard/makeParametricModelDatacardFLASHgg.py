@@ -133,7 +133,7 @@ parser.add_option("--intLumi2018",type="float",default=59.35,help="Integrated Lu
 parser.add_option("--newGghScheme",default=False,action="store_true",help="Use new WG1 scheme for ggH theory uncertainties" )
 parser.add_option("--doSTXS",default=False,action="store_true",help="Use STXS Stage 0 processes" )
 parser.add_option("--signalProc",default='hh_SM_generated_2016,hh_SM_generated_2017,hh_SM_generated_2018',help="What to consider signal processes" )
-parser.add_option("--do_HHbbgg_systematics",default=False,action="store_true",help="Do systematics" )
+parser.add_option("--do_HHbbgg_systematics",default=0,type='int',help="Do systematics" )
 parser.add_option("--hhReweightDir",default='/work/nchernya/DiHiggs/inputs/25_10_2019/trees/kl_kt/',help="hh reweighting directory with all txt files" )
 parser.add_option("--hhReweightSM",default='',help="hh base SM card to start from" )
 parser.add_option("--do_kl_scan",default=False,action="store_true",help="do kl scan?" )
