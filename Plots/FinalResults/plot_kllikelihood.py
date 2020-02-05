@@ -90,8 +90,8 @@ parser.add_option("--outdir",default='plots/', help="Output directory ")
 parser.add_option("--outtag", help="Output tag")
 parser.add_option("--zoom", action="store_true" , help="Zoom the plot ")
 parser.add_option("--unblind", action="store_true",help="Observed is present or not ",default=True)
-#parser.add_option("--channels_to_run",default="all,DoubleHTag_0,DoubleHTag_1,DoubleHTag_2,DoubleHTag_3,DoubleHTag_4,DoubleHTag_5,DoubleHTag_6,DoubleHTag_7,DoubleHTag_8,DoubleHTag_9,DoubleHTag_10,DoubleHTag_11", help = "which channels to run on")
-parser.add_option("--channels_to_run",default="all", help = "which channels to run on")
+parser.add_option("--channels_to_run",default="all,DoubleHTag_0,DoubleHTag_1,DoubleHTag_2,DoubleHTag_3,DoubleHTag_4,DoubleHTag_5,DoubleHTag_6,DoubleHTag_7,DoubleHTag_8,DoubleHTag_9,DoubleHTag_10,DoubleHTag_11", help = "which channels to run on")
+#parser.add_option("--channels_to_run",default="all", help = "which channels to run on")
 (options,args)=parser.parse_args()
 ###########
 
@@ -175,6 +175,7 @@ legend.SetTextSize(0.03)
 for ich,ch in enumerate(options.channels_to_run.split(",")):
    if ch=="all" :
     legend.AddEntry(graphs[ich],"Combined","L")
+   elif "MVA" in ch : legend.AddEntry(graphs[ich],ch,"L")
    else : legend.AddEntry(graphs[ich],"CAT %s"%(ch.replace("DoubleHTag_","")),"L")
 if dolegend : legend.Draw("same")
 

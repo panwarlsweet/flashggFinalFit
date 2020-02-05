@@ -7,16 +7,17 @@ from math import sqrt
 import json
 
 #date = '06_05_2019' 
-date = '25_10_2019'
+#date = '25_10_2019'
+date = '24_01_2020'
+#date = '03_02_2020'
 
 #filename = '/work/nchernya/DiHiggs/CMSSW_7_4_7/src/flashggFinalFit/Signal/output/CMS-HGG_sigfit_all2016_2017_%s.root'%date
 #filename_bkg = '/work/nchernya/DiHiggs/CMSSW_7_4_7/src/flashggFinalFit/Background/outputs/CMS-HGG_multipdf_HHbbgg_2016_2017_%s.root'%date
 
 #filename = '/work/nchernya/DiHiggs/CMSSW_7_4_7/src/flashggFinalFit/Signal/output/CMS-HGG_sigfit_all2016_2017_2018_%s.root'%date
-filename = '/work/nchernya/DiHiggs/CMSSW_7_4_7/src/flashggFinalFit/Signal/output/CMS-HGG_sigfit_2016_2017_2018_%s.root'%date
+filename = '/work/nchernya/DiHiggs/CMSSW_7_4_7/src/flashggFinalFit/Plots/FinalResults/inputs/CMS-HGG_sigfit_2016_2017_2018_%s.root'%date
 #CMS-HGG_sigfit_2016_2017_2018_25_10_2019.root' #CMS-HGG_sigfit_allAndNodes2016_2017_2018_25_10_2019.root'
 #filename = '/work/nchernya/DiHiggs/CMSSW_7_4_7/src/flashggFinalFit/Plots/FinalResults/inputs/CMS-HGG_sigfit_nodes2018_25_10_2019.root'
-filename_bkg = '/work/nchernya/DiHiggs/CMSSW_7_4_7/src/flashggFinalFit/Background/outputs/CMS-HGG_multipdf_HHbbgg_2016_2017_2018_%s.root'%date
 wsname = 'wsig_13TeV'
 wsname_bkg = 'multipdf'
 
@@ -75,14 +76,14 @@ filename_bkg_2016 = '/work/nchernya/DiHiggs/inputs/%s/output_DoubleEG_2016_%s.ro
 filename_bkg_2017 = '/work/nchernya/DiHiggs/inputs/%s/output_DoubleEG_2017_%s.root'%(date,date)
 filename_bkg_2018 = '/work/nchernya/DiHiggs/inputs/%s/output_DoubleEG_2018_%s.root'%(date,date)
 filename_bkg_total = '/work/nchernya/DiHiggs/inputs/%s/output_DoubleEG_2016_2017_2018_%s.root'%(date,date)
-#filename_bkg_total = '/work/nchernya/DiHiggs/inputs/%s/output_DoubleEG_2016_2017_%s.root'%(date,date)
-years=['2016','2017','2018','Total']
+filename_bkg_MCbg = '/work/nchernya/DiHiggs/inputs/%s/output_BG_MCbjets_2016_2017_2018_%s.root'%(date,date)
+#years=['2016','2017','2018','Total']
 #years=['2016']
-#years=['Total']
+years=['Total','MC BGbjets']
 print 'Data with blinded 115 < Mgg < 135'
-for num,name in enumerate([filename_bkg_2016,filename_bkg_2017,filename_bkg_2018,filename_bkg_total]):
+#for num,name in enumerate([filename_bkg_2016,filename_bkg_2017,filename_bkg_2018,filename_bkg_total]):
 #for num,name in enumerate([filename_bkg_2016]):
-#for num,name in enumerate([filename_bkg_total]):
+for num,name in enumerate([filename_bkg_total,filename_bkg_MCbg]):
 	tfile = TFile(name)
 	wsname_bkg = 'tagsDumper/cms_hgg_13TeV'
 	ws_bkg = tfile.Get(wsname_bkg)
@@ -95,7 +96,8 @@ for num,name in enumerate([filename_bkg_2016,filename_bkg_2017,filename_bkg_2018
 		entries_blinded=0
 		for event in range(0,ws_bkg.data(catname).numEntries()):
 			if (ws_bkg.data(catname).get(event).getRealValue("CMS_hgg_mass") > 135.) or (ws_bkg.data(catname).get(event).getRealValue("CMS_hgg_mass") < 115.):
-				entries_blinded+=1
+				#entries_blinded+=1
+				entries_blinded+=ws_bkg.data(catname).weight()
 		sum_entries_bkg[catname] = entries
 		sum_bkg+=entries_blinded
 	#	print '%d\t'%(entries),'&',

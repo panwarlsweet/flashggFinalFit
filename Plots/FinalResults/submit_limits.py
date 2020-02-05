@@ -73,7 +73,7 @@ parser.add_option("--hadd",help="Trawl passed directory and hadd files. To be us
 parser.add_option("--resubmitFailures",help=" Provide directory and the script will find failed jobs and resubmit them")
 parser.add_option("-v","--verbose",default=False,action="store_true")
 parser.add_option("--poix",default="r")
-parser.add_option("--S0",default=False,action="store_true",help="Stats only")
+parser.add_option("--S0",default=False,action="store_true",help="Stats only, not sure this will work, please make sure it does take into account discrete profiling. Risk at your own risk.")
 parser.add_option("--batch",default="T3CH",help="Which batch system to use (LSF,IC)")
 parser.add_option("--prefix",default="./")
 parser.add_option("--freezeAll",default=False,action="store_true",help="Freeze all nuisances")
@@ -173,36 +173,42 @@ def writeAsymptotic(jobid,card,outtag):
     file = open('%s/Jobs/sub_job%d.sh'%(opts.outDir,jobid),'w')
     writePreamble(file)
     exec_line =  'combine %s/%s -n %s -M Asymptotic -m 125.00 --cminDefaultMinimizerType=Minuit2 -L $CMSSW_BASE/lib/$SCRAM_ARCH/libHiggsAnalysisGBRLikelihood.so  --rRelAcc 0.001 '%(os.getcwd(),card,outtag)
-    if opts.S0: exec_line += ' -s 0 '
+    if opts.S0: exec_line += ' -S 0 '
     if opts.expected: exec_line += ' --run=blind -t -1'
     writePostamble(file,exec_line,outtag)
 
 
 
-def writeMultiDimFitLikelihood(card,toysFile,channels="all",kl_range="-10,15"):
+def writeMultiDimFitLikelihood(card,toysFile,channels="all",kl_range="-10,15",cats_map_mask={"MVA0":""}):
     print "[INFO] writing multidim fit"
     mask_str = ""
-    if channels!="all" :
+    if channels!="all" and not "MVA" in channels :
        for cat in opts.cats.split(","):
          if channels != cat:
            mask_str += ",mask_%s_13TeV=1"%(cat)
+    elif "MVA" in channels :
+      for to_mask in set(cats_map_mask[channels])^set(opts.cats.split(",")): 
+           mask_str += ",mask_%s_13TeV=1"%(to_mask)
     for i in range(opts.jobs):
        file = open('%s/Jobs/sub_%s_job_kl_%d.sh'%(opts.outDir,channels,i),'w')
        writePreamble(file)
        exec_line = 'combine %s/%s -M MultiDimFit --algo grid --points %s -P kl --floatOtherPOIs 0 --setPhysicsModelParameterRanges kl=%s --setPhysicsModelParameters r=1%s --firstPoint=%d --lastPoint=%d -n MultiDim_%s_%s_Job%d -L $CMSSW_BASE/lib/$SCRAM_ARCH/libHiggsAnalysisGBRLikelihood.so %s '%(os.getcwd(),card,opts.pointsperjob*opts.jobs,kl_range,mask_str,i*opts.pointsperjob,(i+1)*opts.pointsperjob-1,channels,opts.outtag,i,opts.freeze_kl_fit_params)
-       if opts.S0: exec_line += ' -s 0 '
+       if opts.S0: exec_line += ' -S 0 '
        if opts.expected: exec_line += ' -t -1 --toysFile %s'%toysFile
        writePostamble(file,exec_line,"MultiDim_%s_%s_Job%d"%(channels,opts.outtag,i))
 
 
 
-def generateAsimovHHSM(card,channels="all"):
+def generateAsimovHHSM(card,channels="all",cats_map_mask={"MVA0":""}):
     print "[INFO] generating Asimov SM S+B for channels : %s"%channels
     mask_str = ""
-    if channels!="all" :
+    if channels!="all" and not "MVA" in channels :
        for cat in opts.cats.split(","):
          if channels != cat:
            mask_str += ",mask_%s_13TeV=1"%(cat)
+    elif "MVA" in channels :
+      for to_mask in set(cats_map_mask[channels])^set(opts.cats.split(",")): 
+           mask_str += ",mask_%s_13TeV=1"%(to_mask)
     exec_line = "combine %s/%s  -M GenerateOnly -t -1 --saveToys -n SM_AsimovToy_%s_%s --setPhysicsModelParameters kl=1,r=1%s %s,kl"%(os.getcwd(),card,channels,opts.outtag,mask_str,opts.freeze_kl_fit_params)
     system(exec_line)
     system('mv higgsCombineSM_AsimovToy_*%s*.root %s\n'%(opts.outtag,os.path.abspath(opts.outDir)))
@@ -214,6 +220,12 @@ def checkValidMethod():
 
 
 #######################################
+cats_map = {}
+cats_map['MVA0'] = 'DoubleHTag_0,DoubleHTag_1,DoubleHTag_2,DoubleHTag_3'.split(',')
+cats_map['MVA1'] = 'DoubleHTag_4,DoubleHTag_5,DoubleHTag_6,DoubleHTag_7'.split(',')
+cats_map['MVA2'] = 'DoubleHTag_8,DoubleHTag_9,DoubleHTag_10,DoubleHTag_11'.split(',')
+
+
 checkValidMethod()
 system('mkdir -p %s/Jobs/'%opts.outDir)
 if opts.do_kl_scan:
@@ -247,9 +259,9 @@ elif opts.do_kl_likelihood:
        if ch!="all" : 
           toysFile = opts.toysFile.replace("all",ch)
           kl_range = "-20,20"
-       writeMultiDimFitLikelihood(opts.datacard,toysFile,ch,kl_range)
+       writeMultiDimFitLikelihood(opts.datacard,toysFile,ch,kl_range,cats_map)
 elif opts.generateAsimovHHSM:
     for ch in opts.channels_to_run.split(","): 
-      generateAsimovHHSM(opts.datacard,ch)
+      generateAsimovHHSM(opts.datacard,ch,cats_map)
     
 

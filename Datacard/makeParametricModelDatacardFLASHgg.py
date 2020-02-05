@@ -133,7 +133,7 @@ parser.add_option("--intLumi2018",type="float",default=59.35,help="Integrated Lu
 parser.add_option("--newGghScheme",default=False,action="store_true",help="Use new WG1 scheme for ggH theory uncertainties" )
 parser.add_option("--doSTXS",default=False,action="store_true",help="Use STXS Stage 0 processes" )
 parser.add_option("--signalProc",default='hh_SM_generated_2016,hh_SM_generated_2017,hh_SM_generated_2018',help="What to consider signal processes" )
-parser.add_option("--do_HHbbgg_systematics",default=False,action="store_true",help="Do systematics" )
+parser.add_option("--do_HHbbgg_systematics",default=0,type='int',help="Do systematics" )
 parser.add_option("--hhReweightDir",default='/work/nchernya/DiHiggs/inputs/25_10_2019/trees/kl_kt/',help="hh reweighting directory with all txt files" )
 parser.add_option("--hhReweightSM",default='',help="hh base SM card to start from" )
 parser.add_option("--do_kl_scan",default=False,action="store_true",help="do kl scan?" )
@@ -1715,24 +1715,29 @@ if ((options.justThisSyst== "batch_split") or options.justThisSyst==""):
   printFileOptions()
   #obs proc/tag bins
   printObsProcBinLines()
-  #nuisance param systematics
-  if options.do_HHbbgg_systematics : printNuisParams()
   printMultiPdf()
   printBRSyst()
-  printLumiSyst(year='2016')
-  printLumiSyst(year='2017')
-  printLumiSyst(year='2018')
+  #nuisance param systematics
+  #printNuisParams()
+  #printMultiPdf()
+  #printBRSyst()
   #printTrigSyst() # now a weight in the main roodataset!
-  printSimpleTTHSysts()
+  #printSimpleTTHSysts()
+  if options.do_HHbbgg_systematics : 
+     printLumiSyst(year='2016')
+     printLumiSyst(year='2017')
+     printLumiSyst(year='2018')
+     printFlashggSysts()
+     printTheorySysts()
 
-if (len(tthCats) > 0 ):  printTTHSysts()
-printTheorySysts()
+#if (len(tthCats) > 0 ):  printTTHSysts()
+#printTheorySysts()
 # lnN systematics
-printFlashggSysts()
+#printFlashggSysts()
 #printUEPSSyst()
 #catgeory migrations
 #if (len(dijetCats) > 0 and len(tthCats)>0):  printVbfSysts()
-if (len(dijetCats) > 0 ):  printVbfSysts()
+#if (len(dijetCats) > 0 ):  printVbfSysts()
 #other 
 #printLepSysts() #obsolete
 

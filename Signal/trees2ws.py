@@ -179,8 +179,8 @@ def get_options():
     parser = OptionParser()
     #parser.add_option("--inp-files",type='string',dest='inp_files',default='qqh,tth,vh,ggh')  
     parser.add_option("--inp-files",type='string',dest='inp_files',default='hh')  
-    parser.add_option("--inp-dir",type='string',dest="inp_dir",default='/work/nchernya/DiHiggs/inputs/20_12_2019/trees/')
-    parser.add_option("--out-dir",type='string',dest="out_dir",default='/work/nchernya/DiHiggs/inputs/20_12_2019/syst/')
+    parser.add_option("--inp-dir",type='string',dest="inp_dir",default='/scratch/nchernya/HHbbgg/24_01_2020/trees_systematics/')
+    parser.add_option("--out-dir",type='string',dest="out_dir",default='/scratch/nchernya/HHbbgg/24_01_2020/workspaces_systematics/')
     parser.add_option("--cats",type='string',dest="cats",default='DoubleHTag_0,DoubleHTag_1,DoubleHTag_2,DoubleHTag_3,DoubleHTag_4,DoubleHTag_5,DoubleHTag_6,DoubleHTag_7,DoubleHTag_8,DoubleHTag_9,DoubleHTag_10,DoubleHTag_11')
     parser.add_option("--nosysts",action="store_true", dest="nosysts", default=False)
     parser.add_option("--year",type='string',dest="year",default='2016')
@@ -222,7 +222,7 @@ for num,f in enumerate(input_files):
 data_structure = pd.DataFrame(data=None)
 for num,f in enumerate(input_files):
  print 'doing file ',f,input_names[num]
- if 'hh' in f and year=='2016':  f='hh_nodes_5_12'
+ #if 'hh' in f and year=='2016':  f='hh_nodes_5_12'
  tfile = ROOT.TFile(opt.inp_dir + "output_"+f+"_%s.root"%year)
  tfilename = opt.inp_dir + "output_"+f+"_%s.root"%year
  if not opt.add_benchmarks : whichNodes = [1]
@@ -244,7 +244,7 @@ for num,f in enumerate(input_files):
          #data = pd.DataFrame(tree2array(tfile.Get("tagsDumper/trees/%s"%name)))
          if (tfile.Get("tagsDumper/trees/%s"%name).GetEntries())!=0 :
             data = rpd.read_root(tfilename,'tagsDumper/trees/%s'%name)
-            #if 'hh' in f and year=='2016': data =data.append(rpd.read_root(opt.inp_dir+"output_hh_wo_node_5_12_2016.root",'tagsDumper/trees/%s'%name),ignore_index=True)  #just a tmp , ignore
+            if 'hh' in f and year=='2016': data =data.append(rpd.read_root(opt.inp_dir+"output_hh_2016_node_5_12.root",'tagsDumper/trees/%s'%name),ignore_index=True)  #just a tmp , ignore
             if cat_num == 0 :  data_structure = pd.DataFrame(data=None, columns=data.columns) 
          else :
             "USER WARNING : 0 events in ",f," syst ",syst," ,cat = ",cat 

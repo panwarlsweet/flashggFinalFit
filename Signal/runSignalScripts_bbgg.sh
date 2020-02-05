@@ -8,7 +8,8 @@ MASS=''
 #YEAR="2017"
 YEAR="2018"
 
-DATE="27_01_2020"
+#DATE="24_01_2020"
+DATE="03_02_2020"
 #EXT="singleHiggs"$YEAR
 EXT="nodes"$YEAR
 PHOTONSYSTFILE=dat/photonCatSyst.dat # without systematics
