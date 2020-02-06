@@ -69,7 +69,8 @@ int main(int argc, char *argv[]){
   const int _NCAT = 12; //12
  
 //  std::vector<TString> procs = {"hh_node_SM","tth","ggh","vh","qqh"}; 
-  std::vector<TString> procs = {"hh_node_SM"}; 
+  std::vector<TString> procs = {"ggh","qqh"}; 
+//  std::vector<TString> procs = {"hh_node_SM"}; 
   TString year = "2016";
   TString indir = "/work/nchernya/DiHiggs/inputs/04_02_2020/";
   TString plotdir = "/work/nchernya/DiHiggs/CMSSW_7_4_7/src/flashggFinalFit/Signal/plots/mjj/";
@@ -98,17 +99,26 @@ int main(int argc, char *argv[]){
   RooDataSet* sigToFit[_NCAT];
   for (int c = 0; c < _NCAT; ++c)
     {
-      sigToFit[c] = (RooDataSet*) w_original->data(TString::Format("%s_%s_13TeV_125_DoubleHTag_%d",iproc.Data(),year.Data(),c));
+      sigToFit[c] = (RooDataSet*) w_original->data(TString::Format("%s_%s_13TeV_125_DoubleHTag_%d",iproc.Data(),year.Data(),c)); //is weight properly propagated in this case?
 	}
 	
 
   RooAbsPdf* MjjSig[_NCAT];
   for (int c = 0; c < _NCAT; ++c)
     {
-      MjjSig[c] = (RooAbsPdf*) w->pdf(TString::Format("Mjj%s%s_cat%d",proc_type_upper.Data(),iproc_type.Data(),c));
+	
+	   if(iproc.Contains("ggh") == 1 || iproc.Contains("qqh") == 1) {
+	   	MjjSig[c] = new RooBernstein(TString::Format("MjjHig_%s_cat%d",iproc.Data(),c),"",*Mjj,
+				       RooArgList( *w->var( TString::Format("Mjj_hig_par1_%s_cat%d", iproc.Data(),c) ),
+						   *w->var( TString::Format("Mjj_hig_par2_%s_cat%d", iproc.Data(),c) ),
+						   *w->var( TString::Format("Mjj_hig_par3_%s_cat%d", iproc.Data(),c) ) ));
+        	w->import(*MjjSig[c]);
+ 	   }
+	   else MjjSig[c] = (RooAbsPdf*) w->pdf(TString::Format("Mjj%s%s_cat%d",proc_type_upper.Data(),iproc_type.Data(),c));
+
       MjjSig[c]->Print();
 
-      ((RooRealVar*) w->var(TString::Format("Mjj_%s_m0%s_cat%d",proc_type.Data(),iproc_type.Data(),c)))->setVal(125.);
+      if (proc_type == "sig")  ((RooRealVar*) w->var(TString::Format("Mjj_%s_m0%s_cat%d",proc_type.Data(),iproc_type.Data(),c)))->setVal(125.);
       MjjSig[c]->fitTo(*sigToFit[c],Range(TString::Format("%sFitRange",proc_type_upper.Data())),SumW2Error(kTRUE),PrintLevel(3));
 
       RooArgSet *sigParams = 0;
@@ -126,7 +136,7 @@ int main(int argc, char *argv[]){
         TString thisVarName(a->GetName());
          TString newVarName = TString(thisVarName);
          newVarName.ReplaceAll("_cat", TString::Format("_%s_DoubleHTag_",year.Data()));
-         newVarName.ReplaceAll(TString::Format("%s%s_",proc_type.Data(),iproc_type.Data()), "");
+         newVarName.ReplaceAll(TString::Format("%s_",proc_type.Data()), "");
          newVarName.ReplaceAll(TString::Format("%s",year.Data()), TString::Format("%s_%s",iproc.Data(),year.Data()));
        //  newVarName.ReplaceAll("Mjj", "CMS_hbb_mass"); //will do this later
          w->import( *rrv, RenameVariable( thisVarName, newVarName));
