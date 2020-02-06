@@ -136,6 +136,8 @@ def get_options():
     return parser.parse_args()
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  
 
+#treeDirName = 'tagsDumper/trees/'
+treeDirName = ''
 SF = 2.9
 remove_diphoton_overlap = True
 lumi_dict = {}
@@ -194,7 +196,7 @@ for num,f in enumerate(input_files):
        selection = "(MX <= %.2f and MX > %.2f) and (MVAOutputTransformed <= %.2f and MVAOutputTransformed > %.2f) and (ttHScore >= %.2f) "%(cat_def[cat]["MX"][0],cat_def[cat]["MX"][1],cat_def[cat]["MVA"][0],cat_def[cat]["MVA"][1],opt.ttHScore)
        print 'doing selection ', selection
        #data = rpd.read_root(tfilename,'tagsDumper/trees/%s'%initial_name).query(selection)
-       data = rpd.read_root(tfilename,'%s'%initial_name).query(selection)
+       data = rpd.read_root(tfilename,'%s'%(treeDirName+initial_name)).query(selection)
        if remove_diphoton_overlap : 
          if 'DiPhotonJetsBox_' in f  : 
            print 'cleaning overlap from diphotons for sample ',f

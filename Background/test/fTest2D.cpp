@@ -308,7 +308,7 @@ double getGoodnessOfFit(RooRealVar *mass, RooAbsPdf *mpdf, RooDataSet *data, std
 
 }
 
-void plot(RooRealVar *mass, RooAbsPdf *pdf, RooDataSet *data, string name,vector<string> flashggCats_, int status, double *prob){
+void plot(RooRealVar *mass, RooAbsPdf *pdf, RooDataSet *data, string name,vector<string> flashggCats_, int status, double *prob, int proj=1){
 
      // Chi2 taken from full range fit
        RooPlot *plot_chi2 = mass->frame();
@@ -320,6 +320,7 @@ void plot(RooRealVar *mass, RooAbsPdf *pdf, RooDataSet *data, string name,vector
 
      *prob = getGoodnessOfFit(mass,pdf,data,name);
      RooPlot *plot = mass->frame();
+   if(proj==1){
      mass->setRange("unblindReg_1",mgg_low,115);
      mass->setRange("unblindReg_2",135,mgg_high);
      if (BLIND) {
@@ -328,7 +329,18 @@ void plot(RooRealVar *mass, RooAbsPdf *pdf, RooDataSet *data, string name,vector
 	    data->plotOn(plot,Binning(mgg_high-mgg_low),Invisible());
      }
      else data->plotOn(plot,Binning(mgg_high-mgg_low));
-
+   }
+   if(proj==2){
+     mass->setRange("unblindReg_1",mjj_low,105);
+     mass->setRange("unblindReg_2",145,mjj_high);
+     if (BLIND) {
+	    data->plotOn(plot,Binning(mjj_high-mjj_low),CutRange("unblindReg_3"));
+	    data->plotOn(plot,Binning(mjj_high-mjj_low),CutRange("unblindReg_4"));
+	    data->plotOn(plot,Binning(mjj_high-mjj_low),Invisible());
+     }
+     else data->plotOn(plot,Binning(mjj_high-mjj_low));
+   }
+   
     // data->plotOn(plot,Binning(mgg_high-mgg_low));
       TCanvas *canv = new TCanvas();
      pdf->plotOn(plot);//,RooFit::NormRange("fitdata_1,fitdata_2"));
@@ -348,7 +360,7 @@ void plot(RooRealVar *mass, RooAbsPdf *pdf, RooDataSet *data, string name,vector
      delete canv;
      delete lat;
 }
-void plot(RooRealVar *mass, RooMultiPdf *pdfs, RooCategory *catIndex, RooDataSet *data, string name, vector<string> flashggCats_, int cat, int bestFitPdf=-1){
+void plot(RooRealVar *mass, RooMultiPdf *pdfs, RooCategory *catIndex, RooDataSet *data, string name, vector<string> flashggCats_, int cat, int bestFitPdf=-1, int proj=1){
 
      int color[7] = {kBlue,kRed,kMagenta,kGreen+1,kOrange+7,kAzure+10,kBlack};
      TLegend *leg = new TLegend(0.5,0.55,0.92,0.88);
@@ -356,6 +368,7 @@ void plot(RooRealVar *mass, RooMultiPdf *pdfs, RooCategory *catIndex, RooDataSet
      leg->SetLineColor(1);
      RooPlot *plot = mass->frame();
 
+   if(proj==1){
      mass->setRange("unblindReg_1",mgg_low,115);
      mass->setRange("unblindReg_2",135,mgg_high);
      if (BLIND) {
@@ -364,6 +377,18 @@ void plot(RooRealVar *mass, RooMultiPdf *pdfs, RooCategory *catIndex, RooDataSet
 	    data->plotOn(plot,Binning(mgg_high-mgg_low),Invisible());
      }
      else data->plotOn(plot,Binning(mgg_high-mgg_low));
+   }
+   if(proj==2){
+     mass->setRange("unblindReg_3",mjj_low,105);
+     mass->setRange("unblindReg_4",145,mjj_high);
+     if (BLIND) {
+	    data->plotOn(plot,Binning(mjj_high-mjj_low),CutRange("unblindReg_1"));
+	    data->plotOn(plot,Binning(mjj_high-mjj_low),CutRange("unblindReg_2"));
+	    data->plotOn(plot,Binning(mjj_high-mjj_low),Invisible());
+     }
+     else data->plotOn(plot,Binning(mjj_high-mjj_low));
+
+   }
      TCanvas *canv = new TCanvas();
      ///start extra bit for ratio plot///
      RooHist *plotdata = (RooHist*)plot->getObject(plot->numItems()-1);
@@ -408,7 +433,9 @@ void plot(RooRealVar *mass, RooMultiPdf *pdfs, RooCategory *catIndex, RooDataSet
      leg->Draw("same");
      CMS_lumi( canv, 0, 0);
      ///start extra bit for ratio plot///
-     TH1D *hbplottmp = (TH1D*) pdf->createHistogram("hbplottmp",*mass,Binning(mgg_high-mgg_low,mgg_low,mgg_high));
+   TH1D *hbplottmp;
+   if(proj==1) hbplottmp = (TH1D*) pdf->createHistogram("hbplottmp",*mass,Binning(mgg_high-mgg_low,mgg_low,mgg_high));
+   if(proj==2) hbplottmp = (TH1D*) pdf->createHistogram("hbplottmp",*mass,Binning(mjj_high-mjj_low,mjj_low,mjj_high));
      hbplottmp->Scale(plotdata->Integral());
      hbplottmp->Draw("same");
      int npoints = plotdata->GetN();
@@ -420,9 +447,13 @@ void plot(RooRealVar *mass, RooMultiPdf *pdfs, RooCategory *catIndex, RooDataSet
 	  //double bkgval = hbplottmp->GetBinContent(ipoint+1);
 	  plotdata->GetPoint(ipoint, xtmp,ytmp);
 	  double bkgval = nomBkgCurve->interpolate(xtmp);
-	  if (BLIND) {
+	  if (BLIND && proj==1) {
 	        if ((xtmp > 115 ) && ( xtmp < 135) ) continue;
 	  }
+	  if (BLIND && proj==2) {
+	        if ((xtmp > 105 ) && ( xtmp < 145) ) continue;
+	  }
+	
 	std::cout << "[INFO] plotdata->Integral() " <<  plotdata->Integral() << " ( bins " << npoints  << ") hbkgplots[i]->Integral() " << hbplottmp->Integral() << " (bins " << hbplottmp->GetNbinsX() << std::endl;
 	 double errhi = plotdata->GetErrorYhigh(ipoint);
 	 double errlow = plotdata->GetErrorYlow(ipoint);
@@ -436,7 +467,10 @@ void plot(RooRealVar *mass, RooMultiPdf *pdfs, RooCategory *catIndex, RooDataSet
 	 point++;
      }
      pad2->cd();
-     TH1 *hdummy = new TH1D("hdummyweight","",mgg_high-mgg_low,mgg_low,mgg_high);
+     TH1 *hdummy;
+     if(proj==1) hdummy = new TH1D("hdummyweight","",mgg_high-mgg_low,mgg_low,mgg_high);
+     if(proj==2) hdummy = new TH1D("hdummyweight","",mjj_high-mjj_low,mjj_low,mjj_high);   
+
      hdummy->SetMaximum(hdatasub->GetHistogram()->GetMaximum()+1);
      hdummy->SetMinimum(hdatasub->GetHistogram()->GetMinimum()-1);
      hdummy->GetYaxis()->SetTitle("data - best fit PDF");
@@ -446,7 +480,9 @@ void plot(RooRealVar *mass, RooMultiPdf *pdfs, RooCategory *catIndex, RooDataSet
      hdummy->Draw("HIST");
      hdummy->GetYaxis()->SetNdivisions(808);
 
-     TLine *line3 = new TLine(mgg_low,0.,mgg_high,0.);
+     TLine *line3;
+     if(proj==1) line3 = new TLine(mgg_low,0.,mgg_high,0.);
+     if(proj==2) line3 = new TLine(mjj_low,0.,mjj_high,0.);   
      line3->SetLineColor(bestcol);
      //line3->SetLineStyle(kDashed);
      line3->SetLineWidth(5.0);
@@ -459,7 +495,7 @@ void plot(RooRealVar *mass, RooMultiPdf *pdfs, RooCategory *catIndex, RooDataSet
      delete canv;
 }
 
-void plot(RooRealVar *mass, map<string,RooAbsPdf*> pdfs, RooDataSet *data, string name, vector<string> flashggCats_, int cat, int bestFitPdf=-1){
+void plot(RooRealVar *mass, map<string,RooAbsPdf*> pdfs, RooDataSet *data, string name, vector<string> flashggCats_, int cat, int bestFitPdf=-1, int proj = 1){
 
      int color[7] = {kBlue,kRed,kMagenta,kGreen+1,kOrange+7,kAzure+10,kBlack};
      TCanvas *canv = new TCanvas();
@@ -467,7 +503,7 @@ void plot(RooRealVar *mass, map<string,RooAbsPdf*> pdfs, RooDataSet *data, strin
      leg->SetFillColor(0);
      leg->SetLineColor(0);
      RooPlot *plot = mass->frame();
-
+   if(proj==1){
      mass->setRange("unblindReg_1",mgg_low,115);
      mass->setRange("unblindReg_2",135,mgg_high);
      if (BLIND) {
@@ -476,7 +512,17 @@ void plot(RooRealVar *mass, map<string,RooAbsPdf*> pdfs, RooDataSet *data, strin
 	    data->plotOn(plot,Binning(mgg_high-mgg_low),Invisible());
      }
      else data->plotOn(plot,Binning(mgg_high-mgg_low));
-
+   }
+   if(proj==2){
+     mass->setRange("unblindReg_1",mjj_low,105);
+     mass->setRange("unblindReg_2",145,mjj_high);
+     if (BLIND) {
+	    data->plotOn(plot,Binning(mjj_high-mjj_low),CutRange("unblindReg_1"));
+	    data->plotOn(plot,Binning(mjj_high-mjj_low),CutRange("unblindReg_2"));
+	    data->plotOn(plot,Binning(mjj_high-mjj_low),Invisible());
+     }
+     else data->plotOn(plot,Binning(mjj_high-mjj_low));      
+   }
      TObject *datLeg = plot->getObject(int(plot->numItems()-1));
    if(flashggCats_.size() >0){
         leg->AddEntry(datLeg,Form("Data - %s",flashggCats_[cat].c_str()),"LEP");
@@ -610,8 +656,6 @@ void BkgMultiModelFitAllOrders(TString OutputFileName, std::string jsonForEnvelo
    RooRealVar *mgg,*mjj;
    if(isFlashgg_ && isData_){
       mgg = _w->var("CMS_hgg_mass");
-      //if(_fitStrategy==2) mjj = _w->var("CMS_hjj_mass");
-      //else mjj = new RooRealVar("CMS_hjj_mass","CMS_hjj_mass",mjj_low,mjj_high);
       if(_fitStrategy==2) mjj = _w->var("Mjj");
       else mjj = new RooRealVar("Mjj","Mjj",mjj_low,mjj_high);
    }
@@ -1004,7 +1048,7 @@ int main(int argc, char* argv[]){
    }
    else{
       mass = (RooRealVar*)inWS->var("CMS_hgg_mass"); //FIXME
-      //if(FitStrategy_==2) mass2 = (RooRealVar*)inWS->var("CMS_hjj_mass"); //FIXME
+     // if(FitStrategy_==2) mass2 = (RooRealVar*)inWS->var("CMS_hjj_mass"); //FIXME
       if(FitStrategy_==2) mass2 = (RooRealVar*)inWS->var("Mjj"); //FIXME
    }
    if(FitStrategy_!=2) mass2 = mass;
@@ -1102,7 +1146,7 @@ int main(int argc, char* argv[]){
 
       double MinimimNLLSoFar=1e10;
       int simplebestFitPdfIndex = 0;
-
+      int proj = 1;
       // Standard F-Test to find the truth functions for 1st mass
       for (vector<string>::iterator funcType=functionClasses.begin();
 	   funcType!=functionClasses.end(); funcType++){
@@ -1142,7 +1186,7 @@ int main(int argc, char* argv[]){
 	       }
 	       double gofProb=0;
 	       // otherwise we get it later ...
-	       if (!saveMultiPdf) plot(mass,bkgPdf,data,Form("%s/%s%d_cat%d.pdf",outDir.c_str(),funcType->c_str(),order,cat),flashggCats_,fitStatus,&gofProb);
+	       if (!saveMultiPdf) plot(mass,bkgPdf,data,Form("%s/%s%d_cat%d.pdf",outDir.c_str(),funcType->c_str(),order,cat),flashggCats_,fitStatus,&gofProb,proj);
 	       cout << "[INFO]\t " << *funcType << " " << order << " " << prevNll << " " << thisNll << " " << chi2 << " " << prob << endl;
 	       //fprintf(resFile,"%15s && %d && %10.2f && %10.2f && %10.2f \\\\\n",funcType->c_str(),order,thisNll,chi2,prob);
 	       prevNll=thisNll;
@@ -1163,12 +1207,13 @@ int main(int argc, char* argv[]){
 
       }
       choices_vec.push_back(choices);
-      plot(mass,pdfs,data,Form("%s/truths_mass_cat%d",outDir.c_str(),cat),flashggCats_,cat);
+      plot(mass,pdfs,data,Form("%s/truths_mass_cat%d",outDir.c_str(),cat),flashggCats_,cat,-1,proj);
 
       if(FitStrategy_==2) {
+      proj=2;	 
       // Standard F-Test to find the truth functions for 2nd mass
       for (vector<string>::iterator funcType=functionClasses.begin();
-	   funcType!=functionClasses.end(); funcType++){
+	 funcType!=functionClasses.end(); funcType++){
 
 	 double thisNll=0.; double prevNll=0.; double chi2=0.; double prob=0.;
 	 int order=1; int prev_order=0; int cache_order=0;
@@ -1205,7 +1250,7 @@ int main(int argc, char* argv[]){
 	       }
 	       double gofProb=0;
 	       // otherwise we get it later ...
-	       if (!saveMultiPdf) plot(mass2,bkgPdf,data2,Form("%s/%s%d_2_cat%d.pdf",outDir.c_str(),funcType->c_str(),order,cat),flashggCats_,fitStatus,&gofProb);
+	       if (!saveMultiPdf) plot(mass2,bkgPdf,data2,Form("%s/%s%d_2_cat%d.pdf",outDir.c_str(),funcType->c_str(),order,cat),flashggCats_,fitStatus,&gofProb,proj);
 	       cout << "[INFO]\t " << *funcType << " " << order << " " << prevNll << " " << thisNll << " " << chi2 << " " << prob << endl;
 	       //fprintf(resFile,"%15s && %d && %10.2f && %10.2f && %10.2f \\\\\n",funcType->c_str(),order,thisNll,chi2,prob);
 	       prevNll=thisNll;
@@ -1226,7 +1271,7 @@ int main(int argc, char* argv[]){
 
       }
       choices_vec2.push_back(choices2);
-      plot(mass2,pdfs2,data2,Form("%s/truths_mass2_cat%d",outDir.c_str(),cat),flashggCats_,cat);
+      plot(mass2,pdfs2,data2,Form("%s/truths_mass2_cat%d",outDir.c_str(),cat),flashggCats_,cat,-1,proj);
       }
       else{
 	 for (vector<string>::iterator funcType=functionClasses.begin();
@@ -1244,6 +1289,7 @@ int main(int argc, char* argv[]){
 				FitStrategy_,isFlashgg_,isData_,isbbggLimits_,
 				flashggCats_, ext);
    }
+
 
    return 0;
 }
