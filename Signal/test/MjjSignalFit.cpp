@@ -68,10 +68,10 @@ int main(int argc, char *argv[]){
   float maxSigFitMjj = 190;
   const int _NCAT = 12; //12
  
-//  std::vector<TString> procs = {"hh_node_SM","tth","ggh","vh","qqh"}; 
-  std::vector<TString> procs = {"ggh","qqh"}; 
+  std::vector<TString> procs = {"hh_node_SM","tth","ggh","vh","qqh"}; 
+//  std::vector<TString> procs = {"ggh","qqh"}; 
 //  std::vector<TString> procs = {"hh_node_SM"}; 
-  TString year = "2016";
+  TString year = "2018";
   TString indir = "/work/nchernya/DiHiggs/inputs/04_02_2020/";
   TString plotdir = "/work/nchernya/DiHiggs/CMSSW_7_4_7/src/flashggFinalFit/Signal/plots/mjj/";
   TString outdir = "/work/nchernya/DiHiggs/CMSSW_7_4_7/src/flashggFinalFit/Signal/output/mjj/";
@@ -94,12 +94,12 @@ int main(int argc, char *argv[]){
 	}
 
   Mjj->setRange(TString::Format("%sFitRange",proc_type_upper.Data()),minSigFitMjj,maxSigFitMjj);
-  RooRealVar *weight = (RooRealVar*)w_original->var("weight");
+//  RooRealVar *weight = (RooRealVar*)w_original->var("weight");
 
   RooDataSet* sigToFit[_NCAT];
   for (int c = 0; c < _NCAT; ++c)
     {
-      sigToFit[c] = (RooDataSet*) w_original->data(TString::Format("%s_%s_13TeV_125_DoubleHTag_%d",iproc.Data(),year.Data(),c)); //is weight properly propagated in this case?
+      sigToFit[c] = (RooDataSet*) w_original->data(TString::Format("%s_%s_13TeV_125_DoubleHTag_%d",iproc.Data(),year.Data(),c)); 
 	}
 	
 
@@ -177,6 +177,7 @@ int main(int argc, char *argv[]){
 		pave->Draw("same");
 
 		can->SaveAs(TString::Format("%sfit_%s_%s_%d.pdf",plotdir.Data(),iproc.Data(),year.Data(),c));
+		can->SaveAs(TString::Format("%sfit_%s_%s_%d.jpg",plotdir.Data(),iproc.Data(),year.Data(),c));
 
       wAll->import(*w->pdf(TString::Format("hbbpdfsm_13TeV_%s_%s_DoubleHTag_%d",iproc.Data(),year.Data(),c)));
 	}
