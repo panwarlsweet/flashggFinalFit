@@ -36,6 +36,7 @@
 #include <RooExponential.h>
 #include <RooPolynomial.h>
 #include <RooMoment.h>
+#include <RooFitResult.h>
 
 #include "boost/program_options.hpp"
 #include "boost/algorithm/string/split.hpp"
@@ -60,7 +61,11 @@ vector<string> procs_;
 string flashggCatsStr_;
 vector<string> flashggCats_;
 string infilesStr_;
-vector<string> infiles;
+vector<string> infiles_;
+bool mergeFitMVAcats_;
+int nCats_;
+int nMVA_;
+int nMX_;
 
 void OptionParser(int argc, char *argv[]){
 	po::options_description desc1("Allowed options");
@@ -75,6 +80,10 @@ void OptionParser(int argc, char *argv[]){
 		("procs", po::value<string>(&procStr_)->default_value("hh_node_SM"), "Processes (comma sep)")
 		("signalproc,s", po::value<string>(&signalproc_)->default_value("hh_node_SM"), "Name of the signal process")
 		("flashggCats,f", po::value<string>(&flashggCatsStr_)->default_value("DoubleHTag_0,DoubleHTag_1,DoubleHTag_2,DoubleHTag_3,DoubleHTag_4,DoubleHTag_5,DoubleHTag_6,DoubleHTag_7,DoubleHTag_8,DoubleHTag_9,DoubleHTag_10,DoubleHTag_11"), "Flashgg categories if used")
+		("nCats", po::value<int>(&nCats_)->default_value(12), "Numer of flashgg categories if used")
+		("nMVA", po::value<int>(&nMVA_)->default_value(3), "Numer of MVA categories  used")
+		("nMX", po::value<int>(&nMX_)->default_value(4), "Numer of MX categories  used")
+		("mergeFitMVAcats,m", po::value<bool>(&mergeFitMVAcats_)->default_value(false), "Merge categories into 3 MVA for single Higgs fits ")
 		;                                                                                             		
 	po::options_description desc("Allowed options");
 	desc.add(desc1);
@@ -88,6 +97,8 @@ void OptionParser(int argc, char *argv[]){
 	system(Form("mkdir -p %s",plotdir_ .c_str()));
 	system(Form("mkdir -p %s",outdir_.c_str()));
 }
+
+
 
 int main(int argc, char *argv[]){
 
@@ -104,17 +115,15 @@ int main(int argc, char *argv[]){
 
 
 
-  float minMjjMassFit = 70;
-  float maxMjjMassFit = 190;
   float minSigFitMjj = 70;
   float maxSigFitMjj = 190;
-  const int _NCAT = flashggCats_.size(); //12
+  const int NCAT = flashggCats_.size(); //12
  
   unsigned int iproc_num = 0;
   for (auto &iproc:procs_) {
 	  string signalfile = indir_+"output_"+iproc+"_"+year_+".root";
-	  if (infiles.size()!=0)  //If inputfiles provided by a user
- 		 signalfile = indir_+infiles[iproc_num];
+	  if (infiles_.size()!=0)  //If inputfiles are provided by a user
+ 		 signalfile = indir_+infiles_[iproc_num];
  	 TFile *sigFile = TFile::Open(signalfile.c_str());
  	 RooWorkspace *w_original = (RooWorkspace*)sigFile->Get("tagsDumper/cms_hgg_13TeV");
  	 RooRealVar* Mjj  = (RooRealVar*)w_original->var("Mjj");
@@ -134,40 +143,59 @@ int main(int argc, char *argv[]){
 	  Mjj->setBins(24); //70 - 190, reasonbale bins 5 GeV
 	//  RooRealVar *weight = (RooRealVar*)w_original->var("weight");
 
- 	 RooDataSet* sigToFit[_NCAT];
- 	 for (int c = 0; c < _NCAT; ++c)
+ 	 RooDataSet* sigToFit[NCAT];
+ 	 RooDataSet* sigToFitMVA[nMVA_];
+	 std::map<int,int> categories_scheme = {{0,0},{1,0},{2,0},{3,0},{4,1},{5,1},{6,1},{7,1},{8,2},{9,2},{10,2},{11,2}};
+    for (int ic = 0; ic < NCAT; ++ic)
 	    {
-	      sigToFit[c] = (RooDataSet*) w_original->data((iproc+"_"+year_+"_13TeV_125_DoubleHTag_"+std::to_string(c)).c_str()); 
+			auto icat = flashggCats_[ic];
+	      sigToFit[ic] = (RooDataSet*) w_original->data((iproc+"_"+year_+"_13TeV_125_"+icat).c_str());
+			if ((mergeFitMVAcats_) && (NCAT==nCats_)) { //only works in case the set of categories is complete
+					int mva_cat = categories_scheme[ic];
+					if ( (ic+1)%nMX_ == 1 )
+	      			sigToFitMVA[mva_cat] = ((RooDataSet*)sigToFit[ic]->Clone((iproc+"_"+year_+"_13TeV_125_MVA"+to_string(mva_cat)).c_str()));
+	      		else 
+						sigToFitMVA[mva_cat]->append(*((RooDataSet*)sigToFit[ic]));
+			}
 		}
 	
 	
-	  RooAbsPdf* MjjSig[_NCAT];
-	  for (int c = 0; c < _NCAT; ++c)
+	  RooAbsPdf* MjjSig[NCAT];
+	  //RooFitResult* fitResult[NCAT];
+     for (int ic = 0; ic < NCAT; ++ic)
  	   {
+			auto icat = flashggCats_[ic];
+			int c = stoi(icat.substr(icat.find_last_of("_")+1)); //find category number used
 		
 		   if(iproc.find("ggh") != string::npos || iproc.find("qqh") != string::npos) {
-		   	MjjSig[c] = new RooBernstein(("MjjHig_"+iproc+"_cat"+std::to_string(c)).c_str(),"",*Mjj,
+		   	MjjSig[ic] = new RooBernstein(("MjjHig_"+iproc+"_cat"+std::to_string(c)).c_str(),"",*Mjj,
 				       RooArgList( *w->var( ("Mjj_hig_par1_"+iproc+"_cat"+std::to_string(c)).c_str()),
 						   *w->var(("Mjj_hig_par2_"+iproc+"_cat"+std::to_string(c)).c_str() ),
 						   *w->var(("Mjj_hig_par3_"+iproc+"_cat"+std::to_string(c)).c_str() )));
-      	  	w->import(*MjjSig[c]);
+      	  	w->import(*MjjSig[ic]);
  		   }
-	  		else MjjSig[c] = (RooAbsPdf*) w->pdf(("Mjj"+proc_type_upper+iproc_type+"_cat"+to_string(c)).c_str());
+	  		else MjjSig[ic] = (RooAbsPdf*) w->pdf(("Mjj"+proc_type_upper+iproc_type+"_cat"+to_string(c)).c_str());
 
-      	MjjSig[c]->Print();
+      	MjjSig[ic]->Print();
       
       	//Normalization per category
-      	RooRealVar *MjjSig_normalization = new RooRealVar(("hbbpdfsm_13TeV_"+iproc+"_"+year_+"_DoubleHTag_"+to_string(c)+"_normalization").c_str(),("hbbpdfsm_13TeV_"+iproc+"_"+year_+"_DoubleHTag_"+to_string(c)+"_normalization").c_str(),sigToFit[c]->sumEntries()/1000.,"");//as for Hgg use fb
+      	RooRealVar *MjjSig_normalization = new RooRealVar(("hbbpdfsm_13TeV_"+iproc+"_"+year_+"_DoubleHTag_"+to_string(c)+"_normalization").c_str(),("hbbpdfsm_13TeV_"+iproc+"_"+year_+"_DoubleHTag_"+to_string(c)+"_normalization").c_str(),sigToFit[ic]->sumEntries()/1000.,"");//as for Hgg use fb
       	MjjSig_normalization->setConstant(true);
   	   	RooFormulaVar *finalNorm = new RooFormulaVar(("hbbpdfsm_13TeV_"+iproc+"_"+year_+"_DoubleHTag_"+to_string(c)+"_norm").c_str(),("hbbpdfsm_13TeV_"+iproc+"_"+year_+"_DoubleHTag_"+to_string(c)+"_norm").c_str(),"@0",RooArgList(*MjjSig_normalization));
       	w->import( *finalNorm);
 
 
       	if (proc_type == "sig")  ((RooRealVar*) w->var(("Mjj_"+proc_type+"_m0"+iproc_type+"_cat"+to_string(c)).c_str()))->setVal(125.);
-      	MjjSig[c]->fitTo(*sigToFit[c],Range((proc_type_upper+"FitRange").c_str()),SumW2Error(kTRUE),PrintLevel(3));
+			if ((mergeFitMVAcats_) && (NCAT==nCats_)){  //only works in case the set of categories is complete
+      		MjjSig[ic]->fitTo(*sigToFitMVA[categories_scheme[ic]],Range((proc_type_upper+"FitRange").c_str()),SumW2Error(kTRUE),PrintLevel(3));
+			} else 
+      		MjjSig[ic]->fitTo(*sigToFit[ic],Range((proc_type_upper+"FitRange").c_str()),SumW2Error(kTRUE),PrintLevel(3));
+
+
+      //	fitResult[ic] =  (RooFitResult*)MjjSig[ic]->fitTo(*sigToFit[ic],Range((proc_type_upper+"FitRange").c_str()),SumW2Error(kTRUE),PrintLevel(3))->Clone();
 
       	RooArgSet *sigParams = 0;
-	   	sigParams = (RooArgSet*) MjjSig[c]->getParameters(RooArgSet(*Mjj));
+	   	sigParams = (RooArgSet*) MjjSig[ic]->getParameters(RooArgSet(*Mjj));
 
       	w->defineSet((proc_type_upper+iproc_type+"PdfParam_cat"+to_string(c)).c_str(), *sigParams);
       	auto params = w->set((proc_type_upper+iproc_type+"PdfParam_cat"+to_string(c)).c_str());
@@ -189,8 +217,8 @@ int main(int argc, char *argv[]){
 				varsToChange.push_back(std::make_pair(thisVarName.c_str(), newVarName.c_str()));
 
    		}
-    		//  w->import(*w->var("Mjj"), RenameVariable("Mjj","CMS_hbb_mass" ) );
-			//   wAll->import(*w->var("Mjj"), RenameVariable("Mjj","CMS_hbb_mass" ));  
+    		//  w->import(*w->var("Mjj"), RenameVariable("Mjj","CMS_hbb_mass" ) );//will do this later
+			//   wAll->import(*w->var("Mjj"), RenameVariable("Mjj","CMS_hbb_mass" ));  //will do this later
 
       	sigParams->Print("v");
      
@@ -205,9 +233,10 @@ int main(int argc, char *argv[]){
 
 			TCanvas* can = new TCanvas("can","can",900,750);
 			auto frame = Mjj->frame();
-			RooDataHist* hist=(RooDataHist*)sigToFit[c];
+			frame->GetXaxis()->SetTitle("M_{bb} (GeV)");
+			RooDataHist* hist=(RooDataHist*)sigToFit[ic];
 			hist->plotOn(frame);
-      	MjjSig[c]->plotOn(frame);
+      	MjjSig[ic]->plotOn(frame);
 			frame->Draw("same");
 
 			TPaveText *pave = new TPaveText(0.55,0.7,0.8,0.8,"NDC");
@@ -218,7 +247,8 @@ int main(int argc, char *argv[]){
       	pave->SetTextSize(.05);
 			pave->SetTextColor(kBlue+1);
 			pave->AddText(("CAT"+to_string(c)).c_str());
-			pave->AddText((iproc+" "+year_).c_str());
+			pave->AddText((iproc).c_str());
+			pave->AddText((year_).c_str());
 			pave->Draw("same");
 
       	string canname = plotdir_+"fit_"+iproc+"_"+year_+"_cat"+to_string(c);
