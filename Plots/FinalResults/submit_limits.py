@@ -192,7 +192,7 @@ def writeMultiDimFitLikelihood(card,toysFile,channels="all",kl_range="-10,15",ca
     for i in range(opts.jobs):
        file = open('%s/Jobs/sub_%s_job_kl_%d.sh'%(opts.outDir,channels,i),'w')
        writePreamble(file)
-       exec_line = 'combine %s/%s -M MultiDimFit --algo grid --points %s -P kl --floatOtherPOIs 0 --setPhysicsModelParameterRanges kl=%s --setPhysicsModelParameters r=1%s --firstPoint=%d --lastPoint=%d -n MultiDim_%s_%s_Job%d -L $CMSSW_BASE/lib/$SCRAM_ARCH/libHiggsAnalysisGBRLikelihood.so %s '%(os.getcwd(),card,opts.pointsperjob*opts.jobs,kl_range,mask_str,i*opts.pointsperjob,(i+1)*opts.pointsperjob-1,channels,opts.outtag,i,opts.freeze_kl_fit_params)
+       exec_line = 'combine %s/%s -M MultiDimFit -m 125.00 --algo grid --points %s -P kl --floatOtherPOIs 0 --setPhysicsModelParameterRanges kl=%s --setPhysicsModelParameters r=1%s --firstPoint=%d --lastPoint=%d -n MultiDim_%s_%s_Job%d -L $CMSSW_BASE/lib/$SCRAM_ARCH/libHiggsAnalysisGBRLikelihood.so %s '%(os.getcwd(),card,opts.pointsperjob*opts.jobs,kl_range,mask_str,i*opts.pointsperjob,(i+1)*opts.pointsperjob-1,channels,opts.outtag,i,opts.freeze_kl_fit_params)
        if opts.S0: exec_line += ' -S 0 '
        if opts.expected: exec_line += ' -t -1 --toysFile %s'%toysFile
        writePostamble(file,exec_line,"MultiDim_%s_%s_Job%d"%(channels,opts.outtag,i))
@@ -209,7 +209,7 @@ def generateAsimovHHSM(card,channels="all",cats_map_mask={"MVA0":""}):
     elif "MVA" in channels :
       for to_mask in set(cats_map_mask[channels])^set(opts.cats.split(",")): 
            mask_str += ",mask_%s_13TeV=1"%(to_mask)
-    exec_line = "combine %s/%s  -M GenerateOnly -t -1 --saveToys -n SM_AsimovToy_%s_%s --setPhysicsModelParameters kl=1,r=1%s %s,kl"%(os.getcwd(),card,channels,opts.outtag,mask_str,opts.freeze_kl_fit_params)
+    exec_line = "combine %s/%s  -M GenerateOnly -m 125.00 -t -1 --saveToys -n SM_AsimovToy_%s_%s --setPhysicsModelParameters kl=1,r=1%s %s,kl"%(os.getcwd(),card,channels,opts.outtag,mask_str,opts.freeze_kl_fit_params)
     system(exec_line)
     system('mv higgsCombineSM_AsimovToy_*%s*.root %s\n'%(opts.outtag,os.path.abspath(opts.outDir)))
     

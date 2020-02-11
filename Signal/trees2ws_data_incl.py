@@ -20,12 +20,15 @@ def add_mc_vars_to_workspace(ws=None, systematics_labels=[],add_benchmarks = Fal
 
   CMS_hgg_mass = ROOT.RooRealVar("CMS_hgg_mass","CMS_hgg_mass",125,100,180)
   CMS_hgg_mass.setConstant(False)
-  CMS_hgg_mass.setBins(160)
+  #CMS_hgg_mass.setBins(160)
+  CMS_hgg_mass.setBins(101)
   getattr(ws, 'import')(CMS_hgg_mass)
 
   Mjj = ROOT.RooRealVar("Mjj","Mjj",125,70,190)
   Mjj.setConstant(False)
-  Mjj.setBins(480)
+  #Mjj.setBins(480)
+  #Mjj.setBins(12)
+  Mjj.setBins(101)
   getattr(ws, 'import')(Mjj)
 
   dZ = ROOT.RooRealVar("dZ","dZ",0.0,-20,20)

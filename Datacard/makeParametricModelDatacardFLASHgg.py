@@ -140,6 +140,8 @@ parser.add_option("--do_kl_scan",default=False,action="store_true",help="do kl s
 parser.add_option("--do_benchmarks_scan",default=False,action="store_true",help="do BSM benchmarks scan?" )
 parser.add_option("--do_kl_likelihood",default=False,action="store_true",help="prepare datacard for kl likelihood" )
 parser.add_option("--kl_fit_params",default='/work/nchernya/DiHiggs/CMSSW_7_4_7/src/flashggFinalFit/Plots/FinalResults/plots/yeilds_ratio_kl_xsec_24_01_2020_fitparams.json',help="rateParam as a function of kl parametrization" )
+parser.add_option("--do2D",default=False,action="store_true",help="prepare datacard for 2D HHbbgg analysis" )
+parser.add_option("--btagReshapeFalse",default=False,action="store_true",help="if btagReshapeWeight was propagated with False in flashgg" )
 (options,args)=parser.parse_args()
 allSystList=[]
 if options.submitSelf :
@@ -309,11 +311,16 @@ sigFile = options.signalFile.split(',')[0]
 sigFiles = options.signalFile.split(',')
 if options.nodesFile=="" : nodesFile = ['','',''] 
 else : nodesFile = options.nodesFile.split(',')
+signalPdfName = 'hggpdfsmrel'
+if options.do2D : 
+   signalPdfName = 'hhbbggpdfsm'
+
 #print "making sigfile " ,sigFile
 sigWS = 'wsig_%dTeV'%(sqrts)
 # file detaisl: for FLashgg always use unbinned signal and multipdf
 fileDetails = {}
 fileDetails['data_obs'] = [dataFile,dataWS,'roohist_data_mass_$CHANNEL']
+if options.do2D :  fileDetails['data_obs'] = [dataFile,dataWS,'Data_13TeV_$CHANNEL']
 fileDetails['bkg_mass']  = [bkgFile,bkgWS,'CMS_hgg_$CHANNEL_%dTeV_bkgshape'%sqrts]
 
 if options.doSTXS:
@@ -335,12 +342,12 @@ else:
   fileDetails['qqH_hgg']       = [sigFile.replace('$PROC',"vbf"),sigWS,'hggpdfsmrel_%dTeV_vbf_$CHANNEL'%sqrts]
   fileDetails['ttH_hgg']       = [sigFile.replace('$PROC',"tth"),sigWS,'hggpdfsmrel_%dTeV_tth_$CHANNEL'%sqrts]
   for proc in allProcs:
-      if (proc in allNodes) and ('2018' in proc) : fileDetails[proc] = 	[nodesFile[2],sigWS,'hggpdfsmrel_%dTeV_%s_$CHANNEL'%(sqrts,proc)]
-      elif (proc in allNodes) and ('2017' in proc): fileDetails[proc] = 	[nodesFile[1],sigWS,'hggpdfsmrel_%dTeV_%s_$CHANNEL'%(sqrts,proc)]
-      elif (proc in allNodes) and ('2016' in proc): fileDetails[proc] = 	[nodesFile[0],sigWS,'hggpdfsmrel_%dTeV_%s_$CHANNEL'%(sqrts,proc)]
-      elif ('2018' in proc) : fileDetails[proc] = 	[sigFiles[2],sigWS,'hggpdfsmrel_%dTeV_%s_$CHANNEL'%(sqrts,proc)]
-      elif ('2017' in proc) : fileDetails[proc] = 	[sigFiles[1],sigWS,'hggpdfsmrel_%dTeV_%s_$CHANNEL'%(sqrts,proc)]
-      elif ('2016' in proc) : fileDetails[proc] = 	[sigFiles[0],sigWS,'hggpdfsmrel_%dTeV_%s_$CHANNEL'%(sqrts,proc)]
+      if (proc in allNodes) and ('2018' in proc) : fileDetails[proc] = 	[nodesFile[2],sigWS,'%s_%dTeV_%s_$CHANNEL'%(signalPdfName,sqrts,proc)]
+      elif (proc in allNodes) and ('2017' in proc): fileDetails[proc] = 	[nodesFile[1],sigWS,'%s_%dTeV_%s_$CHANNEL'%(signalPdfName,sqrts,proc)]
+      elif (proc in allNodes) and ('2016' in proc): fileDetails[proc] = 	[nodesFile[0],sigWS,'%s_%dTeV_%s_$CHANNEL'%(signalPdfName,sqrts,proc)]
+      elif ('2018' in proc) : fileDetails[proc] = 	[sigFiles[2],sigWS,'%s_%dTeV_%s_$CHANNEL'%(signalPdfName,sqrts,proc)]
+      elif ('2017' in proc) : fileDetails[proc] = 	[sigFiles[1],sigWS,'%s_%dTeV_%s_$CHANNEL'%(signalPdfName,sqrts,proc)]
+      elif ('2016' in proc) : fileDetails[proc] = 	[sigFiles[0],sigWS,'%s_%dTeV_%s_$CHANNEL'%(signalPdfName,sqrts,proc)]
 
   if splitVH:
     fileDetails['WH_hgg']      =  [sigFile.replace('$PROC',"wh"),sigWS,'hggpdfsmrel_%dTeV_wh_$CHANNEL'%sqrts]
@@ -1323,6 +1330,7 @@ def getFlashggLine(proc,cat,syst):
     #weight_down = inWS.var("%sDown01sigma"%sys)
     weight_down = r.RooRealVar("%sDown01sigma"%syst,"%sDown01sigma"%syst,-1.)
     weight_central = inWS.var("centralObjectWeight")
+    weight_btagReshapeWeihgtCentral = inWS.var("btagReshapeWeight")
     zeroWeightEvents=0.
     for i in range(0,int(dataNOMINAL.numEntries())):
       mass.setVal(dataNOMINAL.get(i).getRealValue("CMS_hgg_mass"))
@@ -1330,6 +1338,7 @@ def getFlashggLine(proc,cat,syst):
       w_down = dataNOMINAL.get(i).getRealValue(weight_down.GetName())
       w_up = dataNOMINAL.get(i).getRealValue(weight_up.GetName())
       w_central = dataNOMINAL.get(i).getRealValue(weight_central.GetName())
+      w_btagReshape = dataNOMINAL.get(i).getRealValue(weight_btagReshapeWeihgtCentral.GetName())
       #print "[WARNING]  syst " , syst , " w_nom ", w_nominal , "  w_up " , w_up , " w_ down " , w_down, "w_central ", w_central
       if (w_central==0.) :
         zeroWeightEvents=zeroWeightEvents+1.0
@@ -1344,6 +1353,14 @@ def getFlashggLine(proc,cat,syst):
       else :
         weight_down.setVal(w_nominal*(w_down/w_central))
         weight_up.setVal(w_nominal*(w_up/w_central))
+        if options.btagReshapeFalse :
+           print 'trees were produced with btagReshapeWeight save separately, have to undo it then for other weight syst.'
+           if "JetBTagReshapeWeight" in syst : 
+              weight_down.setVal(w_nominal*(w_down/w_btagReshape))
+              weight_up.setVal(w_nominal*(w_up/w_btagReshape))
+           else : 
+              weight_down.setVal(w_nominal*(w_down/(w_central/w_btagReshape)))
+              weight_up.setVal(w_nominal*(w_up/(w_central/w_btagReshape)))
 
       data_up.add(r.RooArgSet(mass,weight_up),weight_up.getVal())
       data_down.add(r.RooArgSet(mass,weight_down),weight_down.getVal())
@@ -1717,6 +1734,9 @@ if ((options.justThisSyst== "batch_split") or options.justThisSyst==""):
   printObsProcBinLines()
   printMultiPdf()
   printBRSyst()
+  printLumiSyst(year='2016')
+  printLumiSyst(year='2017')
+  printLumiSyst(year='2018')
   #nuisance param systematics
   #printNuisParams()
   #printMultiPdf()
@@ -1724,9 +1744,6 @@ if ((options.justThisSyst== "batch_split") or options.justThisSyst==""):
   #printTrigSyst() # now a weight in the main roodataset!
   #printSimpleTTHSysts()
   if options.do_HHbbgg_systematics : 
-     printLumiSyst(year='2016')
-     printLumiSyst(year='2017')
-     printLumiSyst(year='2018')
      printFlashggSysts()
      printTheorySysts()
 

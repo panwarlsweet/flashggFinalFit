@@ -54,6 +54,7 @@ for name in names:
 	entries_per_cat[name] = [] 
 	for cat in range(0,num_cat):
 		ws_name = 'hggpdfsmrel_13TeV_%s_DoubleHTag_%d_norm'%(name,cat)
+		#ws_name = 'hggpdfsmrel_13TeV_%s_DoubleHTag_%d'%(name,cat)
 		var = (ws.var('MH'))
 		var.setVal(125.)
 		entries = (ws.function(ws_name).getVal())
@@ -109,5 +110,5 @@ for num,name in enumerate([filename_bkg_total,filename_bkg_MCbg]):
 
 
 
-result = open("output_txt/full_yields_latex_%s.txt"%date,"w")
+result = open("output_txt/full_yields_latex_%s_test.txt"%date,"w")
 result.write(json.dumps(entries_per_cat))

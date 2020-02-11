@@ -74,7 +74,8 @@ def add_mc_vars_to_workspace(ws=None, systematics_labels=[],add_benchmarks = Fal
 
   Mjj = ROOT.RooRealVar("Mjj","Mjj",125,70,190)
   Mjj.setConstant(False)
-  Mjj.setBins(480)
+  #Mjj.setBins(480)
+  Mjj.setBins(120)
   getattr(ws, 'import')(Mjj)
 
 

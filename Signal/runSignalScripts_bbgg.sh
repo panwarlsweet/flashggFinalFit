@@ -9,9 +9,9 @@ MASS=''
 YEAR="2018"
 
 #DATE="24_01_2020"
-DATE="03_02_2020"
-#EXT="singleHiggs"$YEAR
-EXT="nodes"$YEAR
+DATE="04_02_2020"
+EXT="singleHiggs"$YEAR
+#EXT="nodes"$YEAR
 PHOTONSYSTFILE=dat/photonCatSyst.dat # without systematics
 #PHOTONSYSTFILE=dat/photonCatSyst_${EXT}.dat
 
@@ -41,10 +41,10 @@ SCALESGLOBAL="NonLinearity,Geant4,LightYield,Absolute"
 #INFILES="output_hh_SM_generated_${YEAR},output_ggh_${YEAR},output_tth_${YEAR},output_qqh_${YEAR},output_vh_${YEAR}"
 
 #############SINGLE HIGGS ############
-#PROCS="ggh_${YEAR},tth_${YEAR},qqh_${YEAR},vh_${YEAR}"
-#REFPROC="tth_${YEAR}"
-#INFILES="output_ggh_${YEAR},output_tth_${YEAR},output_qqh_${YEAR},output_vh_${YEAR}"
-#REFTAG="DoubleHTag_9"
+PROCS="ggh_${YEAR},tth_${YEAR},qqh_${YEAR},vh_${YEAR}"
+REFPROC="tth_${YEAR}"
+INFILES="output_ggh_${YEAR},output_tth_${YEAR},output_qqh_${YEAR},output_vh_${YEAR}"
+REFTAG="DoubleHTag_9"
 ###tests##
 #PROCS="tth_${YEAR}"
 #REFPROC="tth_${YEAR}"
@@ -55,9 +55,9 @@ SCALESGLOBAL="NonLinearity,Geant4,LightYield,Absolute"
 #INFILES="output_hh_node_SM_$YEAR,output_hh_node_box_$YEAR,output_hh_node_0_$YEAR,output_hh_node_1_$YEAR,output_hh_node_2_$YEAR,output_hh_node_3_$YEAR,output_hh_node_4_$YEAR,output_hh_node_5_$YEAR,output_hh_node_6_$YEAR,output_hh_node_7_$YEAR,output_hh_node_8_$YEAR,output_hh_node_9_$YEAR,output_hh_node_10_$YEAR,output_hh_node_11_$YEAR"
 #PROCS="hh_node_SM_$YEAR,hh_node_4_$YEAR,hh_node_6_$YEAR,hh_node_7_$YEAR,hh_node_9_$YEAR,hh_node_10_$YEAR,hh_node_11_$YEAR"
 #INFILES="output_hh_node_SM_$YEAR,output_hh_node_4_$YEAR,output_hh_node_6_$YEAR,output_hh_node_7_$YEAR,output_hh_node_9_$YEAR,output_hh_node_10_$YEAR,output_hh_node_11_$YEAR"
-REFPROC="hh_node_SM_$YEAR"
-PROCS="hh_node_SM_$YEAR"
-INFILES="output_hh_node_SM_$YEAR"
+#REFPROC="hh_node_SM_$YEAR"
+#PROCS="hh_node_SM_$YEAR"
+#INFILES="output_hh_node_SM_$YEAR"
 ################################
 
 
