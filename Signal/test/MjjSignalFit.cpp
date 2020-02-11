@@ -105,7 +105,7 @@ void RooDraw(TCanvas *can, RooPlot* frame,RooDataHist* hist, RooAbsPdf* model,st
       model->plotOn(frame);
 		frame->Draw("same");
 
-		TPaveText *pave = new TPaveText(0.55,0.7,0.8,0.9,"NDC");
+		TPaveText *pave = new TPaveText(0.55,0.65,0.8,0.85,"NDC");
 		pave->SetTextAlign(11);
 		pave->SetFillStyle(-1);
 		pave->SetBorderSize(0);
