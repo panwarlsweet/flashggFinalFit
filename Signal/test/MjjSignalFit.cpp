@@ -98,7 +98,25 @@ void OptionParser(int argc, char *argv[]){
 	system(Form("mkdir -p %s",outdir_.c_str()));
 }
 
+void RooDraw(TCanvas *can, RooPlot* frame,RooDataHist* hist, RooAbsPdf* model,string iproc,string category){
+		can->cd();
+		frame->GetXaxis()->SetTitle("M_{bb} (GeV)");
+		hist->plotOn(frame);
+      model->plotOn(frame);
+		frame->Draw("same");
 
+		TPaveText *pave = new TPaveText(0.55,0.7,0.8,0.9,"NDC");
+		pave->SetTextAlign(11);
+		pave->SetFillStyle(-1);
+		pave->SetBorderSize(0);
+		pave->SetTextFont(42);
+      pave->SetTextSize(.05);
+		pave->SetTextColor(kBlue+1);
+		pave->AddText(category.c_str());
+		pave->AddText((iproc).c_str());
+		pave->AddText((year_).c_str());
+		pave->Draw("same");
+}
 
 int main(int argc, char *argv[]){
 
@@ -232,28 +250,18 @@ int main(int argc, char *argv[]){
 
 
 			TCanvas* can = new TCanvas("can","can",900,750);
-			auto frame = Mjj->frame();
-			frame->GetXaxis()->SetTitle("M_{bb} (GeV)");
-			RooDataHist* hist=(RooDataHist*)sigToFit[ic];
-			hist->plotOn(frame);
-      	MjjSig[ic]->plotOn(frame);
-			frame->Draw("same");
-
-			TPaveText *pave = new TPaveText(0.55,0.7,0.8,0.8,"NDC");
-			pave->SetTextAlign(11);
-			pave->SetFillStyle(-1);
-			pave->SetBorderSize(0);
-			pave->SetTextFont(42);
-      	pave->SetTextSize(.05);
-			pave->SetTextColor(kBlue+1);
-			pave->AddText(("CAT"+to_string(c)).c_str());
-			pave->AddText((iproc).c_str());
-			pave->AddText((year_).c_str());
-			pave->Draw("same");
-
+			RooDraw(can,Mjj->frame(),((RooDataHist*)sigToFit[ic]),MjjSig[ic],iproc,("CAT "+to_string(c)));
       	string canname = plotdir_+"fit_"+iproc+"_"+year_+"_cat"+to_string(c);
 			can->SaveAs((canname+".pdf").c_str());
 			can->SaveAs((canname+".jpg").c_str());
+
+			if ((mergeFitMVAcats_) && (NCAT==nCats_)){  //only works in case the set of categories is complete
+				TCanvas* canMVA = new TCanvas("canMVA","canMVA",900,750);
+				RooDraw(canMVA,Mjj->frame(),((RooDataHist*)sigToFitMVA[categories_scheme[ic]]),MjjSig[ic],iproc,("MVA "+to_string(categories_scheme[ic])));
+      		string cannameMVA = plotdir_+"fit_"+iproc+"_"+year_+"_MVA"+to_string(categories_scheme[ic]);
+				canMVA->SaveAs((cannameMVA+".pdf").c_str());
+				canMVA->SaveAs((cannameMVA+".jpg").c_str());
+			}
 
 			string finalpdfname = "hbbpdfsm_13TeV_"+iproc+"_"+year_+"_DoubleHTag_"+to_string(c);
       	wAll->import(*w->pdf(finalpdfname.c_str()));
