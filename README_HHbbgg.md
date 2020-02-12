@@ -4,7 +4,7 @@ Instuctions how to run FinalFit specifically for HHbbgg code. I am still running
 
 Main readme for flashggFinalFits can be found here : flashggFinalFit/README.md.
 
-#### The most recent branch : fullRunII_Oct2019
+#### The most recent branch : fullRunII_approval1D
 
 For 7_4_7 CMSSW, starting from a clean area and checking out Nadya's branch :
 ```
@@ -32,7 +32,7 @@ cd ${CMSSW_BASE}/src/
 git clone https://github.com/chernyavskaya/flashggFinalFit flashggFinalFit
 git remote add nchernyavskaya https://github.com/chernyavskaya/flashggFinalFit.git
 git fetch nchernyavskaya
-git checkout -b branch_name --track nchernyavskaya/fullRunII_Oct2019
+git checkout -b branch_name --track nchernyavskaya/fullRunII_approval1D
 cd ${CMSSW_BASE}/src/flashggFinalFit/
 ```
 Two packages need to be built with their own makefiles, if needed. 
