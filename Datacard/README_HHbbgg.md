@@ -15,6 +15,8 @@ the workspaces.
 With systematics or without ?
 https://github.com/chernyavskaya/flashggFinalFit/blob/fullRunII_Oct2019/Datacard/runDatacards.sh#L2
 
+If btagSystematics were saved separately in flashgg with a flag 'False' passed as a third argument, care should be taken, everything is taken care of by a flag : --btagReshapeFalse.
+
 If runnning with systematics you need to put a file with all workspaces (for HH and single H processes and all systematics,
 either you have it from flashgg ntuples (workspaces) and you just need to merge it using a flashgg command :
 ```
@@ -27,6 +29,7 @@ hadd_workspaces final_output.root output_hh*.root output_qqh*.root output_ggh*.r
 
 One can prepare several different datacards :
 
+- 2D or 1D fit, default is 1D, if want 2D do : --do2D 
 - SM datacard
   https://github.com/chernyavskaya/flashggFinalFit/blob/fullRunII_Oct2019/Datacard/runDatacards.sh#L36
 - datacards for kl scan :
