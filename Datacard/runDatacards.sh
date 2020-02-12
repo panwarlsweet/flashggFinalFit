@@ -115,23 +115,22 @@ done
 for node in SM;
 #for node in `seq 0 11` SM box;
 do
+   #name2D=BG_MCbgbjets
+   name2D=DoubleEG
+   #name2D=BG_MCbg
+   #outtag=ivanjson
+   outtag=high
    nodename="hh_node_${node}_2016,hh_node_${node}_2017,hh_node_${node}_2018"
-   #outname="outputs/cms_HHbbgg2Dfulljson0_datacard_node${node}_${DATE}.txt"
-   outname="outputs/cms_HHbbgg2DivanjsonMC_datacard_node${node}_${DATE}.txt"
+   outname="outputs/cms_HHbbgg2D_${name2D}_${outtag}_datacard_node${node}_${DATE}.txt"
    if [ $DO_SYSTEMATIC -gt 0 ] 
    then
-      outname="outputs/cms_HHbbgg2D_datacard_node${node}_${DATE}_systematics.txt"
+      outname="outputs/cms_HHbbgg2D_${name2D}_{$outtag}_datacard_node${node}_${DATE}_systematics.txt"
    fi
-   #nodename="hh_node_${node}_2016,hh_node_${node}_2017" #2016.2017 only
-   #outname="outputs/cms_HHbbgg_datacard_node${node}_${DATE}_2016_2017.txt"
-   #DATAFILE="inputs/CMS-HGG_multipdf2D_HHbbgg_2016_2017_2018_${DATE}.root"
-   #DATAFILE="inputs/CMS-HGG_multipdf2D_light_HHbbgg_2016_2017_2018_04_02_2020.root"
-   #DATAFILE="inputs/CMS-HGG_multipdf2D_light_HHbbgg_2016_2017_2018_04_02_2020_bern1.root"
-   #DATAFILE="inputs/CMS-HGG_multipdf2D_100x100bins_HHbbgg_2016_2017_2018_04_02_2020_ivanhighjson.root"
-   #DATAFILE="inputs/CMS-HGG_multipdf2D_100x100bins_HHbbgg_2016_2017_2018_04_02_2020_fulljson0.root"
-   DATAFILE="inputs/CMS-HGG_multipdf2D_MCbgbjets_HHbbgg_2016_2017_2018_04_02_2020_ivanjson.root"
-   NODESFILE="inputs/CMS-HGG_sigfit_MggMjj_2016_2017_2018_${DATE}.root,inputs/CMS-HGG_sigfit_MggMjj_2016_2017_2018_${DATE}.root,inputs/CMS-HGG_sigfit_MggMjj_2016_2017_2018_${DATE}.root"
-   SIGNALFILE="inputs/CMS-HGG_sigfit_MggMjj_2016_2017_2018_${DATE}.root,inputs/CMS-HGG_sigfit_MggMjj_2016_2017_2018_${DATE}.root,inputs/CMS-HGG_sigfit_MggMjj_2016_2017_2018_${DATE}.root"
+   DATAFILE="inputs/CMS-HGG_multipdf2D_${name2D}_${outtag}_HHbbgg_2016_2017_2018_${DATE}.root"
+   #NODESFILE="inputs/CMS-HGG_sigfit_MggMjj_2016_2017_2018_${DATE}.root,inputs/CMS-HGG_sigfit_MggMjj_2016_2017_2018_${DATE}.root,inputs/CMS-HGG_sigfit_MggMjj_2016_2017_2018_${DATE}.root"
+   #SIGNALFILE="inputs/CMS-HGG_sigfit_MggMjj_2016_2017_2018_${DATE}.root,inputs/CMS-HGG_sigfit_MggMjj_2016_2017_2018_${DATE}.root,inputs/CMS-HGG_sigfit_MggMjj_2016_2017_2018_${DATE}.root"
+   NODESFILE="inputs/CMS-HGG_sigfit_MggMjj_2016_2017_2018_12_02_2020.root,inputs/CMS-HGG_sigfit_MggMjj_2016_2017_2018_12_02_2020.root,inputs/CMS-HGG_sigfit_MggMjj_2016_2017_2018_12_02_2020.root"
+   SIGNALFILE="inputs/CMS-HGG_sigfit_MggMjj_2016_2017_2018_12_02_2020.root,inputs/CMS-HGG_sigfit_MggMjj_2016_2017_2018_12_02_2020.root,inputs/CMS-HGG_sigfit_MggMjj_2016_2017_2018_12_02_2020.root"
 
 
   ./makeParametricModelDatacardFLASHgg.py -i $SYSINPUTFILE -s $SIGNALFILE --nodesFile $NODESFILE --signalProc $nodename -d $DATAFILE -p $PROCS,$nodename -c $CATS --photonCatScales ../Signal/dat/photonCatSyst.dat --photonCatSmears ../Signal/dat/photonCatSyst.dat --isMultiPdf  -o ${outname} --intLumi2016 $INTLUMI2016 --intLumi2017 $INTLUMI2017 --intLumi2018 $INTLUMI2018 --do_HHbbgg_systematics $DO_SYSTEMATIC --do2D --btagReshapeFalse $btagReshapeFalse

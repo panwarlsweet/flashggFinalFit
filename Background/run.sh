@@ -20,10 +20,17 @@ YEAR=2016_2017_2018
 
 
 #2D MC
+#name2D=BG_MCbgbjets
+name2D=DoubleEG
+#name2D=BG_MCbg
+outtag=high
+input2D=output_${name2D}_${YEAR}_${DATE}.root
+#json2D=Env_json_ivan.dat
+#json2D=Env_json_allorders.dat
+json2D=Env_json_high.dat
+outputdir=plots/fTest2D/${name2D}_${DATE}_${outtag}
 
-./bin/fTest2D -i /work/nchernya/DiHiggs/inputs/${DATE}/output_BG_MCbgbjets_${YEAR}_${DATE}.root --saveMultiPdf CMS-HGG_multipdf2D_MCbgbjets_HHbbgg_${YEAR}_${DATE}_ivanjson.root --isData 1 -f DoubleHTag_0,DoubleHTag_1,DoubleHTag_2,DoubleHTag_3,DoubleHTag_4,DoubleHTag_5,DoubleHTag_6,DoubleHTag_7,DoubleHTag_8,DoubleHTag_9,DoubleHTag_10,DoubleHTag_11 --isFlashgg 1  -c 12 -D plots/fTest2D/ -d plots/fTest2D//res.dat --jsonForEnvelope Env_json_ivan.dat
+./bin/fTest2D -i /work/nchernya/DiHiggs/inputs/${DATE}/${input2D} --saveMultiPdf CMS-HGG_multipdf2D_${name2D}_${outtag}_HHbbgg_${YEAR}_${DATE}.root --isData 1 -f DoubleHTag_0,DoubleHTag_1,DoubleHTag_2,DoubleHTag_3,DoubleHTag_4,DoubleHTag_5,DoubleHTag_6,DoubleHTag_7,DoubleHTag_8,DoubleHTag_9,DoubleHTag_10,DoubleHTag_11 --isFlashgg 1  -c 12 -D ${outputdir} -d ${outputdir}/res.dat --jsonForEnvelope $json2D
 
 #2D Data
-#./bin/fTest2D -i /work/nchernya/DiHiggs/inputs/${DATE}/output_DoubleEG_${YEAR}_${DATE}.root --saveMultiPdf CMS-HGG_multipdf2D_100x100bins_HHbbgg_${YEAR}_${DATE}_ivanjson.root --isData 1 -f DoubleHTag_0,DoubleHTag_1,DoubleHTag_2,DoubleHTag_3,DoubleHTag_4,DoubleHTag_5,DoubleHTag_6,DoubleHTag_7,DoubleHTag_8,DoubleHTag_9,DoubleHTag_10,DoubleHTag_11 --isFlashgg 1  -c 12 -D plots/fTest2D_data/ -d plots/fTest2D_data//res.dat --jsonForEnvelope Env_json_ivan.dat  # _high.dat
 #./bin/fTest2D -i /work/nchernya/DiHiggs/inputs/${DATE}/output_DoubleEG_${YEAR}_${DATE}.root --saveMultiPdf CMS-HGG_multipdf2D_100x100bins_HHbbgg_${YEAR}_${DATE}_ivanhighjson.root --isData 1 -f DoubleHTag_0,DoubleHTag_1,DoubleHTag_2,DoubleHTag_3,DoubleHTag_4,DoubleHTag_5,DoubleHTag_6,DoubleHTag_7,DoubleHTag_8,DoubleHTag_9,DoubleHTag_10,DoubleHTag_11 --isFlashgg 1  -c 12 -D plots/fTest2D_data/ -d plots/fTest2D_data//res.dat --jsonForEnvelope Env_json_ivan_high.dat  # _high.dat
-#./bin/fTest2D -i /work/nchernya/DiHiggs/inputs/${DATE}/output_DoubleEG_${YEAR}_${DATE}.root --saveMultiPdf CMS-HGG_multipdf2D_100x100bins_HHbbgg_${YEAR}_${DATE}_fulljson0.root --isData 1 -f DoubleHTag_0,DoubleHTag_1,DoubleHTag_2,DoubleHTag_3,DoubleHTag_4,DoubleHTag_5,DoubleHTag_6,DoubleHTag_7,DoubleHTag_8,DoubleHTag_9,DoubleHTag_10,DoubleHTag_11 --isFlashgg 1  -c 12 -D plots/fTest2D_data/ -d plots/fTest2D_data//res.dat --jsonForEnvelope Env_json_high_all.dat t
