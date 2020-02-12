@@ -187,8 +187,8 @@ int main(int argc, char *argv[]){
 		
 		   if(iproc.find("ggh") != string::npos || iproc.find("qqh") != string::npos) {
 		   	MjjSig[ic] = new RooBernstein(("MjjHig_"+iproc+"_cat"+std::to_string(c)).c_str(),"",*Mjj,
-				       RooArgList( *w->var( ("Mjj_hig_par1_"+iproc+"_cat"+std::to_string(c)).c_str()),
-						   *w->var(("Mjj_hig_par2_"+iproc+"_cat"+std::to_string(c)).c_str() ),
+				       RooArgList( *w->var( ("Mjj_hig_par1_"+iproc+"_cat"+std::to_string(c)).c_str()) ,
+						   *w->var(("Mjj_hig_par2_"+iproc+"_cat"+std::to_string(c)).c_str()) ,//))); //,
 						   *w->var(("Mjj_hig_par3_"+iproc+"_cat"+std::to_string(c)).c_str() )));
       	  	w->import(*MjjSig[ic]);
  		   }
