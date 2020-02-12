@@ -1,4 +1,4 @@
-### Running Signal and Single Higgs bkg models : 
+### Running Signal and Single Higgs bkg models for Mgg: 
 
 ### First, one has to prepare a workspaces from the flashgg ntuples (trees). ### 
 
@@ -32,7 +32,7 @@ https://github.com/chernyavskaya/flashggFinalFit/blob/fullRunII_Oct2019/Signal/t
 
 By default this script is run with systematics, in order to run without systematics : --nosysts
 
-The current script relies on the fact that the trees aree named in the following way name+year+ _ + 13TeV_125_13TeV :
+The current script relies on the fact that the trees are named in the following way name+year+ _ + 13TeV_125_13TeV :
 https://github.com/chernyavskaya/flashggFinalFit/blob/fullRunII_Oct2019/Signal/trees2ws.py#L212
 for example : tth2016_13TeV_125_13TeV_DoubleHTag_11
 If you do not have it done like this, you should modify this line accordingly :
@@ -78,3 +78,35 @@ https://github.com/chernyavskaya/flashggFinalFit/blob/fullRunII_Oct2019/Signal/r
 It might happen that the fit fails and then the merge will fail as well. In this case, identify for which category and process it failed, check the number of gaussians from the f-test in the config, look at the plots for this category created during the f-test, and most likley you will see that it chose the wrong number of gaussians. Adjust the number of gaussian in the config, and rerun the fit.
 
 Now if everything went well, you fill have the final workspaces(signal and single higgs) to be used for the final fit. 
+
+
+### Running Signal and Single Higgs bkg models for Mjj: 
+```
+./bin/MjjSignalFit -t models_file.rs -d input_dir  -p plot_dir --year 2017  --procs tth  -o outdir -i inputfiles
+```
+All the available options are summarized in the OptionParser : 
+https://github.com/chernyavskaya/flashggFinalFit/blob/fullRunII_approval1D/Signal/test/MjjSignalFit.cpp#L70
+
+If you want to merge datasets into 3 MVA categories to perform fits , do -m true
+
+If you do not provide any inputs files, then the following convention will be assumed : indir_+"output_"+iproc+"_"+year_+".root";
+
+You need to provide a template fit file :
+https://github.com/chernyavskaya/flashggFinalFit/blob/fullRunII_approval1D/Signal/test/MjjSignalFit.cpp#L75
+example : https://github.com/chernyavskaya/flashggFinalFit/blob/fullRunII_approval1D/MetaData_HHbbgg/models_2D_higgs_mjj70_11_02_2020.rs
+
+Name of the input workspace is the same as for everything else in flashggFinalFits framework 'tagsDumper/cms_hgg_13TeV' : 
+https://github.com/chernyavskaya/flashggFinalFit/blob/fullRunII_approval1D/Signal/test/MjjSignalFit.cpp#L141
+
+When all fits are prepared .root files are saved. They should be merged the same way as for Mgg fits using : 
+```
+mergeWorkspace.py workspace_out_mjj.root *.root
+```
+
+Now we need to merge Mgg workspaces and Mjj in one final workspace file : 
+```
+python createMjjMggModel.py -.... options for input files, etc
+```
+https://github.com/chernyavskaya/flashggFinalFit/blob/fullRunII_approval1D/Signal/test/createMjjMggModel.py
+
+Done! Now you can prepared the datacards.
