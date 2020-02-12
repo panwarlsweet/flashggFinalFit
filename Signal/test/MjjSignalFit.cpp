@@ -190,7 +190,7 @@ int main(int argc, char *argv[]){
 
 			MjjSig[ic]->Print();
 
-      	//Normalization per category
+			//Normalization per category
 			RooRealVar *MjjSig_normalization = new RooRealVar(("hbbpdfsm_13TeV_"+iproc+"_"+year_+"_DoubleHTag_"+to_string(c)+"_normalization").c_str(),("hbbpdfsm_13TeV_"+iproc+"_"+year_+"_DoubleHTag_"+to_string(c)+"_normalization").c_str(),sigToFit[ic]->sumEntries()/1000.,"");//as for Hgg use fb
 			MjjSig_normalization->setConstant(true);
 			RooFormulaVar *finalNorm = new RooFormulaVar(("hbbpdfsm_13TeV_"+iproc+"_"+year_+"_DoubleHTag_"+to_string(c)+"_norm").c_str(),("hbbpdfsm_13TeV_"+iproc+"_"+year_+"_DoubleHTag_"+to_string(c)+"_norm").c_str(),"@0",RooArgList(*MjjSig_normalization));
@@ -223,7 +223,7 @@ int main(int argc, char *argv[]){
 				boost::replace_all(newVarName,proc_type+"_", "");
 				boost::replace_all(newVarName,year_, (iproc+"_"+year_));
 				//boost::replace_all(newVarName,"Mjj", "CMS_hbb_mass"); //will do this later
-        		w->import( *rrv, RenameVariable( thisVarName.c_str(), newVarName.c_str()));
+				w->import( *rrv, RenameVariable( thisVarName.c_str(), newVarName.c_str()));
 				wAll->import(*rrv, RenameVariable( thisVarName.c_str(), newVarName.c_str()));  
 				varsToChange.push_back(std::make_pair(thisVarName.c_str(), newVarName.c_str()));
 			}
