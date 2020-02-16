@@ -575,6 +575,7 @@ void Plot(RooRealVar *mass, RooDataSet *data, RooAbsPdf *pdf, pair<double,double
   CMS_lumi( canv, 0,0,sim);
   canv->Print(Form("%s.pdf",savename.c_str()));
   canv->Print(Form("%s.png",savename.c_str()));
+  canv->Print(Form("%s.jpg",savename.c_str()));
   //string path = savename.substr(0,savename.find('/'));
   //canv->Print(Form("%s/animation.gif+100",path.c_str()));
 

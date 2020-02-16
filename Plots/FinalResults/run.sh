@@ -1,5 +1,5 @@
 DATE="24_01_2020"
-#DATE="03_02_2020"
+#DATE="04_02_2020"
 OUTPUTDIR="output/"
 SYSTEMATICS="_systematics"
 #SYSTEMATICS=""
@@ -16,19 +16,24 @@ DATACARD="Datacards/cms_HHbbgg_datacard_SMgenerated_${DATE}${SYSTEMATICS}.txt"
 for node in SM;
 #for node in SM box `seq 0 11`;
 do
-   #DATACARD="Datacards/cms_HHbbgg_datacard_node${node}_${DATE}${SYSTEMATICS}.txt"
-   #OUTTAG="_node${node}_${DATE}${SYSTEMATICS}"
+   DATACARD="Datacards/cms_HHbbgg_datacard_node${node}_${DATE}${SYSTEMATICS}.txt"
+   OUTTAG="_node${node}_${DATE}${SYSTEMATICS}_test"
+   #2D
+   #DATACARD="Datacards/cms_HHbbgg2D_light_datacard_node${node}_${DATE}${SYSTEMATICS}.txt"
+   #OUTTAG="_2Dlight_screeen_node${node}_${DATE}${SYSTEMATICS}"
    #MC BG
 	#DATACARD="Datacards/cms_HHbbgg_datacard_node${node}_${DATE}_MCbg${SYSTEMATICS}.txt"
-   DATACARD="Datacards/cms_HHbbgg_datacard_node${node}_${DATE}_MCbgbjets${SYSTEMATICS}.txt"
+   #DATACARD="Datacards/cms_HHbbgg_datacard_node${node}_${DATE}_MCbgbjets${SYSTEMATICS}.txt"
    #OUTTAG="_node${node}_${DATE}_MCbg${SYSTEMATICS}"
-   OUTTAG="_node${node}_${DATE}_MCbgbjets${SYSTEMATICS}"
+   #OUTTAG="_node${node}_${DATE}_MCbgbjets${SYSTEMATICS}"
   # combine $DATACARD -n $OUTTAG -M Asymptotic -m 125.00 --cminDefaultMinimizerType=Minuit2 -L $CMSSW_BASE/lib/$SCRAM_ARCH/libHiggsAnalysisGBRLikelihood.so   --run=blind -t -1 --rRelAcc 0.001
-	if [[ "$SYSTEMATICS" == "_systematics" ]]; then
-    	combine $DATACARD -n $OUTTAG -M Asymptotic -m 125.00 --cminDefaultMinimizerType=Minuit2 -L $CMSSW_BASE/lib/$SCRAM_ARCH/libHiggsAnalysisGBRLikelihood.so   --run=blind -t -1 --rRelAcc 0.001
-	else
-    	combine $DATACARD -n $OUTTAG -M Asymptotic -m 125.00 --cminDefaultMinimizerType=Minuit2 -L $CMSSW_BASE/lib/$SCRAM_ARCH/libHiggsAnalysisGBRLikelihood.so   --run=blind -t -1 --rRelAcc 0.001 -S 0
-	fi
+  # combine $DATACARD -n $OUTTAG -M Asymptotic -m 125.00 --cminDefaultMinimizerType=Minuit2 -L $CMSSW_BASE/lib/$SCRAM_ARCH/libHiggsAnalysisGBRLikelihood.so   --run=blind -t -1 --rRelAcc 0.001
+   echo $DATACARD -n $OUTTAG -M Asymptotic -m 125.00 --cminDefaultMinimizerType=Minuit2 -L $CMSSW_BASE/lib/$SCRAM_ARCH/libHiggsAnalysisGBRLikelihood.so   --run=blind -t -1 --rRelAcc 0.001
+#	if [[ "$SYSTEMATICS" == "_systematics" ]]; then
+#    	combine $DATACARD -n $OUTTAG -M Asymptotic -m 125.00 --cminDefaultMinimizerType=Minuit2 -L $CMSSW_BASE/lib/$SCRAM_ARCH/libHiggsAnalysisGBRLikelihood.so   --run=blind -t -1 --rRelAcc 0.001
+#	else
+#    	combine $DATACARD -n $OUTTAG -M Asymptotic -m 125.00 --cminDefaultMinimizerType=Minuit2 -L $CMSSW_BASE/lib/$SCRAM_ARCH/libHiggsAnalysisGBRLikelihood.so   --run=blind -t -1 --rRelAcc 0.001 -S 0
+#	fi
 done
 
 

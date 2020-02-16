@@ -1,5 +1,5 @@
 #DATE="24_01_2020"
-DATE="04_02_2020"
+DATE="18_02_2020"
 DO_SYSTEMATIC=0
 btagReshapeFalse=1  #btagReshapeWeight was propagated with False in the flashgg trees
 
@@ -118,10 +118,10 @@ do
    #name2D=BG_MCbgbjets
    name2D=DoubleEG
    #name2D=BG_MCbg
-   #outtag=ivanjson
-   outtag=high
+   outtag=ivanjson
+   #outtag=high
    nodename="hh_node_${node}_2016,hh_node_${node}_2017,hh_node_${node}_2018"
-   outname="outputs/cms_HHbbgg2D_${name2D}_${outtag}_datacard_node${node}_${DATE}.txt"
+   outname="outputs/cms_HHbbgg2D_${name2D}_${outtag}_datacard_node${node}_${DATE}.txt" #_ivannorm.txt"   #_mjjnorm.txt"
    if [ $DO_SYSTEMATIC -gt 0 ] 
    then
       outname="outputs/cms_HHbbgg2D_${name2D}_{$outtag}_datacard_node${node}_${DATE}_systematics.txt"
@@ -129,8 +129,12 @@ do
    DATAFILE="inputs/CMS-HGG_multipdf2D_${name2D}_${outtag}_HHbbgg_2016_2017_2018_${DATE}.root"
    #NODESFILE="inputs/CMS-HGG_sigfit_MggMjj_2016_2017_2018_${DATE}.root,inputs/CMS-HGG_sigfit_MggMjj_2016_2017_2018_${DATE}.root,inputs/CMS-HGG_sigfit_MggMjj_2016_2017_2018_${DATE}.root"
    #SIGNALFILE="inputs/CMS-HGG_sigfit_MggMjj_2016_2017_2018_${DATE}.root,inputs/CMS-HGG_sigfit_MggMjj_2016_2017_2018_${DATE}.root,inputs/CMS-HGG_sigfit_MggMjj_2016_2017_2018_${DATE}.root"
-   NODESFILE="inputs/CMS-HGG_sigfit_MggMjj_2016_2017_2018_12_02_2020.root,inputs/CMS-HGG_sigfit_MggMjj_2016_2017_2018_12_02_2020.root,inputs/CMS-HGG_sigfit_MggMjj_2016_2017_2018_12_02_2020.root"
-   SIGNALFILE="inputs/CMS-HGG_sigfit_MggMjj_2016_2017_2018_12_02_2020.root,inputs/CMS-HGG_sigfit_MggMjj_2016_2017_2018_12_02_2020.root,inputs/CMS-HGG_sigfit_MggMjj_2016_2017_2018_12_02_2020.root"
+   #NODESFILE="inputs/CMS-HGG_sigfit_MggMjj_2016_2017_2018_12_02_2020.root,inputs/CMS-HGG_sigfit_MggMjj_2016_2017_2018_12_02_2020.root,inputs/CMS-HGG_sigfit_MggMjj_2016_2017_2018_12_02_2020.root"
+   #SIGNALFILE="inputs/CMS-HGG_sigfit_MggMjj_2016_2017_2018_12_02_2020.root,inputs/CMS-HGG_sigfit_MggMjj_2016_2017_2018_12_02_2020.root,inputs/CMS-HGG_sigfit_MggMjj_2016_2017_2018_12_02_2020.root"
+   #NODESFILE="inputs/CMS-HGG_sigfit_MggMjj_2016_2017_2018_12_02_2020_mjjnorm.root,inputs/CMS-HGG_sigfit_MggMjj_2016_2017_2018_12_02_2020_mjjnorm.root,inputs/CMS-HGG_sigfit_MggMjj_2016_2017_2018_12_02_2020_mjjnorm.root"
+   #SIGNALFILE="inputs/CMS-HGG_sigfit_MggMjj_2016_2017_2018_12_02_2020_mjjnorm.root,inputs/CMS-HGG_sigfit_MggMjj_2016_2017_2018_12_02_2020_mjjnorm.root,inputs/CMS-HGG_sigfit_MggMjj_2016_2017_2018_12_02_2020_mjjnorm.root"
+   NODESFILE="inputs/CMS-HGG_sigfit_MggMjj_2016_2017_2018_${DATE}.root,inputs/CMS-HGG_sigfit_MggMjj_2016_2017_2018_${DATE}.root,inputs/CMS-HGG_sigfit_MggMjj_2016_2017_2018_${DATE}.root"
+   SIGNALFILE="inputs/CMS-HGG_sigfit_MggMjj_2016_2017_2018_${DATE}.root,inputs/CMS-HGG_sigfit_MggMjj_2016_2017_2018_${DATE}.root,inputs/CMS-HGG_sigfit_MggMjj_2016_2017_2018_${DATE}.root"
 
 
   ./makeParametricModelDatacardFLASHgg.py -i $SYSINPUTFILE -s $SIGNALFILE --nodesFile $NODESFILE --signalProc $nodename -d $DATAFILE -p $PROCS,$nodename -c $CATS --photonCatScales ../Signal/dat/photonCatSyst.dat --photonCatSmears ../Signal/dat/photonCatSyst.dat --isMultiPdf  -o ${outname} --intLumi2016 $INTLUMI2016 --intLumi2017 $INTLUMI2017 --intLumi2018 $INTLUMI2018 --do_HHbbgg_systematics $DO_SYSTEMATIC --do2D --btagReshapeFalse $btagReshapeFalse

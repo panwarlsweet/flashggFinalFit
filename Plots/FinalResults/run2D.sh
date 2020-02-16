@@ -1,6 +1,8 @@
 #!/bin/bash
 
-DATE="04_02_2020"
+#DATE="04_02_2020"
+#DATE="04_02_2020_mjjnorm"
+DATE="18_02_2020"
 #name2D=BG_MCbgbjets
 #name2D=DoubleEG
 #name2D=BG_MCbg
@@ -10,8 +12,8 @@ name2D=$1
 outtag=$2
 
 combineout=HHbbgg2D_${name2D}_${outtag}_${DATE}
-DATACARD="Datacards/cms_HHbbgg2D_${name2D}_${outtag}_datacard_nodeSM_${DATE}.txt"
-DATACARDroot="Datacards/cms_HHbbgg2D_${name2D}_${outtag}_datacard_nodeSM_${DATE}.root"
+DATACARD="Datacards/cms_HHbbgg2D_${name2D}_${outtag}_datacard_nodeSM_${DATE}.txt"  #_ivannorm.txt"
+DATACARDroot="Datacards/cms_HHbbgg2D_${name2D}_${outtag}_datacard_nodeSM_${DATE}.root"  #_ivannorm.root"
 
 echo $name2D 
 echo $outtag

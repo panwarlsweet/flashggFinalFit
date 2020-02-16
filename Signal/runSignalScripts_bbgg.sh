@@ -1,15 +1,16 @@
 doFTEST=0
-doFIT=1
-doPACKAGER=0
+doFIT=0
+doPACKAGER=1
 doCALCPHOSYST=0
 MASS=''
 
-#YEAR="2016"
+YEAR="2016"
 #YEAR="2017"
-YEAR="2018"
+#YEAR="2018"
 
 #DATE="24_01_2020"
-DATE="04_02_2020"
+#DATE="04_02_2020"
+DATE="18_02_2020"
 EXT="singleHiggs"$YEAR
 #EXT="nodes"$YEAR
 PHOTONSYSTFILE=dat/photonCatSyst.dat # without systematics
@@ -157,7 +158,6 @@ fi
 
 
 ################################DO NOT USE PACKAGER FOR THE LIMITS . IT IS MESSED UP IN CURRENT MASTER BRANCH. BUT IT IS STILL CAN BE USED FOR PLOTTING############
-PROC_SM="hh_node_SM_$YEAR"
 LUMI=35.9
 if [ $YEAR == "2016" ]; then
 	LUMI=35.9
@@ -172,24 +172,22 @@ fi
 
 if [ $doPACKAGER -gt 0 ]; then
 	echo 'in the packager'
-	#ls $PWD/$OUTDIR/CMS-HGG_sigfit_*.root > out.txt
-	#echo "ls ../Signal/$OUTDIR/CMS-HGG_sigfit_${EXT}_*.root > out.txt"
-	#ls $PWD/$OUTDIR/CMS-HGG_sigfit_*.root > out.txt
-	#echo "ls ../Signal/$OUTDIR/CMS-HGG_sigfit_${EXT}_*.root > out.txt"
-	#inputfile="output/out_fit_06_05_2019_nodes2016/SM_node_2016.txt"
-	ls $PWD/$OUTDIR/CMS-HGG_sigfit_${EXT}_hh_node_SM_${YEAR}_DoubleHTag_*.root > $OUTDIR/SM_node_$YEAR.txt
-	inputfile="$OUTDIR/SM_node_$YEAR.txt"
-	counter=0
-	while read p ; do
-	  if (($counter==0)); then
-	    SIGFILES="$p"
-	  else
-	    SIGFILES="$SIGFILES,$p"
-	  fi
-	  ((counter=$counter+1))
-	done < $inputfile 
-	echo "SIGFILES $SIGFILES"
-   ./bin/PackageOutput  --skipMasses 120,130 -i $SIGFILES --procs $PROC_SM -l $LUMI -p $OUTDIR/sigfit -W wsig_13TeV -f $CATS -L 120 -H 130 -o $OUTDIR/CMS-HGG_sigfit_${EXT}_SMonly_${DATE}.root > package.out
-   ./bin/makeParametricSignalModelPlots -i  ${OUTDIR}/CMS-HGG_sigfit_${EXT}_SMonly_${DATE}.root -o $OUTDIR/signalModel -p $PROC_SM -f $CATS 
+	for PROC_SM in $(echo $PROCS | sed "s/,/ /g")
+	do
+		ls $PWD/$OUTDIR/CMS-HGG_sigfit_${EXT}_${PROC_SM}_DoubleHTag_*.root > $OUTDIR/${PROC_SM}.txt
+		inputfile="$OUTDIR/${PROC_SM}.txt"
+		counter=0
+		while read p ; do
+		  if (($counter==0)); then
+		    SIGFILES="$p"
+		  else
+		    SIGFILES="$SIGFILES,$p"
+		  fi
+		  ((counter=$counter+1))
+		done < $inputfile 
+		echo "SIGFILES $SIGFILES"
+	   ./bin/PackageOutput  --skipMasses 120,130 -i $SIGFILES --procs $PROC_SM -l $LUMI -p $OUTDIR/sigfit -W wsig_13TeV -f $CATS -L 120 -H 130 -o $OUTDIR/CMS-HGG_sigfit_${EXT}_${PROC_SM}_packager.root > package.out
+	   ./bin/makeParametricSignalModelPlots -i  ${OUTDIR}/CMS-HGG_sigfit_${EXT}_${PROC_SM}_packager.root -o $OUTDIR/signalModel -p $PROC_SM -f $CATS 
+	done
 fi
 

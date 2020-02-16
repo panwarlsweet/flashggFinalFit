@@ -85,14 +85,18 @@ def get_options():
 
     parser = OptionParser()
     parser.add_option("--inp-files",type='string',dest='inp_files',default='DoubleEG_2016_2017_2018_04_02_2020')  
-    #parser.add_option("--inp-files",type='string',dest='inp_files',default='DoubleEG_2016_24_01_2020')  #2016
+    #parser.add_option("--inp-files",type='string',dest='inp_files',default='Data')  #ivan
     parser.add_option("--inp-dir",type='string',dest="inp_dir",default='/work/nchernya/DiHiggs/inputs/04_02_2020/trees/')
-    parser.add_option("--out-dir",type='string',dest="out_dir",default='/work/nchernya/DiHiggs/inputs/04_02_2020/')
+    parser.add_option("--out-dir",type='string',dest="out_dir",default='/work/nchernya/DiHiggs/inputs/18_02_2020/')
+    #parser.add_option("--inp-dir",type='string',dest="inp_dir",default='/scratch/nchernya/HHbbgg/ivan_ntuples_13_02_2020/rho_rew_2016_v2/')
+    #parser.add_option("--out-dir",type='string',dest="out_dir",default='/work/nchernya/DiHiggs/inputs/15_02_2020/')
     parser.add_option("--cats",type='string',dest="cats",default='DoubleHTag_0,DoubleHTag_1,DoubleHTag_2,DoubleHTag_3,DoubleHTag_4,DoubleHTag_5,DoubleHTag_6,DoubleHTag_7,DoubleHTag_8,DoubleHTag_9,DoubleHTag_10,DoubleHTag_11')
     #parser.add_option("--MVAcats",type='string',dest="MVAcats",default='0.44,0.67,0.79,1')
     #parser.add_option("--MXcats",type='string',dest="MXcats",default='250,385,470,640,10000,250,345,440,515,10000,250,330,365,545,10000')
-    parser.add_option("--MVAcats",type='string',dest="MVAcats",default='0.248,0.450,0.728,1')
-    parser.add_option("--MXcats",type='string',dest="MXcats",default='250,376,521,603,10000,250.,376,521,603,10000,250,376,521,603,10000')  #2d
+  #  parser.add_option("--MVAcats",type='string',dest="MVAcats",default='0.248,0.450,0.728,1')
+  #  parser.add_option("--MXcats",type='string',dest="MXcats",default='250,376,521,603,10000,250.,376,521,603,10000,250,376,521,603,10000')  #2d
+    parser.add_option("--MVAcats",type='string',dest="MVAcats",default='0.37,0.62,0.78,1')
+    parser.add_option("--MXcats",type='string',dest="MXcats",default='250,385,510,600,10000,250.,330,360,540,10000,250,330,375,585,10000')  #2d
     #parser.add_option("--MVAcats",type='string',dest="MVAcats",default='0.33,0.55,0.68,1')
     #parser.add_option("--MXcats",type='string',dest="MXcats",default='250,360,470,600,10000,250,330,365,540,10000,250,330,360,615,10000')
     parser.add_option("--ttHScore",type='float',dest="ttHScore",default=0.26)
@@ -121,10 +125,11 @@ target_names = []
 
 for num,f in enumerate(input_files):
    target_names.append('Data_13TeV') 
-   input_files[num] = 'output_' + f 
+   input_files[num] = 'output_' + f  #comment out for ivan
 
 
 for num,f in enumerate(input_files):
+#for num,f in enumerate(opt.inp_files2D.split(',') ):  #ivan
    print 'doing file ',f
    tfile = ROOT.TFile(opt.inp_dir + f+".root")
    tfilename = opt.inp_dir +f+".root"
@@ -137,11 +142,20 @@ for num,f in enumerate(input_files):
        print 'doing cat ',cat
        name = target_names[num]+'_'+cat
        initial_name = target_names[num]+'_DoubleHTag_0'
+      # initial_name = 'bbggSelectionTree' #ivan
        #data = pd.DataFrame(tree2array(tfile.Get("tagsDumper/trees/%s"%initial_name))).
        #selection = "(MX <= %.2f and MX > %.2f) and (HHbbggMVA <= %.2f and HHbbggMVA > %.2f) and (ttHScore >= %.2f)and ((nElectrons2018+nMuons2018)==0) "%(cat_def[cat]["MX"][0],cat_def[cat]["MX"][1],cat_def[cat]["MVA"][0],cat_def[cat]["MVA"][1],opt.ttHScore)
        selection = "(MX <= %.2f and MX > %.2f) and (MVAOutputTransformed <= %.2f and MVAOutputTransformed > %.2f) and (ttHScore >= %.2f) "%(cat_def[cat]["MX"][0],cat_def[cat]["MX"][1],cat_def[cat]["MVA"][0],cat_def[cat]["MVA"][1],opt.ttHScore)
        print 'doing selection ', selection
        data = rpd.read_root(tfilename,'%s'%(treeDirName+initial_name)).query(selection)
+       #if 'bbggSelectionTree' in initial_name : #ivan
+           #data =data.append(rpd.read_root('/scratch/nchernya/HHbbgg/ivan_ntuples_13_02_2020/rho_rew_2017_v2/Data.root',initial_name),ignore_index=True).query(selection)  #ivan
+           #data =data.append(rpd.read_root('/scratch/nchernya/HHbbgg/ivan_ntuples_13_02_2020/rho_rew_2018_v2/Data.root',initial_name),ignore_index=True).query(selection)  #ivan
+      # data['leadingJet_pt_Mjj'] = data['leadingJet_pt']/data['Mjj'] #ivan
+      # data['subleadingJet_pt_Mjj'] = data['subleadingJet_pt']/data['Mjj'] #ivan
+      # data = data.query("(leadingJet_pt_Mjj>0.4)")  #1/2.5 for all categories #ivan
+       data = data.query("(leadingJet_pt_Over_Mjj>0.55)")  #1/2.5 for all categories #ivan
+       #if ('3' in cat) or ('7' in cat ) or ('11' in cat ) : data = data.query("(leadingJet_pt_Mjj>0.4)")  #1/2.5 for all categories
  
        datasets += add_dataset_to_workspace( data, ws, name,'') #systemaitcs[1] : this should be done for nominal only, to add weights
          

@@ -1,7 +1,7 @@
 #DATE=25_04_2019
 #DATE=25_10_2019
 #DATE=24_01_2020
-DATE=04_02_2020
+DATE=18_02_2020
 #DATE=03_02_2020
 YEAR=2016_2017_2018
 #YEAR=2016_2017
@@ -23,11 +23,13 @@ YEAR=2016_2017_2018
 #name2D=BG_MCbgbjets
 name2D=DoubleEG
 #name2D=BG_MCbg
-outtag=high
-input2D=output_${name2D}_${YEAR}_${DATE}.root
-#json2D=Env_json_ivan.dat
+#outtag=high
+outtag=ivanjson
+json2D=Env_json_ivan.dat
+#json2D=Env_json_ivanMC.dat
 #json2D=Env_json_allorders.dat
-json2D=Env_json_high.dat
+#json2D=Env_json_high.dat
+input2D=output_${name2D}_${YEAR}_${DATE}.root
 outputdir=plots/fTest2D/${name2D}_${DATE}_${outtag}
 
 ./bin/fTest2D -i /work/nchernya/DiHiggs/inputs/${DATE}/${input2D} --saveMultiPdf CMS-HGG_multipdf2D_${name2D}_${outtag}_HHbbgg_${YEAR}_${DATE}.root --isData 1 -f DoubleHTag_0,DoubleHTag_1,DoubleHTag_2,DoubleHTag_3,DoubleHTag_4,DoubleHTag_5,DoubleHTag_6,DoubleHTag_7,DoubleHTag_8,DoubleHTag_9,DoubleHTag_10,DoubleHTag_11 --isFlashgg 1  -c 12 -D ${outputdir} -d ${outputdir}/res.dat --jsonForEnvelope $json2D

@@ -199,73 +199,73 @@ Mjj_hig_par3_qqh_cat11[0.1, 0, 10];
 
 Mjj_hig_m0_vh_cat0[91, 88, 94];
 Mjj_hig_sigma_vh_cat0[7, 5, 10];
-Mjj_hig_alpha_vh_cat0[-0.5, -1., .0];
+Mjj_hig_alpha_vh_cat0[-0.5, -2., .0];
 Mjj_hig_n_vh_cat0[2.0, 0.5, 10.0];
 MjjHig_vh_cat0 = RooCBShape(Mjj, Mjj_hig_m0_vh_cat0, Mjj_hig_sigma_vh_cat0,Mjj_hig_alpha_vh_cat0,Mjj_hig_n_vh_cat0);
 
 Mjj_hig_m0_vh_cat1[91, 88, 94];
 Mjj_hig_sigma_vh_cat1[7, 5, 10];
-Mjj_hig_alpha_vh_cat1[-0.5, -1., .0];
+Mjj_hig_alpha_vh_cat1[-0.5, -2., .0];
 Mjj_hig_n_vh_cat1[2.0, 0.5, 10.0];
 MjjHig_vh_cat1 = RooCBShape(Mjj, Mjj_hig_m0_vh_cat1, Mjj_hig_sigma_vh_cat1,Mjj_hig_alpha_vh_cat1,Mjj_hig_n_vh_cat1);
 
 Mjj_hig_m0_vh_cat2[91, 88, 94];
 Mjj_hig_sigma_vh_cat2[7, 5, 10];
-Mjj_hig_alpha_vh_cat2[-0.5, -1., .0];
+Mjj_hig_alpha_vh_cat2[-0.5, -2., .0];
 Mjj_hig_n_vh_cat2[2.0, 0.5, 10.0];
 MjjHig_vh_cat2 = RooCBShape(Mjj, Mjj_hig_m0_vh_cat2, Mjj_hig_sigma_vh_cat2,Mjj_hig_alpha_vh_cat2,Mjj_hig_n_vh_cat2);
 
 Mjj_hig_m0_vh_cat3[91, 88, 94];
 Mjj_hig_sigma_vh_cat3[7, 5, 10];
-Mjj_hig_alpha_vh_cat3[-0.5, -1., .0];
+Mjj_hig_alpha_vh_cat3[-0.5, -2., .0];
 Mjj_hig_n_vh_cat3[2.0, 0.5, 10.0];
 MjjHig_vh_cat3 = RooCBShape(Mjj, Mjj_hig_m0_vh_cat3, Mjj_hig_sigma_vh_cat3,Mjj_hig_alpha_vh_cat3,Mjj_hig_n_vh_cat3);
 
 Mjj_hig_m0_vh_cat4[90, 87, 93];
 Mjj_hig_sigma_vh_cat4[10, 5, 15];
-Mjj_hig_alpha_vh_cat4[-0.5, -1., .0];
+Mjj_hig_alpha_vh_cat4[-0.5, -2., .0];
 Mjj_hig_n_vh_cat4[2.0, 2, 10.0];
 MjjHig_vh_cat4 = RooCBShape(Mjj, Mjj_hig_m0_vh_cat4, Mjj_hig_sigma_vh_cat4,Mjj_hig_alpha_vh_cat4,Mjj_hig_n_vh_cat4);
 
 Mjj_hig_m0_vh_cat5[90, 87, 93];
 Mjj_hig_sigma_vh_cat5[10, 5, 15];
-Mjj_hig_alpha_vh_cat5[-0.5, -1., .0];
+Mjj_hig_alpha_vh_cat5[-0.5, -2., .0];
 Mjj_hig_n_vh_cat5[2.0, 2, 10.0];
 MjjHig_vh_cat5 = RooCBShape(Mjj, Mjj_hig_m0_vh_cat5, Mjj_hig_sigma_vh_cat5,Mjj_hig_alpha_vh_cat5,Mjj_hig_n_vh_cat5);
 
 Mjj_hig_m0_vh_cat6[90, 87, 93];
 Mjj_hig_sigma_vh_cat6[10, 5, 15];
-Mjj_hig_alpha_vh_cat6[-0.5, -1., .0];
+Mjj_hig_alpha_vh_cat6[-0.5, -2., .0];
 Mjj_hig_n_vh_cat6[2.0, 2, 10.0];
 MjjHig_vh_cat6 = RooCBShape(Mjj, Mjj_hig_m0_vh_cat6, Mjj_hig_sigma_vh_cat6,Mjj_hig_alpha_vh_cat6,Mjj_hig_n_vh_cat6);
 
 Mjj_hig_m0_vh_cat7[90, 87, 93];
 Mjj_hig_sigma_vh_cat7[10, 5, 15];
-Mjj_hig_alpha_vh_cat7[-0.5, -1., .0];
+Mjj_hig_alpha_vh_cat7[-0.5, -2., .0];
 Mjj_hig_n_vh_cat7[2.0, 2, 10.0];
 MjjHig_vh_cat7 = RooCBShape(Mjj, Mjj_hig_m0_vh_cat7, Mjj_hig_sigma_vh_cat7,Mjj_hig_alpha_vh_cat7,Mjj_hig_n_vh_cat7);
 
 Mjj_hig_m0_vh_cat8[88, 85, 92];
 Mjj_hig_sigma_vh_cat8[10, 5, 15];
-Mjj_hig_alpha_vh_cat8[-0.5, -1., .0];
+Mjj_hig_alpha_vh_cat8[-0.5, -2., .0];
 Mjj_hig_n_vh_cat8[4.0, 1, 10.0];
 MjjHig_vh_cat8 = RooCBShape(Mjj, Mjj_hig_m0_vh_cat8, Mjj_hig_sigma_vh_cat8,Mjj_hig_alpha_vh_cat8,Mjj_hig_n_vh_cat8);
 
 Mjj_hig_m0_vh_cat9[88, 85, 92];
 Mjj_hig_sigma_vh_cat9[10, 5, 15];
-Mjj_hig_alpha_vh_cat9[-0.5, -1., .0];
+Mjj_hig_alpha_vh_cat9[-0.5, -2., .0];
 Mjj_hig_n_vh_cat9[4.0, 1, 10.0];
 MjjHig_vh_cat9 = RooCBShape(Mjj, Mjj_hig_m0_vh_cat9, Mjj_hig_sigma_vh_cat9,Mjj_hig_alpha_vh_cat9,Mjj_hig_n_vh_cat9);
 
 Mjj_hig_m0_vh_cat10[88, 85, 92];
 Mjj_hig_sigma_vh_cat10[10, 5, 15];
-Mjj_hig_alpha_vh_cat10[-0.5, -1., .0];
+Mjj_hig_alpha_vh_cat10[-0.5, -2., .0];
 Mjj_hig_n_vh_cat10[4.0, 1, 10.0];
 MjjHig_vh_cat10 = RooCBShape(Mjj, Mjj_hig_m0_vh_cat10, Mjj_hig_sigma_vh_cat10,Mjj_hig_alpha_vh_cat10,Mjj_hig_n_vh_cat10);
 
 Mjj_hig_m0_vh_cat11[88, 85, 92];
 Mjj_hig_sigma_vh_cat11[10, 5, 15];
-Mjj_hig_alpha_vh_cat11[-0.5, -1., .0];
+Mjj_hig_alpha_vh_cat11[-0.5, -2., .0];
 Mjj_hig_n_vh_cat11[4.0, 1,10.0];
 MjjHig_vh_cat11 = RooCBShape(Mjj, Mjj_hig_m0_vh_cat11, Mjj_hig_sigma_vh_cat11,Mjj_hig_alpha_vh_cat11,Mjj_hig_n_vh_cat11);
 

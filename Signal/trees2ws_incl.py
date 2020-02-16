@@ -132,7 +132,7 @@ def add_dataset_to_workspace(data=None,ws=None,name=None,systematics_labels=[],b
 
   #define argument set  
   arg_set = ROOT.RooArgSet(ws.var("weight"))
-  variables = ["CMS_hgg_mass","Mjj","dZ", "btagReshapeWeight"] #ttHScore
+  variables = ["CMS_hgg_mass","Mjj","dZ" ] #, "btagReshapeWeight"] #ttHScore
   if add_benchmarks :
   #   variables.append("benchmark_reweight_%s"%benchmark_num)
      variables.append("event")
@@ -153,7 +153,7 @@ def add_dataset_to_workspace(data=None,ws=None,name=None,systematics_labels=[],b
       data['weight'] *= data["benchmark_reweight_%s"%benchmark_num]/benchmark_norm
 
 #Restore normalization from the btag reshaping weights#
-  data['weight'] *= btag_norm
+  data['weight'] *= btag_norm  #undo for ivan
   #data['weight'] /= data["btagReshapeWeight"] #undo btag weights for a test
 #######################################################
 
@@ -186,14 +186,20 @@ def get_options():
 
     parser = OptionParser()
     #parser.add_option("--inp-files",type='string',dest='inp_files',default='qqh,tth,vh,ggh')  
+    #parser.add_option("--inp-files2D",type='string',dest='inp_files2D',default='VBFHToGG_M-125_13TeV_powheg_pythia8,ttHToGG_M125_13TeV_powheg_pythia8,VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8,GluGluHToGG_M-125_13TeV_powheg_pythia8')  
+    #parser.add_option("--inp-files2D",type='string',dest='inp_files2D',default='GluGluToHHTo2B2G_allnodes_no_unit_norm')  
     parser.add_option("--inp-files",type='string',dest='inp_files',default='hh')  
     parser.add_option("--inp-dir",type='string',dest="inp_dir",default='/work/nchernya/DiHiggs/inputs/04_02_2020/trees/')
-    parser.add_option("--out-dir",type='string',dest="out_dir",default='/work/nchernya/DiHiggs/inputs/04_02_2020/')
+    parser.add_option("--out-dir",type='string',dest="out_dir",default='/work/nchernya/DiHiggs/inputs/18_02_2020/')
+    #parser.add_option("--inp-dir",type='string',dest="inp_dir",default='/scratch/nchernya/HHbbgg/ivan_ntuples_13_02_2020/')
+    #parser.add_option("--out-dir",type='string',dest="out_dir",default='/work/nchernya/DiHiggs/inputs/15_02_2020/')
     parser.add_option("--cats",type='string',dest="cats",default='DoubleHTag_0,DoubleHTag_1,DoubleHTag_2,DoubleHTag_3,DoubleHTag_4,DoubleHTag_5,DoubleHTag_6,DoubleHTag_7,DoubleHTag_8,DoubleHTag_9,DoubleHTag_10,DoubleHTag_11')
     #parser.add_option("--MVAcats",type='string',dest="MVAcats",default='0.44,0.67,0.79,1')
     #parser.add_option("--MXcats",type='string',dest="MXcats",default='250,385,470,640,10000,250,345,440,515,10000,250,330,365,545,10000')
-    parser.add_option("--MVAcats",type='string',dest="MVAcats",default='0.248,0.450,0.728,1')
-    parser.add_option("--MXcats",type='string',dest="MXcats",default='250,376,521,603,10000,250.,376,521,603,10000,250,376,521,603,10000')  #2d
+   # parser.add_option("--MVAcats",type='string',dest="MVAcats",default='0.248,0.450,0.728,1')
+   # parser.add_option("--MXcats",type='string',dest="MXcats",default='250,376,521,603,10000,250.,376,521,603,10000,250,376,521,603,10000')  #2d
+    parser.add_option("--MVAcats",type='string',dest="MVAcats",default='0.37,0.62,0.78,1')
+    parser.add_option("--MXcats",type='string',dest="MXcats",default='250,385,510,600,10000,250.,330,360,540,10000,250,330,375,585,10000')  #2d
     #parser.add_option("--MVAcats",type='string',dest="MVAcats",default='0.33,0.55,0.68,1')
     #parser.add_option("--MXcats",type='string',dest="MXcats",default='250,360,470,600,10000,250,330,365,540,10000,250,330,360,615,10000')
     parser.add_option("--ttHScore",type='float',dest="ttHScore",default=0.26)
@@ -247,12 +253,15 @@ for num,f in enumerate(input_files):
       target_files.append('output_' + f +'_%s'%year )
 
 #opt.inp_dir = opt.inp_dir+'/' + year + '/'
+#opt.inp_dir = opt.inp_dir+'/rho_rew_'+year+ '_v2/' #ivan
 
 data_structure = pd.DataFrame(data=None)
 for num,f in enumerate(input_files):
+#for num,f in enumerate(opt.inp_files2D.split(',') ):  #ivan
  print 'doing file ',f,input_names[num]
- tfile = ROOT.TFile(opt.inp_dir + "output_"+f+"_%s.root"%year)
  tfilename = opt.inp_dir + "output_"+f+"_%s.root"%year
+ #tfilename = opt.inp_dir + "output_"+f+".root" #ivan
+ tfile = ROOT.TFile(tfilename)
  if not opt.add_benchmarks : whichNodes = [1]
  for benchmark_num in whichNodes:
    systematics_datasets = [] 
@@ -272,6 +281,7 @@ for num,f in enumerate(input_files):
          else : 
              name = input_names[num]+'_'+cat
              initial_name = input_names[num]+'_DoubleHTag_0'
+       #  initial_name = 'bbggSelectionTree' #ivan
          #selection = "(MX <= %.2f and MX > %.2f) and (HHbbggMVA <= %.2f and HHbbggMVA > %.2f) and (ttHScore >= %.2f)and ((nElectrons2018+nMuons2018)==0)"%(cat_def[cat]["MX"][0],cat_def[cat]["MX"][1],cat_def[cat]["MVA"][0],cat_def[cat]["MVA"][1],opt.ttHScore)
          selection = "(MX <= %.2f and MX > %.2f) and (MVAOutputTransformed <= %.2f and MVAOutputTransformed > %.2f) and (ttHScore >= %.2f) "%(cat_def[cat]["MX"][0],cat_def[cat]["MX"][1],cat_def[cat]["MVA"][0],cat_def[cat]["MVA"][1],opt.ttHScore)
          if not opt.doCategorization : 
@@ -280,6 +290,10 @@ for num,f in enumerate(input_files):
          #data = pd.DataFrame(tree2array(tfile.Get("tagsDumper/trees/%s"%name)))
          if (tfile.Get("%s"%(treeDirName+initial_name)).GetEntries())!=0 :
             data = rpd.read_root(tfilename,'%s'%(treeDirName+initial_name)).query(selection)
+            data['leadingJet_pt_Mjj'] = data['leadingJet_pt']/data['Mjj']
+            data['subleadingJet_pt_Mjj'] = data['subleadingJet_pt']/data['Mjj']
+            data = data.query("(leadingJet_pt_Mjj>0.55)")  #1/2.5 for all categories
+            #if ('3' in cat) or ('7' in cat ) or ('11' in cat ) : data = data.query("(leadingJet_pt_Mjj>0.4)")  #1/2.5 for all categories
             if cat_num == 0 :  data_structure = pd.DataFrame(data=None, columns=data.columns) 
          else :
             "USER WARNING : 0 events in ",f," syst ",syst," ,cat = ",cat 

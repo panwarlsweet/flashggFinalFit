@@ -1207,6 +1207,10 @@ def printObsProcBinLines():
           else: scale *= tthHadRateScale
       #  if ('node_') in p and (not 'generated' in p): 
       #      scale*=2.
+      #  if ('hh_node_SM') in p : #just a check for ivan ntuples
+      #      if '2018' in  p : scale*=1.0221
+      #      if '2017' in  p : scale*=1.0171
+      #      if '2016' in  p : scale*=1.03
         if '2018' in p : outFile.write('%7.1f '%(intL2018*scale))
         if '2017' in p : outFile.write('%7.1f '%(intL2017*scale))
         if '2016' in p : outFile.write('%7.1f '%(intL2016*scale))
