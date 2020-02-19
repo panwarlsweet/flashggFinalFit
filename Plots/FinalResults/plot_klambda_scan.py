@@ -7,7 +7,8 @@ from math import *
 import ROOT
 ROOT.gROOT.SetBatch(True)
 import json
-
+from scipy.interpolate import interp1d
+import numpy as np
 #####
 
 def redrawBorder():
@@ -77,7 +78,7 @@ def functionGF_kl_wrap (x,par):
 ################################################################################################
 ###########OPTIONS
 parser = OptionParser()
-parser.add_option("--hhReweightDir",default='/work/nchernya/DiHiggs/inputs/24_01_2020/categorizedTrees/kl_kt_finebinning//',help="hh reweighting directory with all txt files" )
+parser.add_option("--hhReweightDir",default='/work/nchernya/DiHiggs/inputs/18_02_2020/categorizedTrees/kl_kt_finebinning//',help="hh reweighting directory with all txt files" )
 parser.add_option("--indir", help="Input directory ")
 parser.add_option("--outdir", help="Output directory ")
 parser.add_option("--outtag", help="Output tag ")
@@ -112,8 +113,12 @@ grobs = ROOT.TGraph()
 ptsList = [] # (x, obs, exp, p2s, p1s, m1s, m2s)
 
 ### read the scan with normal width
+kl_min =  0. 
+kl_max = 0.
 with open(options.hhReweightDir+"config.json","r") as rew_json:
   rew_dict = json.load(rew_json)
+  kl_min = rew_dict['klmin'] 
+  kl_max = rew_dict['klmax'] 
 for ikl in range(0,rew_dict['Nkl']):
 	kl = rew_dict['klmin'] + ikl*rew_dict["klstep"]	
 	kl_str = ("{:.6f}".format(kl)).replace('.','d').replace('-','m') 
@@ -121,7 +126,8 @@ for ikl in range(0,rew_dict['Nkl']):
 		kt = rew_dict['ktmin'] + ikt*rew_dict['ktstep']
 		kt_str = ("{:.6f}".format(kt)).replace('.','d').replace('-','m') 
 
-		fname = options.indir + '/' + 'higgsCombine_kl_%s_kt_%s.Asymptotic.mH125.root'%(kl_str,kt_str)
+		fname = options.indir + '/' + 'higgsCombine_kl_%s_kt_%s_%s.AsymptoticLimits.mH125.root'%(kl_str,kt_str,options.outtag)
+		#fname = options.indir + '/' + 'higgsCombine_kl_%s_kt_%s.Asymptotic.mH125.root'%(kl_str,kt_str)
 		vals  = getVals(fname)
 		if not options.unblind : obs   = scaleToXS*0.0 ## FIXME
 		else : obs   = scaleToXS*vals[5][1] ## ??? which one
@@ -137,7 +143,7 @@ for ikl in range(0,rew_dict['Nkl']):
 		m2s = exp - m2s_t
 		m1s = exp - m1s_t
 		xval = kl
-		print xval,exp	
+	#	print xval,exp	
 		ptsList.append((xval, obs, exp, p2s, p1s, m1s, m2s))
 
 # ### read the scan with finer width for more precision in the 0-8 region
@@ -169,6 +175,8 @@ for ikl in range(0,rew_dict['Nkl']):
 # gr1sigma.SetPointError(ipt, 0,0,m1s,p1s)
 # gr2sigma.SetPointError(ipt, 0,0,m2s,p2s)
 ptsList.sort()
+exp_list = []
+xval_list = []
 for ipt, pt in enumerate(ptsList):
 	xval = pt[0]
 	obs  = pt[1]
@@ -179,12 +187,19 @@ for ipt, pt in enumerate(ptsList):
 	m2s  = pt[6]
 
 	grexp.SetPoint(ipt, xval, exp)
+	exp_list.append(exp)
+	xval_list.append(xval)
 	grobs.SetPoint(ipt, xval, obs)
 	gr1sigma.SetPoint(ipt, xval, exp)
 	gr2sigma.SetPoint(ipt, xval, exp)
 	gr1sigma.SetPointError(ipt, 0,0,m1s,p1s)
 	gr2sigma.SetPointError(ipt, 0,0,m2s,p2s)
 
+exp_inter = interp1d(xval_list, exp_list, kind='cubic')
+
+##############Create functions from median expected and observed
+#def graph2func(xval):
+#   return gr.Eval(x[0])
 
 ######## set styles
 grexp.SetMarkerStyle(24)
@@ -335,6 +350,9 @@ pt4.AddText("HH#rightarrow#gamma#gammab#bar{b}")
 # ###### theory lines
 # xmin=-20.4
 # xmax=31.4
+theory_line = []
+exp_line=[]
+xval_line=[]
 xmin=-20.4
 xmax=31.4
 yt=1
@@ -350,12 +368,14 @@ ci = ROOT.TColor.GetColor("#ff0000");
 graph.SetLineColor(ci);
 graph.SetLineWidth(2);
 # graph.Draw("l");
-nP = int((xmax-xmin)*10.0)
+nP = int((kl_max-kl_min)*10.0)
 Graph_syst_Scale =  ROOT.TGraphAsymmErrors(nP)
 for i in range(nP) : 
-	x = xmin+(i*1.)/10.
-	Graph_syst_Scale_x=(xmin+(i*1.)/10.)
+	x = kl_min+(i*1.)/10.
+	Graph_syst_Scale_x=(kl_min+(i*1.)/10.)
 	Graph_syst_Scale_y=functionGF_kl_wrap([x], [y_theo_scale])
+	theory_line.append(Graph_syst_Scale_y)
+	xval_line.append(x)
 	Graph_syst_Scale_x_err=(0)
 	Graph_syst_Scale_y_errup    = functionGF_kl_wrap([x], [y_theo_scale])*0.054
 	Graph_syst_Scale_y_errdown  = functionGF_kl_wrap([x], [y_theo_scale])*0.070
@@ -364,6 +384,17 @@ for i in range(nP) :
 Graph_syst_Scale.SetLineColor(ROOT.kRed)
 Graph_syst_Scale.SetFillColor(ROOT.kRed)
 Graph_syst_Scale.SetFillStyle(3001)
+exp_line = exp_inter(xval_line)
+
+print 'Expected Median and theory xsec'
+for ipt in range(0,grexp.GetN()):
+   x = ROOT.Double(0)
+   y = ROOT.Double(0)
+   grexp.GetPoint(ipt, x, y)
+   print x,y,functionGF_kl_wrap([x],[y_theo_scale])
+print theory_line,exp_line
+idx = np.argwhere(np.diff(np.sign(exp_line-theory_line ))).flatten()
+print np.array(xval_line)[idx], np.array(theory_line)[idx],np.array(exp_line)[idx]
 
 # ytbis = 2
 # # Graph_syst_Scale2 =  ROOT.TGraphAsymmErrors(nP)

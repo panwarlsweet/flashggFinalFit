@@ -56,10 +56,12 @@ class Parallel:
 
 parser = OptionParser()
 parser.add_option("-d","--datfile",help="Pick up running options from datfile")
+parser.add_option("--cmssw",default='/work/nchernya/DiHiggs/CMSSW_10_2_13/src/HiggsAnalysis/CombinedLimit/',help="path to CMSSW" )
 parser.add_option("--cats",default="DoubleHTag_0,DoubleHTag_1,DoubleHTag_2,DoubleHTag_3,DoubleHTag_4,DoubleHTag_5,DoubleHTag_6,DoubleHTag_7,DoubleHTag_8,DoubleHTag_9,DoubleHTag_10,DoubleHTag_11", help = "categories")
 parser.add_option("--channels_to_run",default="all", help = "which channels to run on")
 parser.add_option("--freeze_kl_fit_params",default = "--freezeNuisances param0_DoubleHTag_0,param1_DoubleHTag_0,param2_DoubleHTag_0,param0_DoubleHTag_1,param1_DoubleHTag_1,param2_DoubleHTag_1,param0_DoubleHTag_2,param1_DoubleHTag_2,param2_DoubleHTag_2,param0_DoubleHTag_3,param1_DoubleHTag_3,param2_DoubleHTag_3,param0_DoubleHTag_4,param1_DoubleHTag_4,param2_DoubleHTag_4,param0_DoubleHTag_5,param1_DoubleHTag_5,param2_DoubleHTag_5,param0_DoubleHTag_6,param1_DoubleHTag_6,param2_DoubleHTag_6,param0_DoubleHTag_7,param1_DoubleHTag_7,param2_DoubleHTag_7,param0_DoubleHTag_8,param1_DoubleHTag_8,param2_DoubleHTag_8,param0_DoubleHTag_9,param1_DoubleHTag_9,param2_DoubleHTag_9,param0_DoubleHTag_10,param1_DoubleHTag_10,param2_DoubleHTag_10,param0_DoubleHTag_11,param1_DoubleHTag_11,param2_DoubleHTag_11")
-parser.add_option("--hhReweightDir",default='/work/nchernya/DiHiggs/inputs/24_01_2020/categorizedTrees/kl_kt_finebinning/',help="hh reweighting directory with all txt files" )
+parser.add_option("--hhReweightDir",default='/work/nchernya/DiHiggs/inputs/18_02_2020/categorizedTrees/kl_kt_finebinning/',help="hh reweighting directory with all txt files" )
+parser.add_option("--do2D",type="int",default=0,help="do 2D or 1D " )
 parser.add_option("--do_kl_scan",default=False,action="store_true",help="do kl scan?" )
 parser.add_option("--Nbench",type="int",default=14,help="nunber of benchmarks" )
 parser.add_option("--do_benchmarks_scan",default=False,action="store_true",help="do benchmark scan?" )
@@ -127,7 +129,10 @@ def writePreamble(sub_file):
       sub_file.write('export SCRAM_ARCH=slc6_amd64_gcc481\n')
       sub_file.write('export LD_LIBRARY_PATH=/swshare/glite/d-cache/dcap/lib/:$LD_LIBRARY_PATH\n')
       sub_file.write('set +x\n') 
+  if (opts.batch == "T3CH"):
+      sub_file.write('cd %s\n'%opts.cmssw)
   sub_file.write('eval `scramv1 runtime -sh`\n')
+  sub_file.write('cd %s\n'%os.getcwd())
   if (opts.batch == "T3CH_qsub"):
       sub_file.write('set -x\n') 
   #sub_file.write('cd -\n')
@@ -173,6 +178,26 @@ def writeAsymptotic(jobid,card,outtag):
     file = open('%s/Jobs/sub_job%d.sh'%(opts.outDir,jobid),'w')
     writePreamble(file)
     exec_line =  'combine %s/%s -n %s -M Asymptotic -m 125.00 --cminDefaultMinimizerType=Minuit2 -L $CMSSW_BASE/lib/$SCRAM_ARCH/libHiggsAnalysisGBRLikelihood.so  --rRelAcc 0.001 '%(os.getcwd(),card,outtag)
+    if opts.S0: exec_line += ' -S 0 '
+    if opts.expected: exec_line += ' --run=blind -t -1'
+    writePostamble(file,exec_line,outtag)
+
+
+def text2workspace(card):
+    print '[INFO] Converting text to workspace'
+    exec_line = "text2workspace.py %s/%s\n"%(os.getcwd(),card)
+    return exec_line
+
+
+def writeAsymptoticFor2D(jobid,card,outtag):
+    print '[INFO] MultiDim Fit for 2D'
+    file = open('%s/Jobs/sub_job%d.sh'%(opts.outDir,jobid),'w')
+    writePreamble(file)
+    exec_line = text2workspace(card)
+    exec_line += "combine %s/%s  -n %s  -M MultiDimFit -m 125. --saveWorkspace --X-rtd TMCSO_AdaptivePseudoAsimov=0 --X-rtd TMCSO_PseudoAsimov=0 --cminDefaultMinimizerStrategy 0 --cminFallbackAlgo Minuit2,Migrad,0:0.1 --X-rt MINIMIZER_freezeDisassociatedParams --X-rtd MINIMIZER_multiMin_hideConstants --X-rtd MINIMIZER_multiMin_maskConstraints --X-rtd MINIMIZER_multiMin_maskChannels=2"%(os.getcwd(),card.replace(".txt",".root"),outtag)
+    if opts.expected: exec_line += ' -t -1' 
+    exec_line += '\n' 
+    exec_line += "combine higgsCombine%s.MultiDimFit.mH125.root --snapshotName MultiDimFit -n %s  -M AsymptoticLimits -m 125. --saveWorkspace --X-rtd TMCSO_AdaptivePseudoAsimov=0 --X-rtd TMCSO_PseudoAsimov=0 --cminDefaultMinimizerStrategy 0 --cminFallbackAlgo Minuit2,Migrad,0:0.1 --X-rt MINIMIZER_freezeDisassociatedParams --X-rtd MINIMIZER_multiMin_hideConstants --X-rtd MINIMIZER_multiMin_maskConstraints --X-rtd MINIMIZER_multiMin_maskChannels=2"%(outtag,outtag)
     if opts.S0: exec_line += ' -S 0 '
     if opts.expected: exec_line += ' --run=blind -t -1'
     writePostamble(file,exec_line,outtag)
@@ -239,18 +264,24 @@ if opts.do_kl_scan:
       kt = rew_dict['ktmin'] + ikt*rew_dict['ktstep']
       kt_str = ("{:.6f}".format(kt)).replace('.','d').replace('-','m') 
       hhcard_name = opts.datacard.replace('.txt','_kl_%s_kt_%s.txt'%(kl_str,kt_str))
-      outtag = '_kl_%s_kt_%s'%(kl_str,kt_str)
+      outtag = '_kl_%s_kt_%s'%(kl_str,kt_str)+'_'+opts.outtag
       print "job ", counter , " , kl =  ", kl, " ,kt =  ", kt, '  outtag = ',outtag
-      writeAsymptotic(counter,hhcard_name,outtag)
+      if not opts.do2D : 
+         writeAsymptotic(counter,hhcard_name,outtag)
+      else :
+         writeAsymptoticFor2D(counter,hhcard_name,outtag)
       counter =  counter+1
 if opts.do_benchmarks_scan:
   counter=0
   Nbenchmarks = opts.Nbench  #12 + SM + box
   for inode in range(0,Nbenchmarks):
       hhcard_name = opts.datacard.replace('.txt','_benchmark_%d.txt'%(inode))
-      outtag = '_benchmarks_%d'%(inode)
+      outtag = '_benchmarks_%d'%(inode)+'_'+opts.outtag
       print "job ", counter , " , benchmark =  ", inode
-      writeAsymptotic(counter,hhcard_name,outtag)
+      if not opts.do2D : 
+         writeAsymptotic(counter,hhcard_name,outtag)
+      else :
+         writeAsymptoticFor2D(counter,hhcard_name,outtag)
       counter =  counter+1
 elif opts.do_kl_likelihood:
     toysFile = opts.toysFile

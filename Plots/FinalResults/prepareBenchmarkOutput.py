@@ -37,7 +37,8 @@ def plotUpperLimits(labels):
     N = len(labels)
     limits_str = []
     for i in range(N):
-        file_name = options.indir+"/higgsCombine_"+labels[i]+"_"+options.outtag+".Asymptotic.mH125.root"
+        #file_name = options.indir+"/higgsCombine_"+labels[i]+"_"+options.outtag+".Asymptotic.mH125.root"
+        file_name = options.indir+"/higgsCombine_"+labels[i]+"_"+options.outtag+".AsymptoticLimits.mH125.root"
         limit = getLimits(file_name)
         limit_str = convert_reorder(i+1,limit)
         f.write(('\t\t\t').join(limit_str[0:]) + '\n')
