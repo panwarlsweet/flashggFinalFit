@@ -1,7 +1,7 @@
 #DATE="24_01_2020"
 DATE="18_02_2020"
-DO_SYSTEMATIC=0
-btagReshapeFalse=1  #btagReshapeWeight was propagated with False in the flashgg trees
+DO_SYSTEMATIC=1
+btagReshapeFalse=0  #btagReshapeWeight was propagated with False in the flashgg trees
 
 PROCS="tth_2016,ggh_2016,qqh_2016,vh_2016,tth_2017,ggh_2017,qqh_2017,vh_2017,tth_2018,ggh_2018,qqh_2018,vh_2018"
 #PROCS="tth_2016,ggh_2016,qqh_2016,vh_2016,tth_2017,ggh_2017,qqh_2017,vh_2017"  #2016.2017 only
@@ -113,6 +113,48 @@ done
 #######################################################################
 
 for node in SM;
+do
+   name2D=DoubleEG
+   #outtag=ivanjson
+   #outtag=high
+   outtag=opt
+   nodename="hh_node_${node}_2016,hh_node_${node}_2017,hh_node_${node}_2018"
+   outname="outputs/cms_HHbbgg2D_${name2D}_${outtag}_datacard_node${node}_${DATE}.txt" 
+   if [ $DO_SYSTEMATIC -gt 0 ] 
+   then
+      outname="outputs/cms_HHbbgg2D_${name2D}_${outtag}_datacard_node${node}_${DATE}_systematics_uncorr2.txt"
+   fi
+   DATAFILE="inputs/CMS-HGG_multipdf2D_${name2D}_${outtag}_HHbbgg_2016_2017_2018_${DATE}.root"
+   NODESFILE="inputs/CMS-HGG_sigfit_MggMjj_2016_2017_2018_${DATE}.root,inputs/CMS-HGG_sigfit_MggMjj_2016_2017_2018_${DATE}.root,inputs/CMS-HGG_sigfit_MggMjj_2016_2017_2018_${DATE}.root"
+   SIGNALFILE="inputs/CMS-HGG_sigfit_MggMjj_2016_2017_2018_${DATE}.root,inputs/CMS-HGG_sigfit_MggMjj_2016_2017_2018_${DATE}.root,inputs/CMS-HGG_sigfit_MggMjj_2016_2017_2018_${DATE}.root"
+   SYSINPUTFILE="/scratch/nchernya/HHbbgg/18_02_2020/workspaces_systematics/output_singleh.root,/scratch/nchernya/HHbbgg/18_02_2020/workspaces_systematics/output_hh_node_SM_2016.root,/scratch/nchernya/HHbbgg/18_02_2020/workspaces_systematics/output_hh_node_SM_2017.root,/scratch/nchernya/HHbbgg/18_02_2020/workspaces_systematics/output_hh_node_SM_2018.root" # if no systematics, then whatever file is ok
+
+
+ # ./makeParametricModelDatacardFLASHgg.py -i $SYSINPUTFILE -s $SIGNALFILE --nodesFile $NODESFILE --signalProc $nodename -d $DATAFILE -p $PROCS,$nodename -c $CATS --photonCatScales ../Signal/dat/photonCatSyst.dat --photonCatSmears ../Signal/dat/photonCatSyst.dat --isMultiPdf  -o ${outname} --intLumi2016 $INTLUMI2016 --intLumi2017 $INTLUMI2017 --intLumi2018 $INTLUMI2018 --do_HHbbgg_systematics $DO_SYSTEMATIC --do2D --btagReshapeFalse $btagReshapeFalse
+done
+
+########################   kl kt scan  &    BSM benchmark scan & likelihood  ##########################
+klkt_dir="/work/nchernya/DiHiggs/inputs/${DATE}/categorizedTrees/kl_kt_finebinning/"
+SMcard="outputs/cms_HHbbgg2D_${name2D}_${outtag}_datacard_nodeSM_${DATE}.txt" 
+if [ $DO_SYSTEMATIC -gt 0 ] 
+then
+  SMcard="outputs/cms_HHbbgg2D_${name2D}_${outtag}_datacard_nodeSM_${DATE}_systematics_review.txt"
+fi
+nodename="hh_node_SM_2016,hh_node_SM_2017,hh_node_SM_2018"
+outname="outputs/tmp.txt"
+./makeParametricModelDatacardFLASHgg.py -i $SYSINPUTFILE -s $SIGNALFILE --nodesFile $NODESFILE --signalProc $nodename -d $DATAFILE -p $PROCS,$nodename -c $CATS --photonCatScales ../Signal/dat/photonCatSyst.dat --photonCatSmears ../Signal/dat/photonCatSyst.dat --isMultiPdf  -o ${outname} --intLumi2016 $INTLUMI2016 --intLumi2017 $INTLUMI2017 --intLumi2018 $INTLUMI2018 --hhReweightDir $klkt_dir --hhReweightSM $SMcard --do_kl_scan  --do2D
+####################### BSM benchmark scan##########################
+./makeParametricModelDatacardFLASHgg.py -i $SYSINPUTFILE -s $SIGNALFILE --nodesFile $NODESFILE --signalProc $nodename -d $DATAFILE -p $PROCS,$nodename -c $CATS --photonCatScales ../Signal/dat/photonCatSyst.dat --photonCatSmears ../Signal/dat/photonCatSyst.dat --isMultiPdf  -o ${outname} --intLumi2016 $INTLUMI2016 --intLumi2017 $INTLUMI2017 --intLumi2018 $INTLUMI2018 --hhReweightDir $klkt_dir --hhReweightSM $SMcard --do_benchmarks_scan  --do2D
+########################kl likelihood scan##########################
+kl_fit_params="/work/nchernya/DiHiggs/CMSSW_7_4_7/src/flashggFinalFit/Plots/FinalResults/plots/yeilds_ratio_kl_xsec_18_02_2020_fitparams.json"
+./makeParametricModelDatacardFLASHgg.py -i $SYSINPUTFILE -s $SIGNALFILE --nodesFile $NODESFILE --signalProc $nodename -d $DATAFILE -p $PROCS,$nodename -c $CATS --photonCatScales ../Signal/dat/photonCatSyst.dat --photonCatSmears ../Signal/dat/photonCatSyst.dat --isMultiPdf  -o ${outname} --intLumi2016 $INTLUMI2016 --intLumi2017 $INTLUMI2017 --intLumi2018 $INTLUMI2018 --kl_fit_params $kl_fit_params  --hhReweightSM $SMcard --do_kl_likelihood  --do2D
+
+
+
+
+########################################################################
+###############################2D MC checks#############################
+for node in SM;
 #for node in `seq 0 11` SM box;
 do
    #name2D=BG_MCbgbjets
@@ -124,7 +166,7 @@ do
    outname="outputs/cms_HHbbgg2D_${name2D}_${outtag}_datacard_node${node}_${DATE}.txt" #_ivannorm.txt"   #_mjjnorm.txt"
    if [ $DO_SYSTEMATIC -gt 0 ] 
    then
-      outname="outputs/cms_HHbbgg2D_${name2D}_{$outtag}_datacard_node${node}_${DATE}_systematics.txt"
+      outname="outputs/cms_HHbbgg2D_${name2D}_${outtag}_datacard_node${node}_${DATE}_systematics.txt"
    fi
    DATAFILE="inputs/CMS-HGG_multipdf2D_${name2D}_${outtag}_HHbbgg_2016_2017_2018_${DATE}.root"
    #NODESFILE="inputs/CMS-HGG_sigfit_MggMjj_2016_2017_2018_${DATE}.root,inputs/CMS-HGG_sigfit_MggMjj_2016_2017_2018_${DATE}.root,inputs/CMS-HGG_sigfit_MggMjj_2016_2017_2018_${DATE}.root"
@@ -137,7 +179,7 @@ do
    SIGNALFILE="inputs/CMS-HGG_sigfit_MggMjj_2016_2017_2018_${DATE}.root,inputs/CMS-HGG_sigfit_MggMjj_2016_2017_2018_${DATE}.root,inputs/CMS-HGG_sigfit_MggMjj_2016_2017_2018_${DATE}.root"
 
 
-  ./makeParametricModelDatacardFLASHgg.py -i $SYSINPUTFILE -s $SIGNALFILE --nodesFile $NODESFILE --signalProc $nodename -d $DATAFILE -p $PROCS,$nodename -c $CATS --photonCatScales ../Signal/dat/photonCatSyst.dat --photonCatSmears ../Signal/dat/photonCatSyst.dat --isMultiPdf  -o ${outname} --intLumi2016 $INTLUMI2016 --intLumi2017 $INTLUMI2017 --intLumi2018 $INTLUMI2018 --do_HHbbgg_systematics $DO_SYSTEMATIC --do2D --btagReshapeFalse $btagReshapeFalse
+#  ./makeParametricModelDatacardFLASHgg.py -i $SYSINPUTFILE -s $SIGNALFILE --nodesFile $NODESFILE --signalProc $nodename -d $DATAFILE -p $PROCS,$nodename -c $CATS --photonCatScales ../Signal/dat/photonCatSyst.dat --photonCatSmears ../Signal/dat/photonCatSyst.dat --isMultiPdf  -o ${outname} --intLumi2016 $INTLUMI2016 --intLumi2017 $INTLUMI2017 --intLumi2018 $INTLUMI2018 --do_HHbbgg_systematics $DO_SYSTEMATIC --do2D --btagReshapeFalse $btagReshapeFalse
 done
 
 

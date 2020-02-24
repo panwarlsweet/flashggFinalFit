@@ -368,11 +368,12 @@ ci = ROOT.TColor.GetColor("#ff0000");
 graph.SetLineColor(ci);
 graph.SetLineWidth(2);
 # graph.Draw("l");
-nP = int((kl_max-kl_min)*10.0)
+divider = 100.
+nP = int((kl_max-kl_min)*divider)
 Graph_syst_Scale =  ROOT.TGraphAsymmErrors(nP)
 for i in range(nP) : 
-	x = kl_min+(i*1.)/10.
-	Graph_syst_Scale_x=(kl_min+(i*1.)/10.)
+	x = kl_min+(i*1.)/divider
+	Graph_syst_Scale_x=(kl_min+(i*1.)/divider)
 	Graph_syst_Scale_y=functionGF_kl_wrap([x], [y_theo_scale])
 	theory_line.append(Graph_syst_Scale_y)
 	xval_line.append(x)
@@ -391,8 +392,6 @@ for ipt in range(0,grexp.GetN()):
    x = ROOT.Double(0)
    y = ROOT.Double(0)
    grexp.GetPoint(ipt, x, y)
-   print x,y,functionGF_kl_wrap([x],[y_theo_scale])
-print theory_line,exp_line
 idx = np.argwhere(np.diff(np.sign(exp_line-theory_line ))).flatten()
 print np.array(xval_line)[idx], np.array(theory_line)[idx],np.array(exp_line)[idx]
 

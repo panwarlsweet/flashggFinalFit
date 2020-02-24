@@ -20,14 +20,16 @@ YEAR=2016_2017_2018
 
 
 #2D MC
-#name2D=BG_MCbgbjets
+#name2D=BG_MCbgbjets043
 name2D=DoubleEG
 #name2D=BG_MCbg
 #outtag=high
-outtag=ivanjson
-json2D=Env_json_ivan.dat
+#outtag=ivanjson
+outtag=low
+#json2D=Env_json_ivan.dat
 #json2D=Env_json_ivanMC.dat
-#json2D=Env_json_allorders.dat
+#json2D=Env_json_opt18_02_2020.dat
+json2D=Env_json_low18_02_2020.dat
 #json2D=Env_json_high.dat
 input2D=output_${name2D}_${YEAR}_${DATE}.root
 outputdir=plots/fTest2D/${name2D}_${DATE}_${outtag}

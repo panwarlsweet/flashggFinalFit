@@ -10,6 +10,7 @@ import os,sys,copy,math
 import numpy as np
 import shutil
 import json
+import csv
 ###############################################################################
 
 ###############################################################################
@@ -141,7 +142,7 @@ parser.add_option("--do_benchmarks_scan",default=False,action="store_true",help=
 parser.add_option("--do_kl_likelihood",default=False,action="store_true",help="prepare datacard for kl likelihood" )
 parser.add_option("--kl_fit_params",default='/work/nchernya/DiHiggs/CMSSW_7_4_7/src/flashggFinalFit/Plots/FinalResults/plots/yeilds_ratio_kl_xsec_24_01_2020_fitparams.json',help="rateParam as a function of kl parametrization" )
 parser.add_option("--do2D",default=False,action="store_true",help="prepare datacard for 2D HHbbgg analysis" )
-parser.add_option("--btagReshapeFalse",default=False,action="store_true",help="if btagReshapeWeight was propagated with False in flashgg" )
+parser.add_option("--btagReshapeFalse",default=0,type='int',help="if btagReshapeWeight was propagated with False in flashgg" )
 (options,args)=parser.parse_args()
 allSystList=[]
 if options.submitSelf :
@@ -834,6 +835,15 @@ def printReweightingBenchmarks(years='2016,2017,2018'.split(',')):
              outNew.write('nuisance  edit  freeze %s'%(rateParamName))
              outNew.write('\n')
 
+def N3LOxsec_ggH():
+   theory_xsec  = {}
+   with open(options.theory_info,"r") as theory_file:
+    for line in csv.reader(theory_file, delimiter="\t"):
+       #ifgore lines with #
+       theory_xsec[line[0]] = {'flashgg':line[1],'N3LO':line[2]}
+      
+    
+
 
 def printReweightingKlKt(years='2016,2017,2018'.split(',')):
   print '[INFO] kl kt reweighting...'
@@ -867,6 +877,44 @@ def printReweightingKlKt(years='2016,2017,2018'.split(',')):
              outNew.write('\n')
              outNew.write('nuisance  edit  freeze %s'%(rateParamName))
              outNew.write('\n')
+
+
+def printTheorySystHHbbgg():
+  print '[INFO] TheorySyst...'
+  theory_dict = {}
+  with open("inputs/theory_unc_YR4.dat","r") as theory_file:
+    for line in csv.reader(theory_file, delimiter="\t"):
+       current_proc,unc = line
+       theory_dict[current_proc] = unc
+
+  outFile.write('%-35s   lnN   '%'pdf')
+  for c in options.cats:
+    for p in options.procs:
+      if '%s:%s'%(p,c) in options.toSkip: continue
+      if p in bkgProcs:
+        outFile.write('- ')
+      elif ('pdf_'+(p.split('_')[0])) in theory_dict :
+        outFile.write('%s '%(theory_dict[('pdf_'+(p.split('_')[0]))]))
+      else : 
+        outFile.write('- ')
+  outFile.write('\n')
+  outFile.write('\n')
+
+  for cons in 'tth,qqh,vh,hh,ggh'.split(','):
+    outFile.write('%s%-35s   lnN   '%('QCDscale_',cons))
+    for c in options.cats:
+       for p in options.procs:
+         if '%s:%s'%(p,c) in options.toSkip: continue
+         if p in bkgProcs:
+           outFile.write('- ')
+         elif (p.split('_')[0]) in cons :
+           outFile.write('%s '%(theory_dict[('QCDscale_'+(p.split('_')[0]))]))
+         else : 
+           outFile.write('- ')
+    outFile.write('\n')
+    outFile.write('\n')
+
+
 
 def printLumiSyst(year='2016'):
   print '[INFO] Lumi...'
@@ -1003,7 +1051,6 @@ vtxSyst = 0.02 #updated for Moriond17
 
 ##HHbbgg systematics :
 if options.do_HHbbgg_systematics:
-  flashggSysts['LooseMvaSF'] =  'LooseMvaSF'
   flashggSysts['PreselSF']    =  'PreselSF'
   flashggSysts['SigmaEOverEShift'] = 'SigmaEOverEShift'
   flashggSysts['electronVetoSF'] = 'electronVetoSF'
@@ -1393,7 +1440,7 @@ def getFlashggLine(proc,cat,syst):
   return line
 
 # printing whole lines 
-def printFlashggSysts():
+def printFlashggSysts(years='2016,2017,2018'.split(',')):
   print '[INFO] lnN lines...'
   for flashggSyst, paramSyst in flashggSysts.items():
       
@@ -1404,17 +1451,20 @@ def printFlashggSysts():
       allSystList.append(name)
       if (not options.justThisSyst=="") :
           if (not options.justThisSyst==name): continue
-      outFile.write('%-35s   lnN   '%(name))
-      for c in options.cats:
-        for p in options.procs:
-          if '%s:%s'%(p,c) in options.toSkip: continue
-          #print "p,c is",p,c
-          if p in bkgProcs or ('pdfWeight' in flashggSyst and (p!='ggH_hgg' and p!='qqH_hgg')) or ('THU_ggH' in flashggSyst and p!='ggH_hgg'):
-            outFile.write('- ')
-          else:
-            outFile.write(getFlashggLine(p,c,flashggSyst))
-      outFile.write('\n')
-  outFile.write('\n')
+      for year in years:
+        outFile.write('%s_%-35s   lnN   '%(name,year))
+        for c in options.cats:
+          for p in options.procs:
+            if '%s:%s'%(p,c) in options.toSkip: continue
+            #print "p,c is",p,c
+            if p in bkgProcs or ('pdfWeight' in flashggSyst and (p!='ggH_hgg' and p!='qqH_hgg')) or ('THU_ggH' in flashggSyst and p!='ggH_hgg'):
+              outFile.write('- ')
+            elif not (year in p):
+              outFile.write('- ')
+            else:
+              outFile.write(getFlashggLine(p,c,flashggSyst))
+        outFile.write('\n')
+        outFile.write('\n')
 ###############################################################################
 
 ###############################################################################
@@ -1737,7 +1787,7 @@ if ((options.justThisSyst== "batch_split") or options.justThisSyst==""):
   #obs proc/tag bins
   printObsProcBinLines()
   printMultiPdf()
-  printBRSyst()
+ # printBRSyst() # not needed for the limit
   printLumiSyst(year='2016')
   printLumiSyst(year='2017')
   printLumiSyst(year='2018')
@@ -1749,7 +1799,7 @@ if ((options.justThisSyst== "batch_split") or options.justThisSyst==""):
   #printSimpleTTHSysts()
   if options.do_HHbbgg_systematics : 
      printFlashggSysts()
-     printTheorySysts()
+     printTheorySystHHbbgg()
 
 #if (len(tthCats) > 0 ):  printTTHSysts()
 #printTheorySysts()

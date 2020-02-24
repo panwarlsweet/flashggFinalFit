@@ -85,6 +85,7 @@ def get_options():
 
     parser = OptionParser()
     parser.add_option("--inp-files",type='string',dest='inp_files',default='DoubleEG_2016_2017_2018_04_02_2020')  
+    #parser.add_option("--inp-files",type='string',dest='inp_files',default='DoubleEG_2018_24_01_2020')  
     #parser.add_option("--inp-files",type='string',dest='inp_files',default='Data')  #ivan
     parser.add_option("--inp-dir",type='string',dest="inp_dir",default='/work/nchernya/DiHiggs/inputs/04_02_2020/trees/')
     parser.add_option("--out-dir",type='string',dest="out_dir",default='/work/nchernya/DiHiggs/inputs/18_02_2020/')

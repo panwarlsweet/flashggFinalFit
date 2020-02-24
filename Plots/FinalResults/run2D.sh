@@ -11,9 +11,9 @@ DATE="18_02_2020"
 name2D=$1
 outtag=$2
 
-combineout=HHbbgg2D_${name2D}_${outtag}_${DATE}
-DATACARD="Datacards/cms_HHbbgg2D_${name2D}_${outtag}_datacard_nodeSM_${DATE}.txt"  #_ivannorm.txt"
-DATACARDroot="Datacards/cms_HHbbgg2D_${name2D}_${outtag}_datacard_nodeSM_${DATE}.root"  #_ivannorm.root"
+combineout=HHbbgg2D_${name2D}_${outtag}_${DATE}_systematics
+DATACARD="Datacards/cms_HHbbgg2D_${name2D}_${outtag}_datacard_nodeSM_${DATE}_systematics.txt"  #_ivannorm.txt"
+DATACARDroot="Datacards/cms_HHbbgg2D_${name2D}_${outtag}_datacard_nodeSM_${DATE}_systematics.root"  #_ivannorm.root"
 
 echo $name2D 
 echo $outtag

@@ -8,7 +8,7 @@ import json
 
 #date = '06_05_2019' 
 #date = '25_10_2019'
-date = '24_01_2020'
+date = '18_02_2020'
 #date = '03_02_2020'
 
 #filename = '/work/nchernya/DiHiggs/CMSSW_7_4_7/src/flashggFinalFit/Signal/output/CMS-HGG_sigfit_all2016_2017_%s.root'%date
@@ -21,8 +21,8 @@ filename = '/work/nchernya/DiHiggs/CMSSW_7_4_7/src/flashggFinalFit/Plots/FinalRe
 wsname = 'wsig_13TeV'
 wsname_bkg = 'multipdf'
 
-symbol = ''  #for keynote
-#symbol = '&'  #for latex
+#symbol = ''  #for keynote
+symbol = '&'  #for latex
 
 num_cat = 12
 lumi_2016=35.9*1000
@@ -78,13 +78,13 @@ filename_bkg_2017 = '/work/nchernya/DiHiggs/inputs/%s/output_DoubleEG_2017_%s.ro
 filename_bkg_2018 = '/work/nchernya/DiHiggs/inputs/%s/output_DoubleEG_2018_%s.root'%(date,date)
 filename_bkg_total = '/work/nchernya/DiHiggs/inputs/%s/output_DoubleEG_2016_2017_2018_%s.root'%(date,date)
 filename_bkg_MCbg = '/work/nchernya/DiHiggs/inputs/%s/output_BG_MCbjets_2016_2017_2018_%s.root'%(date,date)
-#years=['2016','2017','2018','Total']
+years=['2016','2017','2018','Total']
 #years=['2016']
-years=['Total','MC BGbjets']
+#years=['Total','MC BGbjets']
 print 'Data with blinded 115 < Mgg < 135'
-#for num,name in enumerate([filename_bkg_2016,filename_bkg_2017,filename_bkg_2018,filename_bkg_total]):
+for num,name in enumerate([filename_bkg_2016,filename_bkg_2017,filename_bkg_2018,filename_bkg_total]):
 #for num,name in enumerate([filename_bkg_2016]):
-for num,name in enumerate([filename_bkg_total,filename_bkg_MCbg]):
+#for num,name in enumerate([filename_bkg_total,filename_bkg_MCbg]):
 	tfile = TFile(name)
 	wsname_bkg = 'tagsDumper/cms_hgg_13TeV'
 	ws_bkg = tfile.Get(wsname_bkg)
@@ -110,5 +110,5 @@ for num,name in enumerate([filename_bkg_total,filename_bkg_MCbg]):
 
 
 
-result = open("output_txt/full_yields_latex_%s_test.txt"%date,"w")
+result = open("output_txt/full_yields_latex_%s.txt"%date,"w")
 result.write(json.dumps(entries_per_cat))

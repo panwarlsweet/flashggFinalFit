@@ -30,15 +30,13 @@ int main ()
 	 float ktmax=1;
 
 	 TString s;
-	 TString year = "2018";
-//    TString inMapFile   = "HHreweight_2016_15112019.root" ;
-//   TString inMapFile   = "HHreweight_2017_15112019.root" ;
-    TString inMapFile   = "HHreweight_2018_15112019.root" ;
+	 TString year = "2017";
+    TString inMapFile   = TString::Format("HHreweight_%s_15112019.root",year.Data()) ;
 	 TString addname = "_13TeV_125_13TeV_";
 	 TString processName = "hh";
-    TString inputDir = "/work/nchernya/DiHiggs/inputs/24_01_2020/categorizedTrees/";
-    TString outDir = "kl_kt_finebinning_test/";
-	 TString filename = s.Format("output_%s_%s_treesCats_test.root",processName.Data(),year.Data()); 
+    TString inputDir = "/work/nchernya/DiHiggs/inputs/18_02_2020/categorizedTrees/";
+    TString outDir = "kl_kt_finebinning/";
+	 TString filename = s.Format("output_%s_%s_treesCats.root",processName.Data(),year.Data()); 
 
     string coeffFile  = "coefficientsByBin_extended_3M_costHHSim_19-4.txt";
     TString inHistoName = "allHHNodeMap2D";
@@ -66,7 +64,7 @@ int main ()
 	 }
 	 cats[NGENCATS-1] = "NoTag_0";
 
-	 float  mhh, cosTheta, weight, benchmark_reweight_SM, benchmark_reweight_box;
+	 float  mhh, cosTheta, weight, benchmark_reweight_SM;
   
     TFile* fIn = TFile::Open(inputDir+filename);
 	 TH1F *hMhh_kl10 = new TH1F("hMhh_kl5","hMhh_kl5",100,250,1000);/// only for a test
@@ -78,7 +76,6 @@ int main ()
 	 for (int cat=0;cat<NGENCATS;cat++){
     	TTree *ch_gen = (TTree*)dirGen2->Get(s.Format("%s%s%s%s",processName.Data(),year.Data(),addname.Data(),cats[cat].Data()));
       ch_gen->SetBranchAddress("benchmark_reweight_SM", &benchmark_reweight_SM);
-      ch_gen->SetBranchAddress("benchmark_reweight_box", &benchmark_reweight_box);
 	   ch_gen->SetBranchAddress("weight", &weight);	
 		ch_gen->SetBranchAddress("absCosThetaStar_CS", &cosTheta);
       ch_gen->SetBranchAddress("mhh", &mhh);
@@ -112,7 +109,6 @@ int main ()
 	 for (int cat=0;cat<NCATS;cat++){
 	   TTree *ch_reco = (TTree*)dir2->Get(s.Format("%s%s%s%s",processName.Data(),year.Data(),addname.Data(),cats[cat].Data()));
       ch_reco->SetBranchAddress("benchmark_reweight_SM", &benchmark_reweight_SM);
-      ch_reco->SetBranchAddress("benchmark_reweight_box", &benchmark_reweight_box);
     	ch_reco->SetBranchAddress("weight", &weight);
    	ch_reco->SetBranchAddress("genAbsCosThetaStar_CS", &cosTheta);
     	ch_reco->SetBranchAddress("genMhh", &mhh);
