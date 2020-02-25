@@ -1,6 +1,6 @@
 #DATE="24_01_2020"
 DATE="18_02_2020"
-DO_SYSTEMATIC=1
+DO_SYSTEMATIC=0
 btagReshapeFalse=0  #btagReshapeWeight was propagated with False in the flashgg trees
 
 PROCS="tth_2016,ggh_2016,qqh_2016,vh_2016,tth_2017,ggh_2017,qqh_2017,vh_2017,tth_2018,ggh_2018,qqh_2018,vh_2018"
