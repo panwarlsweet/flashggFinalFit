@@ -637,7 +637,7 @@ void profileExtendTerm(RooRealVar *mgg, RooAbsData *data, RooMultiPdf *mpdf, Roo
 	}
 }
 
-void plotAllPdfs(RooRealVar *mgg, RooAbsData *data, RooMultiPdf *mpdf, RooCategory *mcat, string name, int cat, bool unblind, int isFlashgg, std::vector<string> flashggCats){
+void plotAllPdfs(RooRealVar *mgg, RooAbsData *data, RooMultiPdf *mpdf, RooCategory *mcat, string name, int cat, bool unblind, int isFlashgg, std::vector<string> flashggCats,int mhLow=100,int mhHigh=180,int lowblind=115,int highblind=135,string variableName="CMS_hgg_mass"){
 	string catname;
 	if (isFlashgg){
 		catname = Form("%s",flashggCats[cat].c_str());
@@ -647,13 +647,15 @@ void plotAllPdfs(RooRealVar *mgg, RooAbsData *data, RooMultiPdf *mpdf, RooCatego
 	RooPlot *plot = mgg->frame();
 	plot->SetTitle(Form("Background functions profiled for category %s",catname.c_str()));
 	plot->GetXaxis()->SetTitle("m_{#gamma#gamma} (GeV)");
+	if (TString(variableName).Contains("CMS_hgg_mass")) plot->GetXaxis()->SetTitle("m_{#gamma#gamma} (GeV)");
+	if (TString(variableName).Contains("Mjj")) plot->GetXaxis()->SetTitle("m_{jj} (GeV)");
 	if (!unblind) {
-		mgg->setRange("unblind_up",135,180);
-		mgg->setRange("unblind_down",100,115);
-		data->plotOn(plot,Binning(80),CutRange("unblind_down,unblind_up"));
+		mgg->setRange("unblind_up",highblind,mhHigh);
+		mgg->setRange("unblind_down",mhLow,lowblind);
+		data->plotOn(plot,Binning(int(mhHigh-mhLow)),CutRange("unblind_down,unblind_up"));
 	}
 	else {
-		data->plotOn(plot,Binning(80));
+		data->plotOn(plot,Binning(int(mhHigh-mhLow)));
 	}
 
 	TLegend *leg = new TLegend(0.6,0.45,0.92,0.92);
@@ -682,7 +684,8 @@ void plotAllPdfs(RooRealVar *mgg, RooAbsData *data, RooMultiPdf *mpdf, RooCatego
 	canv->Modified();
 	canv->Update();
 	canv->Print(Form("%s.pdf",name.c_str()));
-	canv->Print(Form("%s.png",name.c_str()));
+//	canv->Print(Form("%s.png",name.c_str()));
+	canv->Print(Form("%s.jpg",name.c_str()));
 	canv->Print(Form("%s.C",name.c_str()));
 	delete canv;
 }
@@ -715,6 +718,8 @@ int main(int argc, char* argv[]){
 	bool makeCrossCheckProfPlots=false;
 	int mhLow;
 	int mhHigh;
+	int lowblind;
+	int highblind;
 	int sqrts;
 	float intLumi;
 	double mhvalue_;
@@ -746,6 +751,8 @@ int main(int argc, char* argv[]){
 		("nllTolerance,n", po::value<double>(&nllTolerance)->default_value(0.05),			 			"Tolerance for nll calc in %")
 		("mhLow,L", po::value<int>(&mhLow)->default_value(100),															"Starting point for scan")
 		("mhHigh,H", po::value<int>(&mhHigh)->default_value(180),														"End point for scan")
+		("lowblind", po::value<int>(&lowblind)->default_value(115),															"Starting point for scan")
+		("highblind", po::value<int>(&highblind)->default_value(135),														"End point for scan")
 		("mhVal", po::value<double>(&mhvalue_)->default_value(125.),														"Choose the MH for the plots")
 		("higgsResolution", po::value<double>(&higgsResolution_)->default_value(1.),															"Starting point for scan")
 		("intLumi", po::value<float>(&intLumi)->default_value(0.),																"What intLumi in fb^{-1}")
@@ -787,6 +794,7 @@ int main(int argc, char* argv[]){
 		exit(0);
 	}
 	RooRealVar *mgg = (RooRealVar*)inWS->var(variableName_.c_str());
+	mgg->setBins(int(mhHigh-mhLow));
   string catname;
 	if (isFlashgg_){
 		catname = Form("%s",flashggCats_[cat].c_str());
@@ -829,7 +837,7 @@ int main(int argc, char* argv[]){
 	cout << "[INFO] "<< "\t"; data->Print();
 
 	// plot all the pdfs for reference
-	if (isMultiPdf || verbose_) plotAllPdfs(mgg,data,mpdf,mcat,Form("%s/allPdfs_%s",outDir.c_str(),catname.c_str()),cat,unblind, isFlashgg_, flashggCats_);
+	if (isMultiPdf || verbose_) plotAllPdfs(mgg,data,mpdf,mcat,Form("%s/allPdfs_%s",outDir.c_str(),catname.c_str()),cat,unblind, isFlashgg_, flashggCats_,mhLow,mhHigh,lowblind,highblind,variableName_);
 
 	// include normalization hack RooBernsteinFast;
 	/*
@@ -861,8 +869,10 @@ int main(int argc, char* argv[]){
 	RooPlot *plot = mgg->frame();
 	RooPlot *plotLC = mgg->frame();
 	plot->GetXaxis()->SetTitle("m_{#gamma#gamma} (GeV)");
+	if (TString(variableName_).Contains("CMS_hgg_mass")) plot->GetXaxis()->SetTitle("m_{#gamma#gamma} (GeV)");
+	if (TString(variableName_).Contains("Mjj")) plot->GetXaxis()->SetTitle("m_{jj} (GeV)");
 	plot->SetTitle("");
-	data->plotOn(plot,Binning(80),Invisible());
+	data->plotOn(plot,Binning(int(mhHigh-mhLow)),Invisible());
   ///start extra bit for ratio plot///
   RooHist *plotdata = (RooHist*)plot->getObject(plot->numItems()-1);
   // enf extra bit for ratio plot///
@@ -1005,12 +1015,14 @@ int main(int argc, char* argv[]){
 		plot->Draw();
 
 		if (!unblind) {
-			mgg->setRange("unblind_up",135,180);
-			mgg->setRange("unblind_down",100,115);
-			data->plotOn(plot,Binning(80),CutRange("unblind_down,unblind_up"));
+	//		mgg->setRange("unblind_up",135,mhHigh);
+//			mgg->setRange("unblind_down",mhLow,115);
+			mgg->setRange("unblind_up",highblind,mhHigh);
+			mgg->setRange("unblind_down",mhLow,lowblind);
+			data->plotOn(plot,Binning(int(mhHigh-mhLow)),CutRange("unblind_down,unblind_up"));
 		}
 		else {
-			data->plotOn(plot,Binning(80));
+			data->plotOn(plot,Binning(int(mhHigh-mhLow)));
 		}
 
 		if (doBands) {
@@ -1076,7 +1088,10 @@ int main(int argc, char* argv[]){
 			}
 			else {
 				RooRealVar *MH = (RooRealVar*)w_sig->var("MH");
-				if (!MH) MH = (RooRealVar*)w_sig->var("CMS_hgg_mass");
+				if (!MH) {
+				 	std::cout << "Actually using CMS_hgg_mass"<< std::endl;
+					MH = (RooRealVar*)w_sig->var("CMS_hgg_mass");
+				}
 				MH->setVal(mhvalue_);
 
 
@@ -1100,7 +1115,9 @@ int main(int argc, char* argv[]){
 					rooSignorm->setVal(signal_norm_term);
 					rooSignorm->setConstant(true);
 					signal_pdfs_norm->add(*rooSignorm);
-					signal_pdfs->add(*(w_sig->pdf(Form("extendhggpdfsmrel_13TeV_%s_%s",signalName_[pdf_num].c_str(),catname.c_str()))));
+					TString signame_pdf = Form("extendhggpdfsmrel_13TeV_%s_%s",signalName_[pdf_num].c_str(),catname.c_str());
+					if (TString(variableName_).Contains("Mjj"))  signame_pdf =Form("hbbpdfsm_13TeV_%s_%s",signalName_[pdf_num].c_str(),catname.c_str()) ;
+					signal_pdfs->add(*(w_sig->pdf(signame_pdf.Data())));
 					normalization_bbgg+=signal_norm_term;
 				 	std::cout << "Normalization signal "<< signalName_[pdf_num].c_str() << signal_norm_term<<"  "<<intLumiYear << std::endl;
 				}
@@ -1116,7 +1133,9 @@ int main(int argc, char* argv[]){
 					rooSingleHnorm->setVal(singleHiggs_norm_term);
 					rooSingleHnorm->setConstant(true);
 					singleHiggs_pdfs_norm->add(*rooSingleHnorm);
-					singleHiggs_pdfs->add(*(w_sig->pdf(Form("extendhggpdfsmrel_13TeV_%s_%s",singleHiggsNames_[pdf_num].c_str(),catname.c_str()))));
+					TString singleHname_pdf = Form("extendhggpdfsmrel_13TeV_%s_%s",singleHiggsNames_[pdf_num].c_str(),catname.c_str());
+					if (TString(variableName_).Contains("Mjj"))  singleHname_pdf =Form("hbbpdfsm_13TeV_%s_%s",singleHiggsNames_[pdf_num].c_str(),catname.c_str());
+					singleHiggs_pdfs->add(*(w_sig->pdf(singleHname_pdf.Data())));
 					normalization_singleHiggs+=singleHiggs_norm_term;
 				 	std::cout << "Normalization single Higgs "<< singleHiggsNames_[pdf_num].c_str() << singleHiggs_norm_term<<"  "<<intLumiYear << std::endl;
 				}
@@ -1187,7 +1206,8 @@ int main(int argc, char* argv[]){
   plotdata->GetPoint(ipoint, xtmp,ytmp);
   double bkgval = nomBkgCurve->interpolate(xtmp);
   if (!unblind) {
-   if ((xtmp > 115 ) && ( xtmp < 135) ) continue;
+  // if ((xtmp > 115 ) && ( xtmp < 135) ) continue;
+   if ((xtmp > lowblind ) && ( xtmp < highblind) ) continue;
   }
   //std::cout << "[INFO] plotdata->Integral() " <<  plotdata->Integral() << " ( bins " << npoints  << ") hbkgplots[i]->Integral() " << hbplottmp->Integral() << " (bins " << hbplottmp->GetNbinsX() << std::endl;
  double errhi = plotdata->GetErrorYhigh(ipoint);
@@ -1202,11 +1222,13 @@ int main(int argc, char* argv[]){
  point++;
   } 
   pad2->cd();
-  TH1 *hdummy = new TH1D("hdummyweight","",80,100,180);
+  TH1 *hdummy = new TH1D("hdummyweight","",80,mhLow,mhHigh);
   hdummy->SetMaximum(hdatasub->GetHistogram()->GetMaximum()+1);
   hdummy->SetMinimum(hdatasub->GetHistogram()->GetMinimum()-1);
   hdummy->GetYaxis()->SetTitle("data - best fit PDF");
   hdummy->GetXaxis()->SetTitle("m_{#gamma#gamma} (GeV)");
+ if (TString(variableName_).Contains("CMS_hgg_mass")) hdummy->GetXaxis()->SetTitle("m_{#gamma#gamma} (GeV)");
+  if (TString(variableName_).Contains("Mjj")) hdummy->GetXaxis()->SetTitle("m_{jj} (GeV)");
   hdummy->GetXaxis()->SetTitleSize(0.1);
   hdummy->GetXaxis()->SetLabelSize(0.1);
   hdummy->GetYaxis()->SetTitleSize(0.1);
@@ -1216,7 +1238,7 @@ int main(int argc, char* argv[]){
 	if (doBands) oneSigmaBand_r->Draw("L3 SAME");
   hdummy->GetYaxis()->SetNdivisions(808);
 
-  TLine *line3 = new TLine(100,0.,180,0.);
+  TLine *line3 = new TLine(mhLow,0.,mhHigh,0.);
   line3->SetLineColor(kRed);
   //line3->SetLineStyle(kDashed);
   line3->SetLineWidth(4.0);
@@ -1224,10 +1246,10 @@ int main(int argc, char* argv[]){
   hdatasub->Draw("PESAME");
   // enf extra bit for ratio plot///
     CMS_lumi( canv, 4, 0);
-		canv->Print(Form("%s/bkgplot_%s.pdf",outDir.c_str(),catname.c_str()));
-		canv->Print(Form("%s/bkgplot_%s.png",outDir.c_str(),catname.c_str()));
-		canv->Print(Form("%s/bkgplot_%s.C",outDir.c_str(),catname.c_str()));
-		canv->SetName(Form("bkgplot_%s",catname.c_str()));
+		canv->Print(Form("%s/bkgplot_%s_%s.pdf",outDir.c_str(),variableName_.c_str(),catname.c_str()));
+		canv->Print(Form("%s/bkgplot_%s_%s.jpg",outDir.c_str(),variableName_.c_str(),catname.c_str()));
+		canv->Print(Form("%s/bkgplot_%s_%s.C",outDir.c_str(),variableName_.c_str(),catname.c_str()));
+		canv->SetName(Form("bkgplot_%s_%s",variableName_.c_str(),catname.c_str()));
 		outFile->cd();
 		canv->Write();
 		outWS->Write();
