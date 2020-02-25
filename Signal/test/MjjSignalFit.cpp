@@ -44,6 +44,18 @@
 #include "boost/algorithm/string/predicate.hpp"
 #include <boost/algorithm/string/replace.hpp>
 
+#include "TGaxis.h"
+#include "TROOT.h"
+#include "TStyle.h"
+#include "TLegend.h"
+#include "TLatex.h"
+#include "TPaveText.h"
+#include "TArrow.h"
+#ifndef TDRSTYLE_C
+#define TDRSTYLE_C
+#include "../../tdrStyle/tdrstyle.C"
+#include "../../tdrStyle/CMS_lumi.C"
+#endif
 
 using namespace RooFit ;
 using namespace RooStats ;
@@ -97,11 +109,24 @@ void OptionParser(int argc, char *argv[]){
 	system(Form("mkdir -p %s",outdir_.c_str()));
 }
 
-void RooDraw(TCanvas *can, RooPlot* frame,RooDataHist* hist, RooAbsPdf* model,string iproc,string category){
+void RooDraw(TCanvas *can, TH1F *h, RooPlot* frame,RooDataHist* hist, RooAbsPdf* model,string iproc,string category){
 	can->cd();
 	frame->GetXaxis()->SetTitle("M_{bb} (GeV)");
-	hist->plotOn(frame);
-	model->plotOn(frame);
+	frame->SetTitle("");
+	frame->GetXaxis()->SetTitle("m_{jj} (GeV)");
+	frame->GetXaxis()->SetTitleSize(0.05);
+	frame->GetYaxis()->SetTitleSize(0.05);
+	frame->GetYaxis()->SetTitleOffset(1.5);
+	frame->SetMinimum(0.0);
+	TGaxis::SetExponentOffset(-0.07,0,"xy");
+   frame->GetYaxis()->SetTitle(Form("Events / (%.1f GeV)",h->GetBinWidth(1)));
+   frame->GetYaxis()->SetNdivisions(505);
+	frame->GetYaxis()->SetRangeUser(0.,h->GetBinContent(h->GetMaximumBin())*1.2);
+ 	frame->Draw();
+	hist->plotOn(frame,MarkerStyle(kOpenSquare));
+	TObject *dataLeg = frame->getObject(int(frame->numItems()-1));
+	model->plotOn(frame,Normalization(h->Integral(),RooAbsReal::NumEvent),LineColor(kBlue),LineWidth(2),FillStyle(0));
+	TObject *pdfLeg = frame->getObject(int(frame->numItems()-1));
 	frame->Draw("same");
 
 	TPaveText *pave = new TPaveText(0.55,0.65,0.8,0.85,"NDC");
@@ -114,13 +139,51 @@ void RooDraw(TCanvas *can, RooPlot* frame,RooDataHist* hist, RooAbsPdf* model,st
 	pave->AddText(category.c_str());
 	pave->AddText((iproc).c_str());
 	pave->AddText((year_).c_str());
-	pave->Draw("same");
+//	pave->Draw("same");
+
+	double offset =0.05;
+	TString newtitle = iproc;
+	if (iproc.find("hh") != std::string::npos) newtitle = "HH SM : H#rightarrow bb H#rightarrow#gamma#gamma"; 
+	TLatex *lat1 = new TLatex(.129+0.03+offset,0.85,newtitle);
+	lat1->SetNDC(1);
+	lat1->SetTextSize(0.047);
+
+	TString catLabel_humanReadable  = year_+" "+category;
+	catLabel_humanReadable.ReplaceAll("_"," ");
+	catLabel_humanReadable.ReplaceAll("DoubleHTag","CAT");
+	TLatex *lat2 = new TLatex(0.93,0.88,catLabel_humanReadable);
+	lat2->SetTextAlign(33);
+	lat2->SetNDC(1);
+	lat2->SetTextSize(0.045);
+
+	cout<<"latex : "<<catLabel_humanReadable<<"  "<<newtitle<<endl;
+
+	TLegend *leg = new TLegend(0.15+offset,0.60,0.5+offset,0.82);
+	leg->SetFillStyle(0);
+	leg->SetLineColor(0);
+	leg->SetTextSize(0.037);
+	leg->AddEntry(dataLeg,"#bf{Simulation}","lep");
+	leg->AddEntry(pdfLeg,"#splitline{#bf{Parametric}}{#bf{model}}","l");
+
+	lat2->Draw("same");
+	lat1->Draw("same");
+	leg->Draw("same");
 }
 
 int main(int argc, char *argv[]){
 
 	OptionParser(argc,argv);
 
+	RooMsgService::instance().setGlobalKillBelow(RooFit::ERROR);
+	RooMsgService::instance().setSilentMode(true);
+	setTDRStyle();
+	extraText  = "";  // default extra text is "Preliminary"
+	lumi_13TeV  = "2.7 fb^{-1}"; // default is "19.7 fb^{-1}"
+	lumi_sqrtS = "13 TeV";       // used with iPeriod = 0, e.g. for simulation-only plots (default is an empty string)
+
+
+	gROOT->SetBatch();
+	gStyle->SetTextFont(42);
 
 	string HLFactoryname = "wsig_fit";
 	string allCatFitsTemplate = templatefile_; 
@@ -153,7 +216,8 @@ int main(int argc, char *argv[]){
 		}
 
 		Mjj->setRange((proc_type_upper+"FitRange").c_str(),minSigFitMjj,maxSigFitMjj);
-		Mjj->setBins(24); //70 - 190, reasonbale bins 5 GeV
+		int nbins = 24;
+		Mjj->setBins(nbins); //70 - 190, reasonbale bins 5 GeV
 		//  RooRealVar *weight = (RooRealVar*)w_original->var("weight");
 		//
 		RooDataSet* sigToFit[NCAT];
@@ -240,18 +304,35 @@ int main(int argc, char *argv[]){
 			EditPDF += (")");
 			w->factory(EditPDF.c_str());
 
-			TCanvas* can = new TCanvas("can","can",900,750);
-			RooDraw(can,Mjj->frame(),((RooDataHist*)sigToFit[ic]),MjjSig[ic],iproc,("CAT "+to_string(c)));
+			///create TH1//////
+			TH1F *h = new TH1F(("h_"+iproc+"_"+year_+"_"+to_string(c)).c_str(),("h_"+iproc+"_"+year_+"_"+to_string(c)).c_str(),nbins,minSigFitMjj,maxSigFitMjj);
+			MjjSig[ic]->fillHistogram(h,RooArgList(*Mjj),sigToFit[ic]->sumEntries());
+
+
+			TCanvas* can = new TCanvas("can","can",650,650);
+  			can->SetLeftMargin(0.16);
+  			can->SetTickx(); can->SetTicky();
+			RooDraw(can,h,Mjj->frame(),((RooDataHist*)sigToFit[ic]),MjjSig[ic],iproc,("CAT "+to_string(c)));
+			string sim="Simulation Preliminary";
+			//string sim="Simulation"; //for the paper
+			CMS_lumi( can, 0,0,sim);
 			string canname = plotdir_+"fit_"+iproc+"_"+year_+"_cat"+to_string(c);
-			can->SaveAs((canname+".pdf").c_str());
-			can->SaveAs((canname+".jpg").c_str());
+			can->Print((canname+".pdf").c_str());
+			can->Print((canname+".jpg").c_str());
+  			delete can;
 
 			if ((mergeFitMVAcats_) && (NCAT==nCats_)){  //only works in case the set of categories is complete
-				TCanvas* canMVA = new TCanvas("canMVA","canMVA",900,750);
-				RooDraw(canMVA,Mjj->frame(),((RooDataHist*)sigToFitMVA[categories_scheme[ic]]),MjjSig[ic],iproc,("MVA "+to_string(categories_scheme[ic])));
+				///create TH1//////
+				TH1F *hMVA = new TH1F(("hMVA_"+iproc+"_"+year_+"_"+to_string(c)).c_str(),("h_"+iproc+"_"+year_+"_"+to_string(c)).c_str(),nbins,minSigFitMjj,maxSigFitMjj);
+				MjjSig[ic]->fillHistogram(h,RooArgList(*Mjj),sigToFitMVA[ic]->sumEntries());
+
+				TCanvas* canMVA = new TCanvas("canMVA","canMVA",650,650);
+				RooDraw(canMVA,hMVA,Mjj->frame(),((RooDataHist*)sigToFitMVA[categories_scheme[ic]]),MjjSig[ic],iproc,("MVA "+to_string(categories_scheme[ic])));
+				CMS_lumi( canMVA, 0,0,sim);
 				string cannameMVA = plotdir_+"fit_"+iproc+"_"+year_+"_MVA"+to_string(categories_scheme[ic]);
-				canMVA->SaveAs((cannameMVA+".pdf").c_str());
-				canMVA->SaveAs((cannameMVA+".jpg").c_str());
+				canMVA->Print((cannameMVA+".pdf").c_str());
+				canMVA->Print((cannameMVA+".jpg").c_str());
+  				delete canMVA;
 			}
 
 			string finalpdfname = "hbbpdfsm_13TeV_"+iproc+"_"+year_+"_DoubleHTag_"+to_string(c);
