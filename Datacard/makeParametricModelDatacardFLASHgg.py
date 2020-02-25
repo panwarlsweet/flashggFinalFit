@@ -882,7 +882,7 @@ def printReweightingKlKt(years='2016,2017,2018'.split(',')):
 def printTheorySystHHbbgg():
   print '[INFO] TheorySyst...'
   theory_dict = {}
-  with open("inputs/theory_unc_YR4.dat","r") as theory_file:
+  with open("../MetaData_HHbbgg//theory_unc_YR4.dat","r") as theory_file:
     for line in csv.reader(theory_file, delimiter="\t"):
        current_proc,unc = line
        theory_dict[current_proc] = unc

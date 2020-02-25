@@ -122,7 +122,7 @@ do
    outname="outputs/cms_HHbbgg2D_${name2D}_${outtag}_datacard_node${node}_${DATE}.txt" 
    if [ $DO_SYSTEMATIC -gt 0 ] 
    then
-      outname="outputs/cms_HHbbgg2D_${name2D}_${outtag}_datacard_node${node}_${DATE}_systematics_uncorr2.txt"
+      outname="outputs/cms_HHbbgg2D_${name2D}_${outtag}_datacard_node${node}_${DATE}_systematics.txt"
    fi
    DATAFILE="inputs/CMS-HGG_multipdf2D_${name2D}_${outtag}_HHbbgg_2016_2017_2018_${DATE}.root"
    NODESFILE="inputs/CMS-HGG_sigfit_MggMjj_2016_2017_2018_${DATE}.root,inputs/CMS-HGG_sigfit_MggMjj_2016_2017_2018_${DATE}.root,inputs/CMS-HGG_sigfit_MggMjj_2016_2017_2018_${DATE}.root"
@@ -130,7 +130,7 @@ do
    SYSINPUTFILE="/scratch/nchernya/HHbbgg/18_02_2020/workspaces_systematics/output_singleh.root,/scratch/nchernya/HHbbgg/18_02_2020/workspaces_systematics/output_hh_node_SM_2016.root,/scratch/nchernya/HHbbgg/18_02_2020/workspaces_systematics/output_hh_node_SM_2017.root,/scratch/nchernya/HHbbgg/18_02_2020/workspaces_systematics/output_hh_node_SM_2018.root" # if no systematics, then whatever file is ok
 
 
- # ./makeParametricModelDatacardFLASHgg.py -i $SYSINPUTFILE -s $SIGNALFILE --nodesFile $NODESFILE --signalProc $nodename -d $DATAFILE -p $PROCS,$nodename -c $CATS --photonCatScales ../Signal/dat/photonCatSyst.dat --photonCatSmears ../Signal/dat/photonCatSyst.dat --isMultiPdf  -o ${outname} --intLumi2016 $INTLUMI2016 --intLumi2017 $INTLUMI2017 --intLumi2018 $INTLUMI2018 --do_HHbbgg_systematics $DO_SYSTEMATIC --do2D --btagReshapeFalse $btagReshapeFalse
+  ./makeParametricModelDatacardFLASHgg.py -i $SYSINPUTFILE -s $SIGNALFILE --nodesFile $NODESFILE --signalProc $nodename -d $DATAFILE -p $PROCS,$nodename -c $CATS --photonCatScales ../Signal/dat/photonCatSyst.dat --photonCatSmears ../Signal/dat/photonCatSyst.dat --isMultiPdf  -o ${outname} --intLumi2016 $INTLUMI2016 --intLumi2017 $INTLUMI2017 --intLumi2018 $INTLUMI2018 --do_HHbbgg_systematics $DO_SYSTEMATIC --do2D --btagReshapeFalse $btagReshapeFalse
 done
 
 ########################   kl kt scan  &    BSM benchmark scan & likelihood  ##########################
@@ -138,7 +138,7 @@ klkt_dir="/work/nchernya/DiHiggs/inputs/${DATE}/categorizedTrees/kl_kt_finebinni
 SMcard="outputs/cms_HHbbgg2D_${name2D}_${outtag}_datacard_nodeSM_${DATE}.txt" 
 if [ $DO_SYSTEMATIC -gt 0 ] 
 then
-  SMcard="outputs/cms_HHbbgg2D_${name2D}_${outtag}_datacard_nodeSM_${DATE}_systematics_review.txt"
+  SMcard="outputs/cms_HHbbgg2D_${name2D}_${outtag}_datacard_nodeSM_${DATE}_systematics.txt"
 fi
 nodename="hh_node_SM_2016,hh_node_SM_2017,hh_node_SM_2018"
 outname="outputs/tmp.txt"

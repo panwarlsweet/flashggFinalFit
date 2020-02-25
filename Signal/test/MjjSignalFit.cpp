@@ -109,6 +109,25 @@ void OptionParser(int argc, char *argv[]){
 	system(Form("mkdir -p %s",outdir_.c_str()));
 }
 
+
+/*
+// get FWHHM
+vector<double> getFWHM(TH1F *hist) {
+  cout << "Computing FWHM...." << endl;
+  double hm = h->GetMaximum()*0.5;
+  double low = h->GetBinCenter(h->FindFirstBinAbove(hm));
+  double high = h->GetBinCenter(h->FindLastBinAbove(hm));
+
+  cout << "FWHM: [" << low << "-" << high << " = " << high-low <<"] Max = " << hm << endl;
+  vector<double> result;
+  result.push_back(low);
+  result.push_back(high);
+  result.push_back(hm);
+  result.push_back(h->GetBinWidth(1));
+  return result;
+}*/
+
+
 void RooDraw(TCanvas *can, TH1F *h, RooPlot* frame,RooDataHist* hist, RooAbsPdf* model,string iproc,string category){
 	can->cd();
 	frame->GetXaxis()->SetTitle("M_{bb} (GeV)");
