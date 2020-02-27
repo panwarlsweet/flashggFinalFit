@@ -64,6 +64,8 @@ using namespace std;
 namespace po = boost::program_options;
 string indir_;
 string year_;
+string mergeYearsStr_;
+string lumiYearsStr_;
 string templatefile_;
 string signalproc_;
 string outdir_;
@@ -74,6 +76,9 @@ string flashggCatsStr_;
 vector<string> flashggCats_;
 string infilesStr_;
 vector<string> infiles_;
+vector<string> mergeYears_;
+vector<string> vecLumiYears_;
+vector<double> lumiYears_;
 bool mergeFitMVAcats_;
 int nCats_;
 int nMVA_;
@@ -86,6 +91,8 @@ void OptionParser(int argc, char *argv[]){
 		("infiles,i", po::value<string>(&infilesStr_), "Input files (comma sep)")
 		("template,t", po::value<string>(&templatefile_), "Fit template file name")
 		("year,y", po::value<string>(&year_), "year")
+		("mergeYears", po::value<string>(&mergeYearsStr_)->default_value(""), "Merge years or not, if yes a list of years should be given")
+		("lumiYears", po::value<string>(&lumiYearsStr_)->default_value("35.9,41.2,59."), "lumi of the years to be merged")
 		("outfiledir,o", po::value<string>(&outdir_)->default_value("test/"), "Output file dir")
 		("plotdir,p", po::value<string>(&plotdir_)->default_value("test/"), "Plot dir")
 		("procs", po::value<string>(&procStr_)->default_value("hh_node_SM,ggh,qqh,vh,tth"), "Processes (comma sep)")
@@ -104,7 +111,12 @@ void OptionParser(int argc, char *argv[]){
 	po::notify(vm);
 
 	split(procs_,procStr_,boost::is_any_of(","));
+	split(infiles_,infilesStr_,boost::is_any_of(","));
 	split(flashggCats_,flashggCatsStr_,boost::is_any_of(","));
+	split(mergeYears_,mergeYearsStr_,boost::is_any_of(","));
+	split(vecLumiYears_,lumiYearsStr_,boost::is_any_of(","));
+	for (unsigned int iyear=0; iyear< mergeYears_.size();++iyear)
+		lumiYears_.push_back(std::stod(vecLumiYears_[iyear]));
 	system(Form("mkdir -p %s",plotdir_ .c_str()));
 	system(Form("mkdir -p %s",outdir_.c_str()));
 }
@@ -129,6 +141,8 @@ vector<double> getFWHM(TH1F *hist) {
 
 
 void RooDraw(TCanvas *can, TH1F *h, RooPlot* frame,RooDataHist* hist, RooAbsPdf* model,string iproc,string category){
+  	can->SetLeftMargin(0.16);
+  	can->SetTickx(); can->SetTicky();
 	can->cd();
 	frame->GetXaxis()->SetTitle("M_{bb} (GeV)");
 	frame->SetTitle("");
@@ -144,7 +158,10 @@ void RooDraw(TCanvas *can, TH1F *h, RooPlot* frame,RooDataHist* hist, RooAbsPdf*
  	frame->Draw();
 	hist->plotOn(frame,MarkerStyle(kOpenSquare));
 	TObject *dataLeg = frame->getObject(int(frame->numItems()-1));
-	model->plotOn(frame,Normalization(h->Integral(),RooAbsReal::NumEvent),LineColor(kBlue),LineWidth(2),FillStyle(0));
+	double norm = h->Integral();
+	cout<<"norm : "<<norm<<endl;
+	if (norm<0) norm=0.;
+	model->plotOn(frame,Normalization(norm,RooAbsReal::NumEvent),LineColor(kBlue),LineWidth(2),FillStyle(0));
 	TObject *pdfLeg = frame->getObject(int(frame->numItems()-1));
 	frame->Draw("same");
 
@@ -187,7 +204,25 @@ void RooDraw(TCanvas *can, TH1F *h, RooPlot* frame,RooDataHist* hist, RooAbsPdf*
 	lat2->Draw("same");
 	lat1->Draw("same");
 	leg->Draw("same");
+
+	string sim="Simulation Preliminary";
+	//string sim="Simulation"; //for the paper
+	CMS_lumi( can, 0,0,sim);
 }
+
+
+///copy and scale weight 
+RooDataSet *scaleWeight(RooDataSet *indata, RooRealVar *mvar, RooRealVar *wvar, TString name, double weightscale) {
+	RooDataSet *outdata = new RooDataSet(name,"",RooArgList(*mvar,*wvar),wvar->GetName());
+	for (int ient=0; ient<indata->numEntries(); ++ient) {
+		const RooArgSet *ent = indata->get(ient);		
+		double val = static_cast<RooAbsReal*>(ent->find(mvar->GetName()))->getVal();
+		mvar->setVal(val);
+		outdata->add(*mvar,weightscale*indata->weight());
+	}
+  return outdata;
+}
+
 
 int main(int argc, char *argv[]){
 
@@ -217,8 +252,9 @@ int main(int argc, char *argv[]){
 	unsigned int iproc_num = 0;
 	for (auto &iproc:procs_) {
 		string signalfile = indir_+"output_"+iproc+"_"+year_+".root";
-		if (infiles_.size()!=0)  //If inputfiles are provided by a user
+		if (infiles_.size()!=0){  //If inputfiles are provided by a user
 			signalfile = indir_+infiles_[iproc_num];
+		}
 		TFile *sigFile = TFile::Open(signalfile.c_str());
 		RooWorkspace *w_original = (RooWorkspace*)sigFile->Get("tagsDumper/cms_hgg_13TeV");
 		RooRealVar* Mjj  = (RooRealVar*)w_original->var("Mjj");
@@ -237,21 +273,37 @@ int main(int argc, char *argv[]){
 		Mjj->setRange((proc_type_upper+"FitRange").c_str(),minSigFitMjj,maxSigFitMjj);
 		int nbins = 24;
 		Mjj->setBins(nbins); //70 - 190, reasonbale bins 5 GeV
-		//  RooRealVar *weight = (RooRealVar*)w_original->var("weight");
-		//
+		RooRealVar *weight = (RooRealVar*)w_original->var("weight");
+
 		RooDataSet* sigToFit[NCAT];
 		RooDataSet* sigToFitMVA[nMVA_];
+		RooDataSet* sigToFitAllYears[NCAT];
 		std::map<int,int> categories_scheme = {{0,0},{1,0},{2,0},{3,0},{4,1},{5,1},{6,1},{7,1},{8,2},{9,2},{10,2},{11,2}};
 		for (int ic = 0; ic < NCAT; ++ic)
 		{
 			auto icat = flashggCats_[ic];
 			sigToFit[ic] = (RooDataSet*) w_original->data((iproc+"_"+year_+"_13TeV_125_"+icat).c_str());
+			if (!(mergeYearsStr_.empty())) {
+				for (unsigned int iyear=0; iyear< mergeYears_.size();++iyear){
+					RooDataSet *tmp = (RooDataSet*) w_original->data((iproc+"_"+mergeYears_[iyear]+"_13TeV_125_"+icat).c_str());	
+					if (iyear==0) sigToFitAllYears[ic] = scaleWeight(tmp,Mjj,weight,(iproc+"_YearsMerged_13TeV_125_"+icat).c_str(),lumiYears_[iyear]);
+					else sigToFitAllYears[ic]->append(*(scaleWeight(tmp,Mjj,weight,(iproc+"_YearsMerged_13TeV_125_"+icat).c_str(),lumiYears_[iyear])));
+				}
+			}
 			if ((mergeFitMVAcats_) && (NCAT==nCats_)) { //only works in case the set of categories is complete
 				int mva_cat = categories_scheme[ic];
-				if ( (ic+1)%nMX_ == 1 )
-					sigToFitMVA[mva_cat] = ((RooDataSet*)sigToFit[ic]->Clone((iproc+"_"+year_+"_13TeV_125_MVA"+to_string(mva_cat)).c_str()));
-				else 
-					sigToFitMVA[mva_cat]->append(*((RooDataSet*)sigToFit[ic]));
+				if (mergeYearsStr_.empty()) {
+					if ( (ic+1)%nMX_ == 1 )
+						sigToFitMVA[mva_cat] = ((RooDataSet*)sigToFit[ic]->Clone((iproc+"_"+year_+"_13TeV_125_MVA"+to_string(mva_cat)).c_str()));
+					else 
+						sigToFitMVA[mva_cat]->append(*((RooDataSet*)sigToFit[ic]));
+				}
+				else {
+					if ( (ic+1)%nMX_ == 1 )
+						sigToFitMVA[mva_cat] = ((RooDataSet*)sigToFitAllYears[ic]->Clone((iproc+"_"+year_+"_13TeV_125_MVA"+to_string(mva_cat)).c_str()));
+					else 
+						sigToFitMVA[mva_cat]->append(*((RooDataSet*)sigToFitAllYears[ic]));
+				}
 			}
 		}
 
@@ -274,7 +326,9 @@ int main(int argc, char *argv[]){
 			MjjSig[ic]->Print();
 
 			//Normalization per category
-			RooRealVar *MjjSig_normalization = new RooRealVar(("hbbpdfsm_13TeV_"+iproc+"_"+year_+"_DoubleHTag_"+to_string(c)+"_normalization").c_str(),("hbbpdfsm_13TeV_"+iproc+"_"+year_+"_DoubleHTag_"+to_string(c)+"_normalization").c_str(),sigToFit[ic]->sumEntries()/1000.,"");//as for Hgg use fb
+			double normalization_cat = sigToFit[ic]->sumEntries()/1000.; //as for Hgg use fb
+			if (normalization_cat < 0) normalization_cat = 0.;
+			RooRealVar *MjjSig_normalization = new RooRealVar(("hbbpdfsm_13TeV_"+iproc+"_"+year_+"_DoubleHTag_"+to_string(c)+"_normalization").c_str(),("hbbpdfsm_13TeV_"+iproc+"_"+year_+"_DoubleHTag_"+to_string(c)+"_normalization").c_str(),normalization_cat,"");
 			MjjSig_normalization->setConstant(true);
 			RooFormulaVar *finalNorm = new RooFormulaVar(("hbbpdfsm_13TeV_"+iproc+"_"+year_+"_DoubleHTag_"+to_string(c)+"_norm").c_str(),("hbbpdfsm_13TeV_"+iproc+"_"+year_+"_DoubleHTag_"+to_string(c)+"_norm").c_str(),"@0",RooArgList(*MjjSig_normalization));
 			w->import( *finalNorm);
@@ -283,6 +337,8 @@ int main(int argc, char *argv[]){
 			if (proc_type == "sig")  ((RooRealVar*) w->var(("Mjj_"+proc_type+"_m0"+iproc_type+"_cat"+to_string(c)).c_str()))->setVal(125.);
 			if ((mergeFitMVAcats_) && (NCAT==nCats_)){  //only works in case the set of categories is complete
 				MjjSig[ic]->fitTo(*sigToFitMVA[categories_scheme[ic]],Range((proc_type_upper+"FitRange").c_str()),SumW2Error(kTRUE),PrintLevel(3));
+			} else if (!mergeYearsStr_.empty()){  
+				MjjSig[ic]->fitTo(*sigToFitAllYears[ic],Range((proc_type_upper+"FitRange").c_str()),SumW2Error(kTRUE),PrintLevel(3));
 			} else 
 				MjjSig[ic]->fitTo(*sigToFit[ic],Range((proc_type_upper+"FitRange").c_str()),SumW2Error(kTRUE),PrintLevel(3));
 
@@ -323,36 +379,44 @@ int main(int argc, char *argv[]){
 			EditPDF += (")");
 			w->factory(EditPDF.c_str());
 
-			///create TH1//////
+/*			///create TH1//////
 			TH1F *h = new TH1F(("h_"+iproc+"_"+year_+"_"+to_string(c)).c_str(),("h_"+iproc+"_"+year_+"_"+to_string(c)).c_str(),nbins,minSigFitMjj,maxSigFitMjj);
 			MjjSig[ic]->fillHistogram(h,RooArgList(*Mjj),sigToFit[ic]->sumEntries());
 
 
 			TCanvas* can = new TCanvas("can","can",650,650);
-  			can->SetLeftMargin(0.16);
-  			can->SetTickx(); can->SetTicky();
 			RooDraw(can,h,Mjj->frame(),((RooDataHist*)sigToFit[ic]),MjjSig[ic],iproc,("CAT "+to_string(c)));
-			string sim="Simulation Preliminary";
-			//string sim="Simulation"; //for the paper
-			CMS_lumi( can, 0,0,sim);
 			string canname = plotdir_+"fit_"+iproc+"_"+year_+"_cat"+to_string(c);
 			can->Print((canname+".pdf").c_str());
 			can->Print((canname+".jpg").c_str());
   			delete can;
-
+*/
 			if ((mergeFitMVAcats_) && (NCAT==nCats_)){  //only works in case the set of categories is complete
 				///create TH1//////
-				TH1F *hMVA = new TH1F(("hMVA_"+iproc+"_"+year_+"_"+to_string(c)).c_str(),("h_"+iproc+"_"+year_+"_"+to_string(c)).c_str(),nbins,minSigFitMjj,maxSigFitMjj);
-				MjjSig[ic]->fillHistogram(h,RooArgList(*Mjj),sigToFitMVA[ic]->sumEntries());
+				TH1F *hMVA = new TH1F(("hMVA_"+iproc+"_"+year_+"_"+to_string(c)).c_str(),("hMVA_"+iproc+"_"+year_+"_"+to_string(c)).c_str(),nbins,minSigFitMjj,maxSigFitMjj);
+				MjjSig[ic]->fillHistogram(hMVA,RooArgList(*Mjj),sigToFitMVA[ic]->sumEntries());
 
 				TCanvas* canMVA = new TCanvas("canMVA","canMVA",650,650);
 				RooDraw(canMVA,hMVA,Mjj->frame(),((RooDataHist*)sigToFitMVA[categories_scheme[ic]]),MjjSig[ic],iproc,("MVA "+to_string(categories_scheme[ic])));
-				CMS_lumi( canMVA, 0,0,sim);
 				string cannameMVA = plotdir_+"fit_"+iproc+"_"+year_+"_MVA"+to_string(categories_scheme[ic]);
 				canMVA->Print((cannameMVA+".pdf").c_str());
 				canMVA->Print((cannameMVA+".jpg").c_str());
   				delete canMVA;
 			}
+			else if (!mergeYearsStr_.empty()){  
+				///create TH1//////
+				TH1F *hAllYears = new TH1F(("hAllYears_"+iproc+"_"+year_+"_"+to_string(c)).c_str(),("hAllYears_"+iproc+"_"+year_+"_"+to_string(c)).c_str(),nbins,minSigFitMjj,maxSigFitMjj);
+				cout<<"sum entries"<<sigToFitAllYears[ic]->sumEntries()<<endl;
+				MjjSig[ic]->fillHistogram(hAllYears,RooArgList(*Mjj),sigToFitAllYears[ic]->sumEntries());
+
+				TCanvas* canAllYears = new TCanvas("canAllYears","canAllYears",650,650);
+				RooDraw(canAllYears,hAllYears,Mjj->frame(),((RooDataHist*)sigToFitAllYears[ic]),MjjSig[ic],iproc,("AllYears "+to_string(ic)));
+				string cannameAllYears = plotdir_+"fit_"+iproc+"_"+year_+"_AllYears_cat"+to_string(ic);
+				canAllYears->Print((cannameAllYears+".pdf").c_str());
+				canAllYears->Print((cannameAllYears+".jpg").c_str());
+  				delete canAllYears;
+			}
+
 
 			string finalpdfname = "hbbpdfsm_13TeV_"+iproc+"_"+year_+"_DoubleHTag_"+to_string(c);
 			wAll->import(*w->pdf(finalpdfname.c_str()));
