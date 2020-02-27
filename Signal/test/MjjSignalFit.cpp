@@ -140,7 +140,7 @@ vector<double> getFWHM(TH1F *hist) {
 }*/
 
 
-void RooDraw(TCanvas *can, TH1F *h, RooPlot* frame,RooDataHist* hist, RooAbsPdf* model,string iproc,string category){
+void RooDraw(TCanvas *can, TH1F *h, RooPlot* frame,RooDataHist* hist, RooAbsPdf* model,string iproc,string category, bool putyear){
   	can->SetLeftMargin(0.16);
   	can->SetTickx(); can->SetTicky();
 	can->cd();
@@ -159,23 +159,10 @@ void RooDraw(TCanvas *can, TH1F *h, RooPlot* frame,RooDataHist* hist, RooAbsPdf*
 	hist->plotOn(frame,MarkerStyle(kOpenSquare));
 	TObject *dataLeg = frame->getObject(int(frame->numItems()-1));
 	double norm = h->Integral();
-	cout<<"norm : "<<norm<<endl;
 	if (norm<0) norm=0.;
 	model->plotOn(frame,Normalization(norm,RooAbsReal::NumEvent),LineColor(kBlue),LineWidth(2),FillStyle(0));
 	TObject *pdfLeg = frame->getObject(int(frame->numItems()-1));
 	frame->Draw("same");
-
-	TPaveText *pave = new TPaveText(0.55,0.65,0.8,0.85,"NDC");
-	pave->SetTextAlign(11);
-	pave->SetFillStyle(-1);
-	pave->SetBorderSize(0);
-	pave->SetTextFont(42);
-	pave->SetTextSize(.05);
-	pave->SetTextColor(kBlue+1);
-	pave->AddText(category.c_str());
-	pave->AddText((iproc).c_str());
-	pave->AddText((year_).c_str());
-//	pave->Draw("same");
 
 	double offset =0.05;
 	TString newtitle = iproc;
@@ -185,6 +172,7 @@ void RooDraw(TCanvas *can, TH1F *h, RooPlot* frame,RooDataHist* hist, RooAbsPdf*
 	lat1->SetTextSize(0.047);
 
 	TString catLabel_humanReadable  = year_+" "+category;
+	if (!putyear) catLabel_humanReadable  = category;
 	catLabel_humanReadable.ReplaceAll("_"," ");
 	catLabel_humanReadable.ReplaceAll("DoubleHTag","CAT");
 	TLatex *lat2 = new TLatex(0.93,0.88,catLabel_humanReadable);
@@ -192,7 +180,6 @@ void RooDraw(TCanvas *can, TH1F *h, RooPlot* frame,RooDataHist* hist, RooAbsPdf*
 	lat2->SetNDC(1);
 	lat2->SetTextSize(0.045);
 
-	cout<<"latex : "<<catLabel_humanReadable<<"  "<<newtitle<<endl;
 
 	TLegend *leg = new TLegend(0.15+offset,0.60,0.5+offset,0.82);
 	leg->SetFillStyle(0);
@@ -208,6 +195,7 @@ void RooDraw(TCanvas *can, TH1F *h, RooPlot* frame,RooDataHist* hist, RooAbsPdf*
 	string sim="Simulation Preliminary";
 	//string sim="Simulation"; //for the paper
 	CMS_lumi( can, 0,0,sim);
+	can->Update();
 }
 
 
@@ -379,38 +367,35 @@ int main(int argc, char *argv[]){
 			EditPDF += (")");
 			w->factory(EditPDF.c_str());
 
-/*			///create TH1//////
+			///Plot everything 
+			double putyear = 1;
 			TH1F *h = new TH1F(("h_"+iproc+"_"+year_+"_"+to_string(c)).c_str(),("h_"+iproc+"_"+year_+"_"+to_string(c)).c_str(),nbins,minSigFitMjj,maxSigFitMjj);
 			MjjSig[ic]->fillHistogram(h,RooArgList(*Mjj),sigToFit[ic]->sumEntries());
-
-
 			TCanvas* can = new TCanvas("can","can",650,650);
-			RooDraw(can,h,Mjj->frame(),((RooDataHist*)sigToFit[ic]),MjjSig[ic],iproc,("CAT "+to_string(c)));
+			RooDraw(can,h,Mjj->frame(),((RooDataHist*)sigToFit[ic]),MjjSig[ic],iproc,("CAT "+to_string(c)),putyear);
 			string canname = plotdir_+"fit_"+iproc+"_"+year_+"_cat"+to_string(c);
 			can->Print((canname+".pdf").c_str());
 			can->Print((canname+".jpg").c_str());
   			delete can;
-*/
+
+			if (!mergeYearsStr_.empty()) putyear=0;
 			if ((mergeFitMVAcats_) && (NCAT==nCats_)){  //only works in case the set of categories is complete
-				///create TH1//////
 				TH1F *hMVA = new TH1F(("hMVA_"+iproc+"_"+year_+"_"+to_string(c)).c_str(),("hMVA_"+iproc+"_"+year_+"_"+to_string(c)).c_str(),nbins,minSigFitMjj,maxSigFitMjj);
-				MjjSig[ic]->fillHistogram(hMVA,RooArgList(*Mjj),sigToFitMVA[ic]->sumEntries());
+				MjjSig[ic]->fillHistogram(hMVA,RooArgList(*Mjj),sigToFitMVA[categories_scheme[ic]]->sumEntries());
 
 				TCanvas* canMVA = new TCanvas("canMVA","canMVA",650,650);
-				RooDraw(canMVA,hMVA,Mjj->frame(),((RooDataHist*)sigToFitMVA[categories_scheme[ic]]),MjjSig[ic],iproc,("MVA "+to_string(categories_scheme[ic])));
+				RooDraw(canMVA,hMVA,Mjj->frame(),((RooDataHist*)sigToFitMVA[categories_scheme[ic]]),MjjSig[ic],iproc,("MVA "+to_string(categories_scheme[ic])),putyear);
 				string cannameMVA = plotdir_+"fit_"+iproc+"_"+year_+"_MVA"+to_string(categories_scheme[ic]);
 				canMVA->Print((cannameMVA+".pdf").c_str());
 				canMVA->Print((cannameMVA+".jpg").c_str());
   				delete canMVA;
 			}
-			else if (!mergeYearsStr_.empty()){  
-				///create TH1//////
+			if (!mergeYearsStr_.empty()){  
 				TH1F *hAllYears = new TH1F(("hAllYears_"+iproc+"_"+year_+"_"+to_string(c)).c_str(),("hAllYears_"+iproc+"_"+year_+"_"+to_string(c)).c_str(),nbins,minSigFitMjj,maxSigFitMjj);
-				cout<<"sum entries"<<sigToFitAllYears[ic]->sumEntries()<<endl;
 				MjjSig[ic]->fillHistogram(hAllYears,RooArgList(*Mjj),sigToFitAllYears[ic]->sumEntries());
 
 				TCanvas* canAllYears = new TCanvas("canAllYears","canAllYears",650,650);
-				RooDraw(canAllYears,hAllYears,Mjj->frame(),((RooDataHist*)sigToFitAllYears[ic]),MjjSig[ic],iproc,("AllYears "+to_string(ic)));
+				RooDraw(canAllYears,hAllYears,Mjj->frame(),((RooDataHist*)sigToFitAllYears[ic]),MjjSig[ic],iproc,("CAT "+to_string(ic)),putyear);
 				string cannameAllYears = plotdir_+"fit_"+iproc+"_"+year_+"_AllYears_cat"+to_string(ic);
 				canAllYears->Print((cannameAllYears+".pdf").c_str());
 				canAllYears->Print((cannameAllYears+".jpg").c_str());
@@ -422,9 +407,9 @@ int main(int argc, char *argv[]){
 			wAll->import(*w->pdf(finalpdfname.c_str()));
 			wAll->import( *w->function((finalpdfname+"_norm").c_str()));
 
-			iproc_num+=1;
 		}
 		wAll->writeToFile((outdir_+"workspace_out_"+iproc+"_"+year_+".root").c_str());
+		iproc_num+=1;
 	}
 	std::cout<<"All fits have finished, now merge the workspaces : mergeWorkspace.py workspace_out_mjj.root *.root"<<std::endl;	
 }
