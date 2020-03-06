@@ -61,8 +61,8 @@ int mgg_high =180;
 int mjj_low =70;
 int mjj_high =190;
 int nBinsForMass = 4*(mgg_high-mgg_low);
-//int nBinsForMass2 = 4*(mjj_high-mjj_low);
-int nBinsForMass2 = (mjj_high-mjj_low)/4.;
+int nBinsForMass2 = (mjj_high-mjj_low);
+//int nBinsForMass2 = (mjj_high-mjj_low)/4.;
 
 RooRealVar *intLumi_ = new RooRealVar("IntLumi","hacked int lumi", 1000.);
 
@@ -390,6 +390,18 @@ void plot(RooRealVar *mass, RooMultiPdf *pdfs, RooCategory *catIndex, RooDataSet
      else data->plotOn(plot,Binning(nBinsForMass2));
 
    }
+     vector<string> pdfNameSplit;
+     string bestFitFuncNameOtherProj; 
+     for (int icat=0;icat<catIndex->numTypes();icat++){
+	    if (bestFitPdf==icat) {
+	     //split in mgg and mjj func by splitting in _.
+          string currentPdfName(pdfs->getCurrentPdf()->GetName());
+          split(pdfNameSplit,currentPdfName,boost::is_any_of("_"));
+          if (proj==1) bestFitFuncNameOtherProj = pdfNameSplit[2]; //first is Mgg, then is Mjj
+          if (proj==2) bestFitFuncNameOtherProj = pdfNameSplit[1];
+       } 
+     }
+     cout<<"Best fit name : "<<bestFitFuncNameOtherProj<<endl;
      TCanvas *canv = new TCanvas();
      ///start extra bit for ratio plot///
      RooHist *plotdata = (RooHist*)plot->getObject(plot->numItems()-1);
@@ -398,7 +410,8 @@ void plot(RooRealVar *mass, RooMultiPdf *pdfs, RooCategory *catIndex, RooDataSet
      TPad *pad2 = new TPad("pad2","pad2",0,0,1,0.35);
      pad1->SetBottomMargin(0.18);
      pad2->SetTopMargin(0.00001);
-     pad2->SetBottomMargin(0.25);
+     //pad2->SetBottomMargin(0.25);
+     pad2->SetBottomMargin(0.3);
      pad1->Draw();
      pad2->Draw();
      pad1->cd();
@@ -411,14 +424,28 @@ void plot(RooRealVar *mass, RooMultiPdf *pdfs, RooCategory *catIndex, RooDataSet
      RooAbsPdf *pdf;
      RooCurve *nomBkgCurve;
      int bestcol= -1;
+     int pdfToConsiderCounter=0;
      for (int icat=0;icat<catIndex->numTypes();icat++){
 	    int col;
-	if (icat<=6) col=color[icat];
-	else if(icat<=13){col=color[icat]; style++;}
-	else { col=kBlack; style++; }
+       if (pdfToConsiderCounter<=6) col=color[pdfToConsiderCounter];
+       else if(pdfToConsiderCounter<=13){
+          col=color[pdfToConsiderCounter]; 
+          style++;
+       } else { 
+          col=kBlack; 
+          style++; 
+       }
 	    catIndex->setIndex(icat);
-	pdfs->getCurrentPdf()->fitTo(*data,RooFit::Minos(0),RooFit::Minimizer("Minuit2","minimize"),RooFit::SumW2Error(kTRUE)); //FIXME
-	    pdfs->getCurrentPdf()->plotOn(plot,LineColor(col),LineStyle(style));//,RooFit::NormRange("fitdata_1,fitdata_2"));
+       pdfs->getCurrentPdf()->fitTo(*data,RooFit::Minos(0),RooFit::Minimizer("Minuit2","minimize"),RooFit::SumW2Error(kTRUE)); //FIXME
+       string currentPdfName(pdfs->getCurrentPdf()->GetName());
+       split(pdfNameSplit,currentPdfName,boost::is_any_of("_"));
+       string currentFuncNameOtherProj; 
+       if (proj==1) currentFuncNameOtherProj = pdfNameSplit[2]; //first is Mgg, then is Mjj
+       if (proj==2) currentFuncNameOtherProj = pdfNameSplit[1]; //first is Mgg, then is Mjj
+       if (currentFuncNameOtherProj==bestFitFuncNameOtherProj) {
+           pdfs->getCurrentPdf()->plotOn(plot,LineColor(col),LineStyle(style));//,RooFit::NormRange("fitdata_1,fitdata_2"));
+           pdfToConsiderCounter+=1;
+       }
 	    TObject *pdfLeg = plot->getObject(int(plot->numItems()-1));
 	std::string ext = "";
 	    if (bestFitPdf==icat) {
@@ -427,7 +454,7 @@ void plot(RooRealVar *mass, RooMultiPdf *pdfs, RooCategory *catIndex, RooDataSet
 	           nomBkgCurve = (RooCurve*)plot->getObject(plot->numItems()-1);
 	           bestcol = col;
 	    }
-	    leg->AddEntry(pdfLeg,Form("%s%s",pdfs->getCurrentPdf()->GetName(),ext.c_str()),"L");
+	    if (currentFuncNameOtherProj==bestFitFuncNameOtherProj)  leg->AddEntry(pdfLeg,Form("%s%s",pdfs->getCurrentPdf()->GetName(),ext.c_str()),"L");
      }
      plot->SetTitle(Form("Category %s",flashggCats_[cat].c_str()));
      if (BLIND) plot->SetMinimum(0.0001);

@@ -88,7 +88,7 @@ void OptionParser(int argc, char *argv[]){
 	po::options_description desc1("Allowed options");
 	desc1.add_options()
 		("indir,d", po::value<string>(&indir_), "Input file dir")
-		("infiles,i", po::value<string>(&infilesStr_), "Input files (comma sep)")
+		("infiles,i", po::value<string>(&infilesStr_)->default_value(""), "Input files (comma sep)")
 		("template,t", po::value<string>(&templatefile_), "Fit template file name")
 		("year,y", po::value<string>(&year_), "year")
 		("mergeYears", po::value<string>(&mergeYearsStr_)->default_value(""), "Merge years or not, if yes a list of years should be given")
@@ -240,7 +240,7 @@ int main(int argc, char *argv[]){
 	unsigned int iproc_num = 0;
 	for (auto &iproc:procs_) {
 		string signalfile = indir_+"output_"+iproc+"_"+year_+".root";
-		if (infiles_.size()!=0){  //If inputfiles are provided by a user
+		if (!(infilesStr_.empty())){  //If inputfiles are provided by a user
 			signalfile = indir_+infiles_[iproc_num];
 		}
 		TFile *sigFile = TFile::Open(signalfile.c_str());
@@ -314,7 +314,10 @@ int main(int argc, char *argv[]){
 			MjjSig[ic]->Print();
 
 			//Normalization per category
-			double normalization_cat = sigToFit[ic]->sumEntries()/1000.; //as for Hgg use fb
+		//	Mjj->setRange((proc_type_upper+"CutRange").c_str(),90.,maxSigFitMjj);
+			//double normalization_cat = sigToFit[ic]->sumEntries()/1000.; //as for Hgg use fb
+			double normalization_cat = sigToFit[ic]->sumEntries("1",(proc_type_upper+"CutRange").c_str())/1000.; //as for Hgg use fb
+			Mjj->setRange((proc_type_upper+"FitRange").c_str(),minSigFitMjj,maxSigFitMjj);
 			if (normalization_cat < 0) normalization_cat = 0.;
 			RooRealVar *MjjSig_normalization = new RooRealVar(("hbbpdfsm_13TeV_"+iproc+"_"+year_+"_DoubleHTag_"+to_string(c)+"_normalization").c_str(),("hbbpdfsm_13TeV_"+iproc+"_"+year_+"_DoubleHTag_"+to_string(c)+"_normalization").c_str(),normalization_cat,"");
 			MjjSig_normalization->setConstant(true);

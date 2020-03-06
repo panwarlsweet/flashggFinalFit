@@ -115,11 +115,19 @@ done
 for node in SM;
 do
    name2D=DoubleEG
+   #name2D=BG_MCbgbjets
+   #name2D=BG_MCbg
    #outtag=ivanjson
    #outtag=high
-   outtag=opt
+   #outtag=opt
+  # outtag=biastoys
+   outtag=bestFittoys
+  # outtag=biasCAT11
+  # outtag=bestFitCAT11
    nodename="hh_node_${node}_2016,hh_node_${node}_2017,hh_node_${node}_2018"
    outname="outputs/cms_HHbbgg2D_${name2D}_${outtag}_datacard_node${node}_${DATE}.txt" 
+   CATS="DoubleHTag_0,DoubleHTag_1,DoubleHTag_2,DoubleHTag_3,DoubleHTag_4,DoubleHTag_5,DoubleHTag_6,DoubleHTag_7,DoubleHTag_8,DoubleHTag_9,DoubleHTag_10,DoubleHTag_11"
+  # CATS="DoubleHTag_11"
    if [ $DO_SYSTEMATIC -gt 0 ] 
    then
       outname="outputs/cms_HHbbgg2D_${name2D}_${outtag}_datacard_node${node}_${DATE}_systematics.txt"
@@ -135,19 +143,20 @@ done
 
 ########################   kl kt scan  &    BSM benchmark scan & likelihood  ##########################
 klkt_dir="/work/nchernya/DiHiggs/inputs/${DATE}/categorizedTrees/kl_kt_finebinning/"
-SMcard="outputs/cms_HHbbgg2D_${name2D}_${outtag}_datacard_nodeSM_${DATE}.txt" 
+#SMcard="outputs/cms_HHbbgg2D_${name2D}_${outtag}_datacard_nodeSM_${DATE}.txt" 
+SMcard="outputs/cms_HHbbgg2D_${name2D}_${outtag}_datacard_nodeSM_${DATE}_woCAT11.txt" 
 if [ $DO_SYSTEMATIC -gt 0 ] 
 then
-  SMcard="outputs/cms_HHbbgg2D_${name2D}_${outtag}_datacard_nodeSM_${DATE}_systematics.txt"
+  SMcard="outputs/cms_HHbbgg2D_${name2D}_${outtag}_datacard_nodeSM_${DATE}_woCAT11_systematics.txt"
 fi
 nodename="hh_node_SM_2016,hh_node_SM_2017,hh_node_SM_2018"
 outname="outputs/tmp.txt"
-./makeParametricModelDatacardFLASHgg.py -i $SYSINPUTFILE -s $SIGNALFILE --nodesFile $NODESFILE --signalProc $nodename -d $DATAFILE -p $PROCS,$nodename -c $CATS --photonCatScales ../Signal/dat/photonCatSyst.dat --photonCatSmears ../Signal/dat/photonCatSyst.dat --isMultiPdf  -o ${outname} --intLumi2016 $INTLUMI2016 --intLumi2017 $INTLUMI2017 --intLumi2018 $INTLUMI2018 --hhReweightDir $klkt_dir --hhReweightSM $SMcard --do_kl_scan  --do2D
+#./makeParametricModelDatacardFLASHgg.py -i $SYSINPUTFILE -s $SIGNALFILE --nodesFile $NODESFILE --signalProc $nodename -d $DATAFILE -p $PROCS,$nodename -c $CATS --photonCatScales ../Signal/dat/photonCatSyst.dat --photonCatSmears ../Signal/dat/photonCatSyst.dat --isMultiPdf  -o ${outname} --intLumi2016 $INTLUMI2016 --intLumi2017 $INTLUMI2017 --intLumi2018 $INTLUMI2018 --hhReweightDir $klkt_dir --hhReweightSM $SMcard --do_kl_scan  --do2D
 ####################### BSM benchmark scan##########################
-./makeParametricModelDatacardFLASHgg.py -i $SYSINPUTFILE -s $SIGNALFILE --nodesFile $NODESFILE --signalProc $nodename -d $DATAFILE -p $PROCS,$nodename -c $CATS --photonCatScales ../Signal/dat/photonCatSyst.dat --photonCatSmears ../Signal/dat/photonCatSyst.dat --isMultiPdf  -o ${outname} --intLumi2016 $INTLUMI2016 --intLumi2017 $INTLUMI2017 --intLumi2018 $INTLUMI2018 --hhReweightDir $klkt_dir --hhReweightSM $SMcard --do_benchmarks_scan  --do2D
+#./makeParametricModelDatacardFLASHgg.py -i $SYSINPUTFILE -s $SIGNALFILE --nodesFile $NODESFILE --signalProc $nodename -d $DATAFILE -p $PROCS,$nodename -c $CATS --photonCatScales ../Signal/dat/photonCatSyst.dat --photonCatSmears ../Signal/dat/photonCatSyst.dat --isMultiPdf  -o ${outname} --intLumi2016 $INTLUMI2016 --intLumi2017 $INTLUMI2017 --intLumi2018 $INTLUMI2018 --hhReweightDir $klkt_dir --hhReweightSM $SMcard --do_benchmarks_scan  --do2D
 ########################kl likelihood scan##########################
 kl_fit_params="/work/nchernya/DiHiggs/CMSSW_7_4_7/src/flashggFinalFit/Plots/FinalResults/plots/yeilds_ratio_kl_xsec_18_02_2020_fitparams.json"
-./makeParametricModelDatacardFLASHgg.py -i $SYSINPUTFILE -s $SIGNALFILE --nodesFile $NODESFILE --signalProc $nodename -d $DATAFILE -p $PROCS,$nodename -c $CATS --photonCatScales ../Signal/dat/photonCatSyst.dat --photonCatSmears ../Signal/dat/photonCatSyst.dat --isMultiPdf  -o ${outname} --intLumi2016 $INTLUMI2016 --intLumi2017 $INTLUMI2017 --intLumi2018 $INTLUMI2018 --kl_fit_params $kl_fit_params  --hhReweightSM $SMcard --do_kl_likelihood  --do2D
+#./makeParametricModelDatacardFLASHgg.py -i $SYSINPUTFILE -s $SIGNALFILE --nodesFile $NODESFILE --signalProc $nodename -d $DATAFILE -p $PROCS,$nodename -c $CATS --photonCatScales ../Signal/dat/photonCatSyst.dat --photonCatSmears ../Signal/dat/photonCatSyst.dat --isMultiPdf  -o ${outname} --intLumi2016 $INTLUMI2016 --intLumi2017 $INTLUMI2017 --intLumi2018 $INTLUMI2018 --kl_fit_params $kl_fit_params  --hhReweightSM $SMcard --do_kl_likelihood  --do2D
 
 
 
