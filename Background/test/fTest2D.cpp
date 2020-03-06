@@ -61,7 +61,8 @@ int mgg_high =180;
 int mjj_low =70;
 int mjj_high =190;
 int nBinsForMass = 4*(mgg_high-mgg_low);
-int nBinsForMass2 = 4*(mjj_high-mjj_low);
+//int nBinsForMass2 = 4*(mjj_high-mjj_low);
+int nBinsForMass2 = (mjj_high-mjj_low)/4.;
 
 RooRealVar *intLumi_ = new RooRealVar("IntLumi","hacked int lumi", 1000.);
 
@@ -142,7 +143,7 @@ double getProbabilityFtest(double chi2, int ndof,RooAbsPdf *pdfNull, RooAbsPdf *
 	}
      }
      int npass =0; int nsuccesst =0;
-     mass->setBins(nBinsForMass);
+  //   mass->setBins(nBinsForMass);
      for (int itoy = 0 ; itoy < ntoys ; itoy++){
 
 	        params_null->assignValueOnly(preParams_null);
@@ -334,11 +335,11 @@ void plot(RooRealVar *mass, RooAbsPdf *pdf, RooDataSet *data, string name,vector
      mass->setRange("unblindReg_3",mjj_low,105);
      mass->setRange("unblindReg_4",145,mjj_high);
      if (BLIND) {
-	    data->plotOn(plot,Binning(mjj_high-mjj_low),CutRange("unblindReg_3"));
-	    data->plotOn(plot,Binning(mjj_high-mjj_low),CutRange("unblindReg_4"));
-	    data->plotOn(plot,Binning(mjj_high-mjj_low),Invisible());
+	    data->plotOn(plot,Binning(nBinsForMass2),CutRange("unblindReg_3"));
+	    data->plotOn(plot,Binning(nBinsForMass2),CutRange("unblindReg_4"));
+	    data->plotOn(plot,Binning(nBinsForMass2),Invisible());
      }
-     else data->plotOn(plot,Binning(mjj_high-mjj_low));
+     else data->plotOn(plot,Binning(nBinsForMass2));
    }
    
     // data->plotOn(plot,Binning(mgg_high-mgg_low));
@@ -382,11 +383,11 @@ void plot(RooRealVar *mass, RooMultiPdf *pdfs, RooCategory *catIndex, RooDataSet
      mass->setRange("unblindReg_3",mjj_low,105);
      mass->setRange("unblindReg_4",145,mjj_high);
      if (BLIND) {
-	    data->plotOn(plot,Binning(mjj_high-mjj_low),CutRange("unblindReg_3"));
-	    data->plotOn(plot,Binning(mjj_high-mjj_low),CutRange("unblindReg_4"));
-	    data->plotOn(plot,Binning(mjj_high-mjj_low),Invisible());
+	    data->plotOn(plot,Binning(nBinsForMass2),CutRange("unblindReg_3"));
+	    data->plotOn(plot,Binning(nBinsForMass2),CutRange("unblindReg_4"));
+	    data->plotOn(plot,Binning(nBinsForMass2),Invisible());
      }
-     else data->plotOn(plot,Binning(mjj_high-mjj_low));
+     else data->plotOn(plot,Binning(nBinsForMass2));
 
    }
      TCanvas *canv = new TCanvas();
@@ -476,7 +477,11 @@ void plot(RooRealVar *mass, RooMultiPdf *pdfs, RooCategory *catIndex, RooDataSet
      hdummy->SetMinimum(hdatasub->GetHistogram()->GetMinimum()-1);
      hdummy->GetYaxis()->SetTitle("data - best fit PDF");
      hdummy->GetYaxis()->SetTitleSize(0.12);
-     hdummy->GetXaxis()->SetTitle("m_{#gamma#gamma} (GeV)");
+     if(proj==1){
+       hdummy->GetXaxis()->SetTitle("m_{#gamma#gamma} (GeV)");
+     } else {
+       hdummy->GetXaxis()->SetTitle("m_{jj} (GeV)");
+     }
      hdummy->GetXaxis()->SetTitleSize(0.12);
      hdummy->Draw("HIST");
      hdummy->GetYaxis()->SetNdivisions(808);
@@ -518,11 +523,11 @@ void plot(RooRealVar *mass, map<string,RooAbsPdf*> pdfs, RooDataSet *data, strin
      mass->setRange("unblindReg_1",mjj_low,105);
      mass->setRange("unblindReg_2",145,mjj_high);
      if (BLIND) {
-	    data->plotOn(plot,Binning(mjj_high-mjj_low),CutRange("unblindReg_1"));
-	    data->plotOn(plot,Binning(mjj_high-mjj_low),CutRange("unblindReg_2"));
-	    data->plotOn(plot,Binning(mjj_high-mjj_low),Invisible());
+	    data->plotOn(plot,Binning(nBinsForMass2),CutRange("unblindReg_1"));
+	    data->plotOn(plot,Binning(nBinsForMass2),CutRange("unblindReg_2"));
+	    data->plotOn(plot,Binning(nBinsForMass2),Invisible());
      }
-     else data->plotOn(plot,Binning(mjj_high-mjj_low));      
+     else data->plotOn(plot,Binning(nBinsForMass2));      
    }
      TObject *datLeg = plot->getObject(int(plot->numItems()-1));
    if(flashggCats_.size() >0){
@@ -532,6 +537,7 @@ void plot(RooRealVar *mass, map<string,RooAbsPdf*> pdfs, RooDataSet *data, strin
    }
      int i=0;
      int style=1;
+      cout<< Form(" INFO Catergory %d ",cat)<<endl;
    for (map<string,RooAbsPdf*>::iterator it=pdfs.begin(); it!=pdfs.end(); it++){
           int col;
           if (i<=6) col=color[i];
@@ -541,6 +547,21 @@ void plot(RooRealVar *mass, map<string,RooAbsPdf*> pdfs, RooDataSet *data, strin
       std::string ext = "";
           if (bestFitPdf==i) ext=" (Best Fit Pdf) ";
           leg->AddEntry(pdfLeg,Form("%s%s",it->first.c_str(),ext.c_str()),"L");
+
+          int np = (it->second)->getParameters(*data)->getSize()+1; //Because this pdf has no extend
+          double chi2 = plot->chiSquare(np);
+          int numBins = 0;
+          if (proj==1) numBins = nBinsForMass;
+          if (proj==2) numBins = nBinsForMass2;
+	       double prob = TMath::Prob(chi2*(numBins-np),numBins-np);
+         // double *prob;
+         // *prob = getGoodnessOfFit(mass,(it->second),data,name);
+          // cout<< Form("reduced #chi^{2} = %.3f, #chi^{2} = %.3f, Prob = %.2f",chi2,chi2*(nBinsForMass-np),*prob)<<endl;
+          // cout<< Form(" INFO projection = %d  %s %s #chi^{2} = %.3f, reduced #chi^{2} = %.3f, prob = %.7f",proj,it->first.c_str(),ext.c_str(),chi2*(numBins-np),chi2,prob)<<endl;
+          string proj_str = "Mjj";
+          if (proj==1)  proj_str= "Mgg";
+           cout<< Form(" INFO : Projection = %s, %s %s, #chi^{2} = %.3f",proj_str.c_str(),it->first.c_str(),ext.c_str(),chi2)<<endl;
+
           i++;
    }
      plot->SetTitle(Form(" %s",flashggCats_[cat].c_str()));
@@ -673,12 +694,12 @@ void BkgMultiModelFitAllOrders(TString OutputFileName, std::string jsonForEnvelo
    RooArgSet *obsset = new RooArgSet();
    obsset->add(*mgg);
    if(_fitStrategy==2) obsset->add(*mjj);
-   if(_fitStrategy==1)
-     mgg->setBins(nBinsForMass);
-   if(_fitStrategy==2){
+//   if(_fitStrategy==1)
+//     mgg->setBins(nBinsForMass);
+/*   if(_fitStrategy==2){
       mgg->setBins(100);
       mjj->setBins(100);
-   }
+   }*/
    RooFitResult* fitresults = new RooFitResult();
    PdfModelBuilder pdfsModel;
    pdfsModel.setObsVar(mgg);
@@ -1115,7 +1136,7 @@ int main(int argc, char* argv[]){
 	}
 
 
-      mass->setBins(nBinsForMass);
+  //    mass->setBins(nBinsForMass);
       RooDataSet *data;
       //RooDataHist thisdataBinned(Form("roohist_data_mass_cat%d",cat),"data",*mass,*dataFull);
       //RooDataSet *data = (RooDataSet*)&thisdataBinned;
@@ -1135,8 +1156,8 @@ int main(int argc, char* argv[]){
       RooDataHist thisdataBinned(thisdataBinned_name.c_str(),"data",*mass,*dataFull);
       data = (RooDataSet*)&thisdataBinned;
       RooDataSet *data2 = nullptr;
-      if(FitStrategy_==2)
-	mass2->setBins(nBinsForMass2);
+  //    if(FitStrategy_==2)
+//	mass2->setBins(nBinsForMass2);
       string thisdataBinned_name2;
       
       if ( isFlashgg_){
