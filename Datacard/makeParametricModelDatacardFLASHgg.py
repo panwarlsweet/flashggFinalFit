@@ -887,18 +887,19 @@ def printTheorySystHHbbgg():
        current_proc,unc = line
        theory_dict[current_proc] = unc
 
-  outFile.write('%-35s   lnN   '%'pdf')
-  for c in options.cats:
-    for p in options.procs:
-      if '%s:%s'%(p,c) in options.toSkip: continue
-      if p in bkgProcs:
-        outFile.write('- ')
-      elif ('pdf_'+(p.split('_')[0])) in theory_dict :
-        outFile.write('%s '%(theory_dict[('pdf_'+(p.split('_')[0]))]))
-      else : 
-        outFile.write('- ')
-  outFile.write('\n')
-  outFile.write('\n')
+  for cons in 'tth,qqh,vh,hh,ggh'.split(','):
+    outFile.write('%s%-35s   lnN   '%('pdf_',cons))
+    for c in options.cats:
+       for p in options.procs:
+         if '%s:%s'%(p,c) in options.toSkip: continue
+         if p in bkgProcs:
+           outFile.write('- ')
+         elif (p.split('_')[0]) in cons :
+           outFile.write('%s '%(theory_dict[('pdf_'+(p.split('_')[0]))]))
+         else : 
+           outFile.write('- ')
+    outFile.write('\n')
+    outFile.write('\n')
 
   for cons in 'tth,qqh,vh,hh,ggh'.split(','):
     outFile.write('%s%-35s   lnN   '%('QCDscale_',cons))

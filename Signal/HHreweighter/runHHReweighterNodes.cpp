@@ -30,12 +30,12 @@ int main ()
 	 float ktmax=1;
 
 	 TString s;
-	 TString year = "2017";
+	 TString year = "2016";
     TString inMapFile   = TString::Format("HHreweight_%s_15112019.root",year.Data()) ;
 	 TString addname = "_13TeV_125_13TeV_";
 	 TString processName = "hh";
     TString inputDir = "/work/nchernya/DiHiggs/inputs/18_02_2020/categorizedTrees/";
-    TString outDir = "kl_kt_finebinning/";
+    TString outDir = "kl_kt_finebinning_test/";
 	 TString filename = s.Format("output_%s_%s_treesCats.root",processName.Data(),year.Data()); 
 
     string coeffFile  = "coefficientsByBin_extended_3M_costHHSim_19-4.txt";
@@ -67,7 +67,8 @@ int main ()
 	 float  mhh, cosTheta, weight, benchmark_reweight_SM;
   
     TFile* fIn = TFile::Open(inputDir+filename);
-	 TH1F *hMhh_kl10 = new TH1F("hMhh_kl5","hMhh_kl5",100,250,1000);/// only for a test
+	 TH1F *hMhh_kl_1 = new TH1F("hMhh_kl9p5","hMhh_kl9p5",100,250,1000);/// only for a test
+	 TH1F *hMhh_kl_2 = new TH1F("hMhh_klm3","hMhh_klm3",100,250,1000);/// only for a test
 	 TDirectory* dirGen1 = fIn->GetDirectory("genDiphotonDumper");
 	 TDirectory* dirGen2 = dirGen1->GetDirectory("trees");
     float sum_gen_w_SM= 0;
@@ -93,7 +94,8 @@ int main ()
 				for(int ikt=0; ikt<Nkt; ++ikt){
 	  				float kt = ktmin + ikt*ktstep; 
 					sum_gen_w[ikl+Nkl*ikt] += weight*hhreweighter->getWeight(kl, kt, 0., 0., 0., mhh, cosTheta);
-               if (kl==10.) hMhh_kl10->Fill(mhh,weight*hhreweighter->getWeight(kl, kt, 0., 0., 0., mhh, cosTheta)); // for a test only	
+               if (kl==9.5) hMhh_kl_1->Fill(mhh,weight*hhreweighter->getWeight(kl, kt, 0., 0., 0., mhh, cosTheta)); // for a test only	
+               if (kl==-3.) hMhh_kl_2->Fill(mhh,weight*hhreweighter->getWeight(kl, kt, 0., 0., 0., mhh, cosTheta)); // for a test only	
 				}
 			}		
       }
@@ -181,14 +183,16 @@ int main ()
 	 		}
 	}
 
-/*
-	string outroot_txt = (string)inputDir + (string)outDir +"/reweighting_root_"+(string)year+"_kl_5.root";
-	TFile *file = new TFile("output.root","NEW");
-	hMhh_kl10->Draw();
-	hMhh_kl10->Write();
+
+	string outroot_txt = (string)inputDir + (string)outDir +"/reweighting_root_"+(string)year+"_kl_dist.root";
+	TFile *file = new TFile("output_kl_dist.root","NEW");
+	hMhh_kl_1->Draw();
+	hMhh_kl_1->Write();
+	hMhh_kl_2->Draw();
+	hMhh_kl_2->Write();
 	file->Write();
 	file->Close();
-*/
+
 	fIn->Close();
 }
 

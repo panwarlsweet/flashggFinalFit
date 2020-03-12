@@ -44,6 +44,8 @@
 #include "boost/algorithm/string/predicate.hpp"
 #include <boost/algorithm/string/replace.hpp>
 
+#include "../interface/WSTFileWrapper.h"
+
 #include "TGaxis.h"
 #include "TROOT.h"
 #include "TStyle.h"
@@ -75,6 +77,7 @@ vector<string> procs_;
 string flashggCatsStr_;
 vector<string> flashggCats_;
 string infilesStr_;
+string infileWithAllYearsStr_;
 vector<string> infiles_;
 vector<string> mergeYears_;
 vector<string> vecLumiYears_;
@@ -88,7 +91,8 @@ void OptionParser(int argc, char *argv[]){
 	po::options_description desc1("Allowed options");
 	desc1.add_options()
 		("indir,d", po::value<string>(&indir_), "Input file dir")
-		("infiles,i", po::value<string>(&infilesStr_)->default_value(""), "Input files (comma sep)")
+		("infiles,i", po::value<string>(&infilesStr_)->default_value(""), "Input files (comma sep), without inputdir")
+		("infileWithAllYears", po::value<string>(&infileWithAllYearsStr_)->default_value(""), "Files(comma sep) with all years if you want to merge 2016,2017 and 2018. Input dir should be already in the name")
 		("template,t", po::value<string>(&templatefile_), "Fit template file name")
 		("year,y", po::value<string>(&year_), "year")
 		("mergeYears", po::value<string>(&mergeYearsStr_)->default_value(""), "Merge years or not, if yes a list of years should be given")
@@ -243,6 +247,11 @@ int main(int argc, char *argv[]){
 		if (!(infilesStr_.empty())){  //If inputfiles are provided by a user
 			signalfile = indir_+infiles_[iproc_num];
 		}
+      WSTFileWrapper * w_original_all;
+		if (!(infileWithAllYearsStr_.empty())){  //If inputfiles are provided by a user
+      	w_original_all = new WSTFileWrapper(infileWithAllYearsStr_,"tagsDumper/cms_hgg_13TeV");
+		}
+
 		TFile *sigFile = TFile::Open(signalfile.c_str());
 		RooWorkspace *w_original = (RooWorkspace*)sigFile->Get("tagsDumper/cms_hgg_13TeV");
 		RooRealVar* Mjj  = (RooRealVar*)w_original->var("Mjj");
@@ -258,7 +267,7 @@ int main(int argc, char *argv[]){
 			iproc_type = "";
 		}
 
-		Mjj->setRange((proc_type_upper+"FitRange").c_str(),minSigFitMjj,maxSigFitMjj);
+		Mjj->setRange((iproc+"FitRange").c_str(),minSigFitMjj,maxSigFitMjj);
 		int nbins = 24;
 		Mjj->setBins(nbins); //70 - 190, reasonbale bins 5 GeV
 		RooRealVar *weight = (RooRealVar*)w_original->var("weight");
@@ -273,7 +282,7 @@ int main(int argc, char *argv[]){
 			sigToFit[ic] = (RooDataSet*) w_original->data((iproc+"_"+year_+"_13TeV_125_"+icat).c_str());
 			if (!(mergeYearsStr_.empty())) {
 				for (unsigned int iyear=0; iyear< mergeYears_.size();++iyear){
-					RooDataSet *tmp = (RooDataSet*) w_original->data((iproc+"_"+mergeYears_[iyear]+"_13TeV_125_"+icat).c_str());	
+					RooDataSet *tmp = (RooDataSet*) w_original_all->data((iproc+"_"+mergeYears_[iyear]+"_13TeV_125_"+icat).c_str());	
 					if (iyear==0) sigToFitAllYears[ic] = scaleWeight(tmp,Mjj,weight,(iproc+"_YearsMerged_13TeV_125_"+icat).c_str(),lumiYears_[iyear]);
 					else sigToFitAllYears[ic]->append(*(scaleWeight(tmp,Mjj,weight,(iproc+"_YearsMerged_13TeV_125_"+icat).c_str(),lumiYears_[iyear])));
 				}
@@ -314,10 +323,16 @@ int main(int argc, char *argv[]){
 			MjjSig[ic]->Print();
 
 			//Normalization per category
-		//	Mjj->setRange((proc_type_upper+"CutRange").c_str(),90.,maxSigFitMjj);
-			//double normalization_cat = sigToFit[ic]->sumEntries()/1000.; //as for Hgg use fb
-			double normalization_cat = sigToFit[ic]->sumEntries("1",(proc_type_upper+"CutRange").c_str())/1000.; //as for Hgg use fb
-			Mjj->setRange((proc_type_upper+"FitRange").c_str(),minSigFitMjj,maxSigFitMjj);
+			double normalization_cat = 0.;	
+			if ((c==10) || (c==11)) {
+				Mjj->setRange((iproc+"CutRange").c_str(),90.,maxSigFitMjj);
+				normalization_cat = (sigToFit[ic]->sumEntries("1",(iproc+"CutRange").c_str()))/1000.; //as for Hgg use fb
+				cout<<"Setting normalization range to 90 GeV for cat "<<c<<" , "<<normalization_cat<<endl;
+				cout<<sigToFit[ic]->sumEntries()/1000.<<endl;
+			} else {
+				normalization_cat = sigToFit[ic]->sumEntries()/1000.; //as for Hgg use fb
+			}
+			Mjj->setRange((iproc+"FitRange").c_str(),minSigFitMjj,maxSigFitMjj);
 			if (normalization_cat < 0) normalization_cat = 0.;
 			RooRealVar *MjjSig_normalization = new RooRealVar(("hbbpdfsm_13TeV_"+iproc+"_"+year_+"_DoubleHTag_"+to_string(c)+"_normalization").c_str(),("hbbpdfsm_13TeV_"+iproc+"_"+year_+"_DoubleHTag_"+to_string(c)+"_normalization").c_str(),normalization_cat,"");
 			MjjSig_normalization->setConstant(true);
@@ -398,8 +413,8 @@ int main(int argc, char *argv[]){
 				MjjSig[ic]->fillHistogram(hAllYears,RooArgList(*Mjj),sigToFitAllYears[ic]->sumEntries());
 
 				TCanvas* canAllYears = new TCanvas("canAllYears","canAllYears",650,650);
-				RooDraw(canAllYears,hAllYears,Mjj->frame(),((RooDataHist*)sigToFitAllYears[ic]),MjjSig[ic],iproc,("CAT "+to_string(ic)),putyear);
-				string cannameAllYears = plotdir_+"fit_"+iproc+"_"+year_+"_AllYears_cat"+to_string(ic);
+				RooDraw(canAllYears,hAllYears,Mjj->frame(),((RooDataHist*)sigToFitAllYears[ic]),MjjSig[ic],iproc,("CAT "+to_string(c)),putyear);
+				string cannameAllYears = plotdir_+"fit_"+iproc+"_"+year_+"_AllYears_cat"+to_string(c);
 				canAllYears->Print((cannameAllYears+".pdf").c_str());
 				canAllYears->Print((cannameAllYears+".jpg").c_str());
   				delete canAllYears;

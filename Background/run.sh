@@ -5,6 +5,7 @@ DATE=18_02_2020
 #DATE=03_02_2020
 YEAR=2016_2017_2018
 #YEAR=2016_2017
+#YEAR=2018
 
 
 ############################# 1 D ##########################
@@ -23,21 +24,31 @@ YEAR=2016_2017_2018
 ############################# 2 D ##########################
 
 #2D #MC
-#name2D=DoubleEG
-name2D=BG_MCbgbjets
+#addition=''
+addition=_cats90GeV
+name2D=DoubleEG
+#name2D=BG_MCbgbjets
+#name2D=BG_MCbgbjets_woGjets
+#name2D=BG_MCbg
+name2D=${name2D}${addition}
+outtag=ftest
 #outtag=biastoys
 #outtag=biasCAT11
-outtag=fullhigh
+#outtag=bestFitCAT11
+#outtag=bestFit
+#outtag=fullhighUnblinded_nojsonGof
+#outtag=fullhigh
 #outtag=opt
+#json2D=Env_json_high_forCAT11.dat
 json2D=Env_json_high.dat
 #json2D=Env_json_high_forCAT11bias.dat
 #json2D=Env_json_toys.dat
 #json2D=Env_json_bias.dat
-#json2D=Env_json_high_forCAT11bias.dat
+#json2D=Env_json_high_forCAT11biasFull.dat
 #json2D=Env_json_ivanMC.dat
 #json2D=Env_json_opt18_02_2020.dat
 input2D=output_${name2D}_${YEAR}_${DATE}.root
-outputdir=plots/plots2D/${name2D}_${DATE}_${outtag}
+outputdir=plots/plots2D/${name2D}_${DATE}_${outtag}_2018only
 
 
 #name2D=BG_MCbg_woGjets
@@ -46,7 +57,10 @@ outputdir=plots/plots2D/${name2D}_${DATE}_${outtag}
 #outputdir=plots/plots2D/${name2D}_${DATE}_${outtag}
 
 #./bin/fTest2D -i /work/nchernya/DiHiggs/inputs/${DATE}/${input2D} --saveMultiPdf  CMS-HGG_multipdf2D_${name2D}_${outtag}_HHbbgg_${YEAR}_${DATE}.root --isData 1 -f DoubleHTag_11 --isFlashgg 1  -c 12 -D ${outputdir} -d ${outputdir}/res.dat --jsonForEnvelope $json2D
-./bin/fTest2D -i /work/nchernya/DiHiggs/inputs/${DATE}/${input2D} --saveMultiPdf  CMS-HGG_multipdf2D_${name2D}_${outtag}_HHbbgg_${YEAR}_${DATE}.root --isData 1 -f DoubleHTag_0,DoubleHTag_1,DoubleHTag_2,DoubleHTag_3,DoubleHTag_4,DoubleHTag_5,DoubleHTag_6,DoubleHTag_7,DoubleHTag_8,DoubleHTag_9,DoubleHTag_10,DoubleHTag_11 --isFlashgg 1  -c 12 -D ${outputdir} -d ${outputdir}/res.dat --jsonForEnvelope $json2D
+#./bin/fTest2D -i /work/nchernya/DiHiggs/inputs/${DATE}/${input2D} --saveMultiPdf  CMS-HGG_multipdf2D_${name2D}_${outtag}_HHbbgg_${YEAR}_${DATE}.root --isData 1 -f DoubleHTag_0,DoubleHTag_1,DoubleHTag_2,DoubleHTag_3,DoubleHTag_4,DoubleHTag_5,DoubleHTag_6,DoubleHTag_7,DoubleHTag_8,DoubleHTag_9,DoubleHTag_10,DoubleHTag_11 --isFlashgg 1  -c 12 -D ${outputdir} -d ${outputdir}/res.dat --jsonForEnvelope $json2D
+#./bin/fTest2D -i /work/nchernya/DiHiggs/inputs/${DATE}/${input2D} --saveMultiPdf  CMS-HGG_multipdf2D_${name2D}_${outtag}_HHbbgg_${YEAR}_${DATE}.root --isData 1 -f DoubleHTag_0,DoubleHTag_1,DoubleHTag_2,DoubleHTag_3,DoubleHTag_4,DoubleHTag_5,DoubleHTag_6,DoubleHTag_7,DoubleHTag_8,DoubleHTag_9,DoubleHTag_10,DoubleHTag_11 --isFlashgg 1  -c 12 -D ${outputdir} -d ${outputdir}/res.dat 
+#./bin/fTest2D -i /work/nchernya/DiHiggs/inputs/${DATE}/${input2D} --saveMultiPdf  CMS-HGG_multipdf2D_${name2D}_${outtag}_HHbbgg_${YEAR}_${DATE}.root --isData 1 -f DoubleHTag_0,DoubleHTag_1,DoubleHTag_2,DoubleHTag_3,DoubleHTag_4,DoubleHTag_5,DoubleHTag_6,DoubleHTag_7,DoubleHTag_8,DoubleHTag_9 --isFlashgg 1  -c 10 -D ${outputdir} -d ${outputdir}/res.dat 
+./bin/fTest2D -i /work/nchernya/DiHiggs/inputs/${DATE}/${input2D} --saveMultiPdf  CMS-HGG_multipdf2D_${name2D}_${outtag}_HHbbgg_${YEAR}_${DATE}.root --isData 1 -f DoubleHTag_10,DoubleHTag_11 --isFlashgg 1  -c 1 -D ${outputdir} -d ${outputdir}/res.dat 
 
 
 

@@ -39,7 +39,7 @@ for node in SM;
 #for node in `seq 0 11` SM box;
 do
    nodename="hh_node_${node}_2016,hh_node_${node}_2017,hh_node_${node}_2018"
-   outname="outputs/cms_HHbbgg_datacard_node${node}_${DATE}.txt"
+   outname="outputs/cms_HHbbgg_datacard_node${node}_${DATE}_2018only.txt"
    if [ $DO_SYSTEMATIC -gt 0 ] 
    then
       outname="outputs/cms_HHbbgg_datacard_node${node}_${DATE}_systematics_upd.txt"
@@ -114,25 +114,34 @@ done
 
 for node in SM;
 do
-   name2D=DoubleEG
-   #name2D=BG_MCbgbjets
+   #name2D=DoubleEG_cats70GeV
+   #name2D=DoubleEG
+   name2D=BG_MCbgbjets_70GeV
+   #name2D=BG_MCbgbjets_woGjets
    #name2D=BG_MCbg
    #outtag=ivanjson
    #outtag=high
-   #outtag=opt
+  # outtag=opt
   # outtag=biastoys
-   outtag=bestFittoys
-  # outtag=biasCAT11
+  # outtag=bestFittoys
+   #outtag=biasCAT11
   # outtag=bestFitCAT11
+   outtag=ftest
    nodename="hh_node_${node}_2016,hh_node_${node}_2017,hh_node_${node}_2018"
-   outname="outputs/cms_HHbbgg2D_${name2D}_${outtag}_datacard_node${node}_${DATE}.txt" 
+   #outname="outputs/cms_HHbbgg2D_${name2D}_${outtag}_datacard_node${node}_${DATE}_cats90GeV_pdf.txt" 
+   #outname="outputs/cms_HHbbgg2D_${name2D}_${outtag}_datacard_node${node}_${DATE}_cats90GeV_woCAT10_11.txt" 
+   #outname="outputs/cms_HHbbgg2D_${name2D}_${outtag}_datacard_node${node}_${DATE}_woCAT10_11.txt" 
    CATS="DoubleHTag_0,DoubleHTag_1,DoubleHTag_2,DoubleHTag_3,DoubleHTag_4,DoubleHTag_5,DoubleHTag_6,DoubleHTag_7,DoubleHTag_8,DoubleHTag_9,DoubleHTag_10,DoubleHTag_11"
-  # CATS="DoubleHTag_11"
+  # CATS="DoubleHTag_0,DoubleHTag_1,DoubleHTag_2,DoubleHTag_3,DoubleHTag_4,DoubleHTag_5,DoubleHTag_6,DoubleHTag_7,DoubleHTag_8,DoubleHTag_9"
+ #  CATS="DoubleHTag_11"
+ #  CATS="DoubleHTag_10,DoubleHTag_11"
    if [ $DO_SYSTEMATIC -gt 0 ] 
    then
-      outname="outputs/cms_HHbbgg2D_${name2D}_${outtag}_datacard_node${node}_${DATE}_systematics.txt"
+      outname="outputs/cms_HHbbgg2D_${name2D}_${outtag}_datacard_node${node}_${DATE}_cats90GeV_systematics.txt"
    fi
-   DATAFILE="inputs/CMS-HGG_multipdf2D_${name2D}_${outtag}_HHbbgg_2016_2017_2018_${DATE}.root"
+   #DATAFILE="inputs/CMS-HGG_multipdf2D_${name2D}_${outtag}_HHbbgg_2016_2017_2018_${DATE}.root"
+   DATAFILE="inputs/CMS-HGG_multipdf2D_${name2D}_${outtag}_HHbbgg_2018_${DATE}.root"
+   DATE="18_02_2020_Mjj_merged_90GeV"
    NODESFILE="inputs/CMS-HGG_sigfit_MggMjj_2016_2017_2018_${DATE}.root,inputs/CMS-HGG_sigfit_MggMjj_2016_2017_2018_${DATE}.root,inputs/CMS-HGG_sigfit_MggMjj_2016_2017_2018_${DATE}.root"
    SIGNALFILE="inputs/CMS-HGG_sigfit_MggMjj_2016_2017_2018_${DATE}.root,inputs/CMS-HGG_sigfit_MggMjj_2016_2017_2018_${DATE}.root,inputs/CMS-HGG_sigfit_MggMjj_2016_2017_2018_${DATE}.root"
    SYSINPUTFILE="/scratch/nchernya/HHbbgg/18_02_2020/workspaces_systematics/output_singleh.root,/scratch/nchernya/HHbbgg/18_02_2020/workspaces_systematics/output_hh_node_SM_2016.root,/scratch/nchernya/HHbbgg/18_02_2020/workspaces_systematics/output_hh_node_SM_2017.root,/scratch/nchernya/HHbbgg/18_02_2020/workspaces_systematics/output_hh_node_SM_2018.root" # if no systematics, then whatever file is ok
@@ -142,12 +151,15 @@ do
 done
 
 ########################   kl kt scan  &    BSM benchmark scan & likelihood  ##########################
+DATE="18_02_2020"
 klkt_dir="/work/nchernya/DiHiggs/inputs/${DATE}/categorizedTrees/kl_kt_finebinning/"
 #SMcard="outputs/cms_HHbbgg2D_${name2D}_${outtag}_datacard_nodeSM_${DATE}.txt" 
-SMcard="outputs/cms_HHbbgg2D_${name2D}_${outtag}_datacard_nodeSM_${DATE}_woCAT11.txt" 
+#SMcard="outputs/cms_HHbbgg2D_${name2D}_${outtag}_datacard_nodeSM_${DATE}_woCAT11.txt" 
+SMcard="outputs/cms_HHbbgg2D_${name2D}_${outtag}_datacard_nodeSM_18_02_2020_cats90GeV_MjjRenamed.txt"
 if [ $DO_SYSTEMATIC -gt 0 ] 
 then
-  SMcard="outputs/cms_HHbbgg2D_${name2D}_${outtag}_datacard_nodeSM_${DATE}_woCAT11_systematics.txt"
+  #SMcard="outputs/cms_HHbbgg2D_${name2D}_${outtag}_datacard_nodeSM_${DATE}_woCAT11_systematics.txt"
+  SMcard="outputs/cms_HHbbgg2D_${name2D}_${outtag}_datacard_nodeSM_18_02_2020_cats90GeV_MjjRenamed_systematics.txt"
 fi
 nodename="hh_node_SM_2016,hh_node_SM_2017,hh_node_SM_2018"
 outname="outputs/tmp.txt"
