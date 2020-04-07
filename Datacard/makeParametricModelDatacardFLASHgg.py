@@ -163,7 +163,7 @@ outFile = open(options.outfilename,'w')
 
 #Define all process of interest
 combProc = { 'bkg_mass':'bkg_mass'}
-allProcsNames = 'hh_SM,hh_SM_generated,ggh,qqh,tth,vh'.split(',')
+allProcsNames = 'hh_SM,hh_SM_generated,vbfhh,ggh,qqh,tth,vh'.split(',')
 allProcs = []
 for name in allProcsNames:
    allProcs.append(name+'_2016')
@@ -1253,12 +1253,10 @@ def printObsProcBinLines():
         if c in tthCats:
           if c in tthLepCat: scale *= tthLepRateScale
           else: scale *= tthHadRateScale
-      #  if ('node_') in p and (not 'generated' in p): 
-      #      scale*=2.
-      #  if ('hh_node_SM') in p : #just a check for ivan ntuples
-      #      if '2018' in  p : scale*=1.0221
-      #      if '2017' in  p : scale*=1.0171
-      #      if '2016' in  p : scale*=1.03
+      #  if ('ggh') in p : #just a check
+      #     scale*=0.5
+      #  if ('vh') in p : #just a check 
+      #     scale*=0.5
         if '2018' in p : outFile.write('%7.1f '%(intL2018*scale))
         if '2017' in p : outFile.write('%7.1f '%(intL2017*scale))
         if '2016' in p : outFile.write('%7.1f '%(intL2016*scale))

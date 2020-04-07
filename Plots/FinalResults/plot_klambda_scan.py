@@ -49,7 +49,7 @@ def redrawBorder():
 def getVals(fname):
 	fIn = ROOT.TFile.Open(fname)
 	tIn = fIn.Get('limit')
-	if tIn.GetEntries() != 5:
+	if tIn.GetEntries() < 6:
 		print "*** WARNING: cannot parse file", fname, "because nentries != 5"
 		raise RuntimeError('cannot parse file')
 	vals = []
@@ -130,7 +130,7 @@ for ikl in range(0,rew_dict['Nkl']):
 		#fname = options.indir + '/' + 'higgsCombine_kl_%s_kt_%s.Asymptotic.mH125.root'%(kl_str,kt_str)
 		vals  = getVals(fname)
 		if not options.unblind : obs   = scaleToXS*0.0 ## FIXME
-		else : obs   = scaleToXS*vals[5][1] ## ??? which one
+		else : obs   = scaleToXS*vals[5][1] 
 		m2s_t = scaleToXS*vals[0][1]
 		m1s_t = scaleToXS*vals[1][1]
 		exp   = scaleToXS*vals[2][1]
@@ -176,6 +176,7 @@ for ikl in range(0,rew_dict['Nkl']):
 # gr2sigma.SetPointError(ipt, 0,0,m2s,p2s)
 ptsList.sort()
 exp_list = []
+obs_list = []
 xval_list = []
 for ipt, pt in enumerate(ptsList):
 	xval = pt[0]
@@ -188,6 +189,7 @@ for ipt, pt in enumerate(ptsList):
 
 	grexp.SetPoint(ipt, xval, exp)
 	exp_list.append(exp)
+	obs_list.append(obs)
 	xval_list.append(xval)
 	grobs.SetPoint(ipt, xval, obs)
 	gr1sigma.SetPoint(ipt, xval, exp)
@@ -196,6 +198,7 @@ for ipt, pt in enumerate(ptsList):
 	gr2sigma.SetPointError(ipt, 0,0,m2s,p2s)
 
 exp_inter = interp1d(xval_list, exp_list, kind='cubic')
+obs_inter = interp1d(xval_list, obs_list, kind='cubic')
 
 ##############Create functions from median expected and observed
 #def graph2func(xval):
@@ -368,7 +371,7 @@ ci = ROOT.TColor.GetColor("#ff0000");
 graph.SetLineColor(ci);
 graph.SetLineWidth(2);
 # graph.Draw("l");
-divider = 100.
+divider = 1000.
 nP = int((kl_max-kl_min)*divider)
 Graph_syst_Scale =  ROOT.TGraphAsymmErrors(nP)
 for i in range(nP) : 
@@ -386,6 +389,7 @@ Graph_syst_Scale.SetLineColor(ROOT.kRed)
 Graph_syst_Scale.SetFillColor(ROOT.kRed)
 Graph_syst_Scale.SetFillStyle(3001)
 exp_line = exp_inter(xval_line)
+obs_line = obs_inter(xval_line)
 
 print 'Expected Median and theory xsec'
 for ipt in range(0,grexp.GetN()):
@@ -394,6 +398,9 @@ for ipt in range(0,grexp.GetN()):
    grexp.GetPoint(ipt, x, y)
 idx = np.argwhere(np.diff(np.sign(exp_line-theory_line ))).flatten()
 print np.array(xval_line)[idx], np.array(theory_line)[idx],np.array(exp_line)[idx]
+print 'Observed :'
+idx = np.argwhere(np.diff(np.sign(obs_line-theory_line ))).flatten()
+print np.array(xval_line)[idx], np.array(theory_line)[idx],np.array(obs_line)[idx]
 
 # ytbis = 2
 # # Graph_syst_Scale2 =  ROOT.TGraphAsymmErrors(nP)
