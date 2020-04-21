@@ -47,7 +47,6 @@ def extra_texts():
     simBox.SetTextColor(ROOT.kBlack)
     simBox.SetTextAlign(13)
 
-
     channelLabel = ROOT.TLatex  (0.6-0.05, 0.8, "HH #rightarrow #gamma#gammab#bar{b}")
     channelLabel.SetNDC()
     # channelLabel.SetTextAlign(31)
@@ -55,8 +54,15 @@ def extra_texts():
     channelLabel.SetTextFont(lumitextfont)
     channelLabel.SetTextColor(ROOT.kBlack)
 
+    channelLabel0 = ROOT.TLatex  (0.6-0.05, 0.7, "Expected (#kappa_{#lambda} = 1)")
+    #channelLabel0 = ROOT.TLatex  (0.6-0.05, 0.7, "Expected (#kappa_{#lambda} = -1.1)")
+    channelLabel0.SetNDC()
+    channelLabel0.SetTextSize(1.15*extratextsize)
+    channelLabel0.SetTextFont(lumitextfont)
+    channelLabel0.SetTextColor(ROOT.kBlack)
 
-    return [lumibox, CMSbox, simBox, channelLabel]
+
+    return [lumibox, CMSbox, simBox, channelLabel, channelLabel0]
     # lumibox.Draw()
     # CMSbox.Draw()
     # simBox.Draw()
@@ -92,9 +98,9 @@ parser.add_option("--outdir",default='plots/', help="Output directory ")
 parser.add_option("--outtag", help="Output tag")
 parser.add_option("--outcomb", help="Output tag for the combination",default="")
 parser.add_option("--zoom", action="store_true" , help="Zoom the plot ")
-parser.add_option("--unblind", action="store_true",help="Observed is present or not ",default=True)
-parser.add_option("--channels_to_run",default="all,DoubleHTag_0,DoubleHTag_1,DoubleHTag_2,DoubleHTag_3,DoubleHTag_4,DoubleHTag_5,DoubleHTag_6,DoubleHTag_7,DoubleHTag_8,DoubleHTag_9,DoubleHTag_10,DoubleHTag_11", help = "which channels to run on")
-#parser.add_option("--channels_to_run",default="all", help = "which channels to run on")
+parser.add_option("--unblind", action="store_true",help="Observed is present or not ",default=False)
+#parser.add_option("--channels_to_run",default="all,DoubleHTag_0,DoubleHTag_1,DoubleHTag_2,DoubleHTag_3,DoubleHTag_4,DoubleHTag_5,DoubleHTag_6,DoubleHTag_7,DoubleHTag_8,DoubleHTag_9,DoubleHTag_10,DoubleHTag_11", help = "which channels to run on")
+parser.add_option("--channels_to_run",default="all", help = "which channels to run on")
 (options,args)=parser.parse_args()
 ###########
 
@@ -188,7 +194,11 @@ for isigma,s in enumerate(sigmas):
 for l in labels: l.Draw()
 
 et = extra_texts()
-for t in et: t.Draw()
+for t in et[0:len(et)-1]: t.Draw()
+if not options.unblind :
+  print 'Expected' 
+  et[-1].Draw()
+
 
 legend = ROOT.TLegend(0.2,0.43,0.36,0.9)
 legend.SetBorderSize(0)
@@ -204,6 +214,7 @@ if dolegend : legend.Draw("same")
 
 outname = '%s/klambda_likelihood_%s%s'%(options.outdir,options.outtag,options.outcomb)
 if options.zoom : outname+="_zoom"
+if options.unblind : outname+="_obs"
 c1.Print('%s.pdf'%outname, 'pdf')
 
 ### also dump to a ROOT file

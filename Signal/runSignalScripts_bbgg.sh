@@ -1,18 +1,20 @@
-doFTEST=1
-doFIT=0
+doFTEST=0
+doFIT=1
 doPACKAGER=0
 doCALCPHOSYST=0 #Not needed, only for shape syst, checked to be negligible
 MASS=''
 
-YEAR="2016"
+#YEAR="2016"
 #YEAR="2017"
-#YEAR="2018"
+YEAR="2018"
 
 #DATE="24_01_2020"
-#DATE="04_02_2020"
 DATE="18_02_2020"
-EXT="singleHiggs"$YEAR
+#DATE="27_03_2020"
+#EXT="singleHiggs"$YEAR
 #EXT="nodes"$YEAR
+#EXT="vbfhh"$YEAR
+EXT="hhNLO"$YEAR
 PHOTONSYSTFILE=dat/photonCatSyst.dat # without systematics
 #PHOTONSYSTFILE=dat/photonCatSyst_${EXT}.dat
 
@@ -30,6 +32,7 @@ runLocal=''
 BATCH=T3CH
 DEFAULTQUEUE="short.q " #for slurm not used  #-l h_vmem=6g"  #increase memory for systematics -l h_vmem=6g
 CATS="DoubleHTag_0,DoubleHTag_1,DoubleHTag_2,DoubleHTag_3,DoubleHTag_4,DoubleHTag_5,DoubleHTag_6,DoubleHTag_7,DoubleHTag_8,DoubleHTag_9,DoubleHTag_10,DoubleHTag_11"
+#CATS="DoubleHTag_0,DoubleHTag_1,DoubleHTag_2,DoubleHTag_3,DoubleHTag_4,DoubleHTag_5,DoubleHTag_6,DoubleHTag_7,DoubleHTag_8,DoubleHTag_9,DoubleHTag_10,DoubleHTag_11,VBFDoubleHTag_0"
 REFTAG="DoubleHTag_0"
 INTLUMI=136.8
 
@@ -41,14 +44,22 @@ SCALESGLOBAL="NonLinearity,Geant4,LightYield,Absolute"
 
 
 #############SINGLE HIGGS ############
-PROCS="ggh_${YEAR},tth_${YEAR},qqh_${YEAR},vh_${YEAR}"
-REFPROC="tth_${YEAR}"
-INFILES="output_ggh_${YEAR},output_tth_${YEAR},output_qqh_${YEAR},output_vh_${YEAR}"
-REFTAG="DoubleHTag_9"
+#PROCS="ggh_${YEAR},tth_${YEAR},qqh_${YEAR},vh_${YEAR}"
+#REFPROC="tth_${YEAR}"
+#INFILES="output_ggh_${YEAR},output_tth_${YEAR},output_qqh_${YEAR},output_vh_${YEAR}"
+#REFTAG="DoubleHTag_9"
 #############NODES ############
 #REFPROC="hh_node_SM_$YEAR"
 #PROCS="hh_node_SM_$YEAR"
 #INFILES="output_hh_node_SM_$YEAR"
+################################
+#REFPROC="vbfhh_$YEAR"
+#PROCS="vbfhh_$YEAR"
+#INFILES="output_vbfhh_$YEAR"
+#############HH NLO ############
+REFPROC="ggHH_kl_0_kt_1_${YEAR}"
+PROCS="ggHH_kl_0_kt_1_${YEAR},ggHH_kl_1_kt_1_${YEAR},ggHH_kl_2p45_kt_1_${YEAR},ggHH_kl_5_kt_1_${YEAR}"
+INFILES="output_ggHH_kl_0_kt_1_${YEAR},output_ggHH_kl_1_kt_1_${YEAR},output_ggHH_kl_2p45_kt_1_${YEAR},output_ggHH_kl_5_kt_1_${YEAR}"
 ################################
 
 

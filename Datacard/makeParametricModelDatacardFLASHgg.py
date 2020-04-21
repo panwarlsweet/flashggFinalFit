@@ -182,7 +182,11 @@ for node in whichNodes:
      combProc[proc] = proc
      allNodes.append(proc)
      allProcs.append(proc)
-
+for p in 'ggHH_kl_0_kt_1,ggHH_kl_1_kt_1,ggHH_kl_2p45_kt_1,ggHH_kl_5_kt_1'.split(','):
+   for y in ['2016','2017','2018']:
+     combProc[p+'_'+y] = p+'_'+y
+     allNodes.append(p+'_'+y)
+     allProcs.append(p+'_'+y)
 	
 flashggProc = combProc
 
@@ -190,7 +194,7 @@ procId = {'bkg_mass':1}
 procNum=2
 for y in ['2016','2017','2018']:
   for proc in allProcsNames:
-    if 'hh' not in proc:
+    if 'hh' not in proc or ('HH' not in proc):
       procId[proc+'_%s'%y]=procNum
       procNum+=1 
 
@@ -776,7 +780,7 @@ def printBRSyst():
       if '%s:%s'%(p,c) in options.toSkip: continue
       if p in bkgProcs:
         outFile.write('- ')
-      elif 'hh' in p:
+      elif 'hh' in p or 'HH' in p:
         outFile.write('%5.3f/%5.3f '%(1./(1.-brSyst_bbgg[1]),1.+brSyst_bbgg[0]))
       else:
          outFile.write('%5.3f/%5.3f '%(1./(1.-brSyst[1]),1.+brSyst[0]))
@@ -887,7 +891,8 @@ def printTheorySystHHbbgg():
        current_proc,unc = line
        theory_dict[current_proc] = unc
 
-  for cons in 'tth,qqh,vh,hh,ggh'.split(','):
+  #for cons in 'tth,qqh,vh,hh,ggh'.split(','):
+  for cons in 'tth,qqh,vh,ggh,ggHH_kl_0_kt_1,ggHH_kl_1_kt_1,ggHH_kl_2p45_kt_1,ggHH_kl_5_kt_1'.split(','):
     outFile.write('%s%-35s   lnN   '%('pdf_',cons))
     for c in options.cats:
        for p in options.procs:
@@ -895,13 +900,14 @@ def printTheorySystHHbbgg():
          if p in bkgProcs:
            outFile.write('- ')
          elif (p.split('_')[0]) in cons :
-           outFile.write('%s '%(theory_dict[('pdf_'+(p.split('_')[0]))]))
+           outFile.write('%s '%(theory_dict[('pdf_'+(p.split('_201')[0]))])) #removing the year from the name
          else : 
            outFile.write('- ')
     outFile.write('\n')
     outFile.write('\n')
 
-  for cons in 'tth,qqh,vh,hh,ggh'.split(','):
+  #for cons in 'tth,qqh,vh,hh,ggh'.split(','):
+  for cons in 'tth,qqh,vh,ggh'.split(','):
     outFile.write('%s%-35s   lnN   '%('QCDscale_',cons))
     for c in options.cats:
        for p in options.procs:
@@ -909,7 +915,7 @@ def printTheorySystHHbbgg():
          if p in bkgProcs:
            outFile.write('- ')
          elif (p.split('_')[0]) in cons :
-           outFile.write('%s '%(theory_dict[('QCDscale_'+(p.split('_')[0]))]))
+           outFile.write('%s '%(theory_dict[('QCDscale_'+(p.split('_201')[0]))]))#removing the year from the name
          else : 
            outFile.write('- ')
     outFile.write('\n')
@@ -1200,7 +1206,9 @@ def printFileOptions():
       pdfname = info[2].replace('$CHANNEL','%s'%c)
       if typ not in options.procs and typ!='data_obs': continue
       #outFile.write('shapes %-10s %-15s %-30s %-30s\n'%(typ,'%s_%dTeV'%(c,sqrts),file.replace(".root","_%s_%s.root"%(typ,c)),wsname+':'+pdfname))
-      outFile.write('shapes %-10s %-15s %-30s %-30s\n'%(typ,'%s_%dTeV'%(c,sqrts),file,wsname+':'+pdfname))
+      if 'DoubleHTag_10' in c or 'DoubleHTag_11' in c : outFile.write('shapes %-10s %-15s %-30s %-30s\n'%(typ,'%s_%dTeV'%(c,sqrts),file.replace('70GeV','90GeV'),wsname+':'+pdfname))
+      else : outFile.write('shapes %-10s %-15s %-30s %-30s\n'%(typ,'%s_%dTeV'%(c,sqrts),file,wsname+':'+pdfname))
+      #outFile.write('shapes %-10s %-15s %-30s %-30s\n'%(typ,'%s_%dTeV'%(c,sqrts),file,wsname+':'+pdfname))
   outFile.write('\n')
 ###############################################################################
 

@@ -12,7 +12,7 @@ filename = "/scratch/nchernya/HHbbgg/18_02_2020/output_hh_%s_gen.root"%year
 #and categorized (but without pt/Mjj > 0.25 
 file = TFile(filename)
 #treeReco = file.Get("tagsDumper/trees/hh2018_13TeV_125_13TeV_DoubleHTag_0")
-treeReco = file.Get("hh2018_13TeV_125_13TeV_DoubleHTag_0")
+treeReco = file.Get("hh%s_13TeV_125_13TeV_DoubleHTag_0"%year)
 treeGen = file.Get("genDiphotonDumper/trees/hh2018_13TeV_125_13TeV_DoubleHTag_0")
 treeGen2 = file.Get("genDiphotonDumper/trees/hh2018_13TeV_125_13TeV_NoTag_0")
 renorm_file = open('/work/nchernya/DiHiggs/inputs/20_12_2019/reweighting_normalization_18_12_2019.json').read()

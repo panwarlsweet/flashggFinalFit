@@ -21,14 +21,16 @@ def add_mc_vars_to_workspace(ws=None,mjjLow=70, systematics_labels=[],add_benchm
   CMS_hgg_mass = ROOT.RooRealVar("CMS_hgg_mass","CMS_hgg_mass",125,100,180)
   CMS_hgg_mass.setConstant(False)
   #CMS_hgg_mass.setBins(160)
-  CMS_hgg_mass.setBins(101)
+  CMS_hgg_mass.setBins(80)
+  #CMS_hgg_mass.setBins(101)
   getattr(ws, 'import')(CMS_hgg_mass)
 
   Mjj = ROOT.RooRealVar("Mjj","Mjj",125,mjjLow,190)
   Mjj.setConstant(False)
   #Mjj.setBins(480)
-  #Mjj.setBins(12)
-  Mjj.setBins(101)
+  #Mjj.setBins(101)
+  if mjjLow==90 : Mjj.setBins(25)
+  else : Mjj.setBins(30)
   getattr(ws, 'import')(Mjj)
 
   dZ = ROOT.RooRealVar("dZ","dZ",0.0,-20,20)
@@ -88,14 +90,14 @@ def get_options():
     #parser.add_option("--inp-files",type='string',dest='inp_files',default='DoubleEG_2018_24_01_2020')  
     #parser.add_option("--inp-files",type='string',dest='inp_files',default='Data')  #ivan
     parser.add_option("--inp-dir",type='string',dest="inp_dir",default='/work/nchernya/DiHiggs/inputs/04_02_2020/trees/')
-    parser.add_option("--out-dir",type='string',dest="out_dir",default='/work/nchernya/DiHiggs/inputs/18_02_2020/Data_90GeV/')
-    parser.add_option("--outtag",type='string',dest="outtag",default='_cats70GeV')
+    parser.add_option("--out-dir",type='string',dest="out_dir",default='/work/nchernya/DiHiggs/inputs/18_02_2020/Data_90GeV_rebin/')
+    parser.add_option("--outtag",type='string',dest="outtag",default='_cats90GeV')
     #parser.add_option("--inp-dir",type='string',dest="inp_dir",default='/scratch/nchernya/HHbbgg/ivan_ntuples_13_02_2020/rho_rew_2016_v2/')
     #parser.add_option("--out-dir",type='string',dest="out_dir",default='/work/nchernya/DiHiggs/inputs/15_02_2020/')
     #parser.add_option("--cats",type='string',dest="cats",default='DoubleHTag_0,DoubleHTag_1,DoubleHTag_2,DoubleHTag_3,DoubleHTag_4,DoubleHTag_5,DoubleHTag_6,DoubleHTag_7,DoubleHTag_8,DoubleHTag_9,DoubleHTag_10,DoubleHTag_11')
-    parser.add_option("--cats",type='string',dest="cats",default='DoubleHTag_0,DoubleHTag_1,DoubleHTag_2,DoubleHTag_3,DoubleHTag_4,DoubleHTag_5,DoubleHTag_6,DoubleHTag_7,DoubleHTag_8,DoubleHTag_9')
-    #parser.add_option("--cats",type='string',dest="cats",default='DoubleHTag_10,DoubleHTag_11')
-    parser.add_option("--MjjLow",type='float',dest="MjjLow",default='70')
+   # parser.add_option("--cats",type='string',dest="cats",default='DoubleHTag_0,DoubleHTag_1,DoubleHTag_2,DoubleHTag_3,DoubleHTag_4,DoubleHTag_5,DoubleHTag_6,DoubleHTag_7,DoubleHTag_8,DoubleHTag_9')
+    parser.add_option("--cats",type='string',dest="cats",default='DoubleHTag_10,DoubleHTag_11')
+    parser.add_option("--MjjLow",type='float',dest="MjjLow",default='90')
     #parser.add_option("--MVAcats",type='string',dest="MVAcats",default='0.44,0.67,0.79,1')
     #parser.add_option("--MXcats",type='string',dest="MXcats",default='250,385,470,640,10000,250,345,440,515,10000,250,330,365,545,10000')
   #  parser.add_option("--MVAcats",type='string',dest="MVAcats",default='0.248,0.450,0.728,1')
@@ -152,6 +154,7 @@ for num,f in enumerate(input_files):
        #selection = "(MX <= %.2f and MX > %.2f) and (HHbbggMVA <= %.2f and HHbbggMVA > %.2f) and (ttHScore >= %.2f)and ((nElectrons2018+nMuons2018)==0) "%(cat_def[cat]["MX"][0],cat_def[cat]["MX"][1],cat_def[cat]["MVA"][0],cat_def[cat]["MVA"][1],opt.ttHScore)
        selection = "(MX <= %.2f and MX > %.2f) and (MVAOutputTransformed <= %.2f and MVAOutputTransformed > %.2f) and (ttHScore >= %.2f) "%(cat_def[cat]["MX"][0],cat_def[cat]["MX"][1],cat_def[cat]["MVA"][0],cat_def[cat]["MVA"][1],opt.ttHScore)
        if '11' in cat or '10' in cat : selection+="and (Mjj>=90)"
+      # selection+="and ((CMS_hgg_mass < 115) or (CMS_hgg_mass>135))"  #for blinded Mgg window (unblinding step1)
        print 'doing selection ', selection
        data = rpd.read_root(tfilename,'%s'%(treeDirName+initial_name)).query(selection)
        #if 'bbggSelectionTree' in initial_name : #ivan

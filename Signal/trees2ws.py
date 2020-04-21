@@ -186,7 +186,7 @@ def get_options():
     parser.add_option("--year",type='string',dest="year",default='2016')
     parser.add_option("--add_benchmarks",action="store_true", dest="add_benchmarks",default=False)
     parser.add_option("--config",type='string',dest="config",default='/work/nchernya/DiHiggs/inputs/20_12_2019/reweighting_normalization_18_12_2019.json')
-    parser.add_option("--btag_config",type='string',dest="btag_config",default='/work/nchernya/DiHiggs/inputs/20_12_2019/btagSF_15_01_2019.json')
+    parser.add_option("--btag_config",type='string',dest="btag_config",default='/work/nchernya/DiHiggs/inputs/20_12_2019/btagSF_08_04_2020.json')
     return parser.parse_args()
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  
 
