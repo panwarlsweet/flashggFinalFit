@@ -9,12 +9,14 @@ MASS=''
 YEAR="2018"
 
 #DATE="24_01_2020"
-DATE="18_02_2020"
+DATE="22_04_2020"
 #DATE="27_03_2020"
 #EXT="singleHiggs"$YEAR
+EXT="qqHH"$YEAR
+#EXT="hhNLO"$YEAR
+
 #EXT="nodes"$YEAR
 #EXT="vbfhh"$YEAR
-EXT="hhNLO"$YEAR
 PHOTONSYSTFILE=dat/photonCatSyst.dat # without systematics
 #PHOTONSYSTFILE=dat/photonCatSyst_${EXT}.dat
 
@@ -48,6 +50,18 @@ SCALESGLOBAL="NonLinearity,Geant4,LightYield,Absolute"
 #REFPROC="tth_${YEAR}"
 #INFILES="output_ggh_${YEAR},output_tth_${YEAR},output_qqh_${YEAR},output_vh_${YEAR}"
 #REFTAG="DoubleHTag_9"
+#############HH NLO ############
+#REFPROC="ggHH_kl_0_kt_1_${YEAR}"
+#PROCS="ggHH_kl_0_kt_1_${YEAR},ggHH_kl_1_kt_1_${YEAR},ggHH_kl_2p45_kt_1_${YEAR},ggHH_kl_5_kt_1_${YEAR}"
+#INFILES="output_ggHH_kl_0_kt_1_${YEAR},output_ggHH_kl_1_kt_1_${YEAR},output_ggHH_kl_2p45_kt_1_${YEAR},output_ggHH_kl_5_kt_1_${YEAR}"
+############# qqHH NLO ############
+REFPROC="qqHH_CV_1_C2V_1_kl_1_${YEAR}"
+PROCS="qqHH_CV_1_C2V_1_kl_1_${YEAR},qqHH_CV_1_C2V_2_kl_1_${YEAR},qqHH_CV_1_C2V_1_kl_2_${YEAR},qqHH_CV_1_C2V_1_kl_0_${YEAR},qqHH_CV_0p5_C2V_1_kl_1_${YEAR},qqHH_CV_1p5_C2V_1_kl_1_${YEAR}"
+INFILES="output_qqHH_CV_1_C2V_1_kl_1_${YEAR},output_qqHH_CV_1_C2V_2_kl_1_${YEAR},output_qqHH_CV_1_C2V_1_kl_2_${YEAR},output_qqHH_CV_1_C2V_1_kl_0_${YEAR},output_qqHH_CV_0p5_C2V_1_kl_1_${YEAR},output_qqHH_CV_1p5_C2V_1_kl_1_${YEAR}"
+################################
+
+
+
 #############NODES ############
 #REFPROC="hh_node_SM_$YEAR"
 #PROCS="hh_node_SM_$YEAR"
@@ -56,11 +70,6 @@ SCALESGLOBAL="NonLinearity,Geant4,LightYield,Absolute"
 #REFPROC="vbfhh_$YEAR"
 #PROCS="vbfhh_$YEAR"
 #INFILES="output_vbfhh_$YEAR"
-#############HH NLO ############
-REFPROC="ggHH_kl_0_kt_1_${YEAR}"
-PROCS="ggHH_kl_0_kt_1_${YEAR},ggHH_kl_1_kt_1_${YEAR},ggHH_kl_2p45_kt_1_${YEAR},ggHH_kl_5_kt_1_${YEAR}"
-INFILES="output_ggHH_kl_0_kt_1_${YEAR},output_ggHH_kl_1_kt_1_${YEAR},output_ggHH_kl_2p45_kt_1_${YEAR},output_ggHH_kl_5_kt_1_${YEAR}"
-################################
 
 
 ####################################################

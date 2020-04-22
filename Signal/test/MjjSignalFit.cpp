@@ -102,9 +102,9 @@ void OptionParser(int argc, char *argv[]){
 		("plotdir,p", po::value<string>(&plotdir_)->default_value("test/"), "Plot dir")
 		("procs", po::value<string>(&procStr_)->default_value("hh_node_SM,ggh,qqh,vh,tth"), "Processes (comma sep)")
 		//("signalproc,s", po::value<string>(&signalproc_)->default_value("hh_node_SM"), "Name of the signal process")
-		("signalproc,s", po::value<string>(&signalprocStr_)->default_value("hh_node_SM,ggHH_kl_0_kt_1,ggHH_kl_1_kt_1,ggHH_kl_2p45_kt_1,ggHH_kl_5_kt_1"), "Name of the signal process")
-		("flashggCats,f", po::value<string>(&flashggCatsStr_)->default_value("DoubleHTag_0,DoubleHTag_1,DoubleHTag_2,DoubleHTag_3,DoubleHTag_4,DoubleHTag_5,DoubleHTag_6,DoubleHTag_7,DoubleHTag_8,DoubleHTag_9,DoubleHTag_10,DoubleHTag_11"), "Flashgg categories")
-//		("flashggCats,f", po::value<string>(&flashggCatsStr_)->default_value("DoubleHTag_0,DoubleHTag_1,DoubleHTag_2,DoubleHTag_3,DoubleHTag_4,DoubleHTag_5,DoubleHTag_6,DoubleHTag_7,DoubleHTag_8,DoubleHTag_9,DoubleHTag_10,DoubleHTag_11,VBFDoubleHTag_0"), "Flashgg categories")
+		("signalproc,s", po::value<string>(&signalprocStr_)->default_value("hh_node_SM,ggHH_kl_0_kt_1,ggHH_kl_1_kt_1,ggHH_kl_2p45_kt_1,ggHH_kl_5_kt_1,qqHH_CV_1_C2V_1_kl_1,qqHH_CV_1_C2V_2_kl_1,qqHH_CV_1_C2V_1_kl_2,qqHH_CV_1_C2V_1_kl_0,qqHH_CV_0p5_C2V_1_kl_1,qqHH_CV_1p5_C2V_1_kl_1"), "Name of the signal process")
+//		("flashggCats,f", po::value<string>(&flashggCatsStr_)->default_value("DoubleHTag_0,DoubleHTag_1,DoubleHTag_2,DoubleHTag_3,DoubleHTag_4,DoubleHTag_5,DoubleHTag_6,DoubleHTag_7,DoubleHTag_8,DoubleHTag_9,DoubleHTag_10,DoubleHTag_11"), "Flashgg categories")
+		("flashggCats,f", po::value<string>(&flashggCatsStr_)->default_value("DoubleHTag_0,DoubleHTag_1,DoubleHTag_2,DoubleHTag_3,DoubleHTag_4,DoubleHTag_5,DoubleHTag_6,DoubleHTag_7,DoubleHTag_8,DoubleHTag_9,DoubleHTag_10,DoubleHTag_11,VBFDoubleHTag_0"), "Flashgg categories")
 		("nCats", po::value<int>(&nCats_)->default_value(12), "Numer of flashgg categories")
 		("nMVA", po::value<int>(&nMVA_)->default_value(3), "Numer of MVA categories")
 		("nMX", po::value<int>(&nMX_)->default_value(4), "Numer of MX categories")
@@ -399,7 +399,7 @@ int main(int argc, char *argv[]){
 			MjjSig[ic]->fillHistogram(h,RooArgList(*Mjj),sigToFit[ic]->sumEntries());
 			TCanvas* can = new TCanvas("can","can",650,650);
 			RooDraw(can,h,Mjj->frame(),((RooDataHist*)sigToFit[ic]),MjjSig[ic],iproc,(icat),putyear);
-			string canname = plotdir_+"fit_"+iproc+"_"+year_+"_"+icat;
+			string canname = plotdir_+"/fit_"+iproc+"_"+year_+"_"+icat;
 			can->Print((canname+".pdf").c_str());
 			can->Print((canname+".jpg").c_str());
   			delete can;
@@ -411,7 +411,7 @@ int main(int argc, char *argv[]){
 
 				TCanvas* canMVA = new TCanvas("canMVA","canMVA",650,650);
 				RooDraw(canMVA,hMVA,Mjj->frame(),((RooDataHist*)sigToFitMVA[categories_scheme[ic]]),MjjSig[ic],iproc,("MVA "+to_string(categories_scheme[ic])),putyear);
-				string cannameMVA = plotdir_+"fit_"+iproc+"_"+year_+"_MVA"+to_string(categories_scheme[ic]);
+				string cannameMVA = plotdir_+"/fit_"+iproc+"_"+year_+"_MVA"+to_string(categories_scheme[ic]);
 				canMVA->Print((cannameMVA+".pdf").c_str());
 				canMVA->Print((cannameMVA+".jpg").c_str());
   				delete canMVA;
@@ -422,7 +422,7 @@ int main(int argc, char *argv[]){
 
 				TCanvas* canAllYears = new TCanvas("canAllYears","canAllYears",650,650);
 				RooDraw(canAllYears,hAllYears,Mjj->frame(),((RooDataHist*)sigToFitAllYears[ic]),MjjSig[ic],iproc,(icat),putyear);
-				string cannameAllYears = plotdir_+"fit_"+iproc+"_"+year_+"_AllYears_"+icat;
+				string cannameAllYears = plotdir_+"/fit_"+iproc+"_"+year_+"_AllYears_"+icat;
 				canAllYears->Print((cannameAllYears+".pdf").c_str());
 				canAllYears->Print((cannameAllYears+".jpg").c_str());
   				delete canAllYears;
@@ -432,9 +432,8 @@ int main(int argc, char *argv[]){
 			string finalpdfname = "hbbpdfsm_13TeV_"+iproc+"_"+year_+"_"+icat;
 			wAll->import(*w->pdf(finalpdfname.c_str()));
 			wAll->import( *w->function((finalpdfname+"_norm").c_str()));
-
 		}
-		wAll->writeToFile((outdir_+"workspace_out_"+iproc+"_"+year_+".root").c_str());
+		wAll->writeToFile((outdir_+"/workspace_out_"+iproc+"_"+year_+".root").c_str());
 		iproc_num+=1;
 	}
 	std::cout<<"All fits have finished, now merge the workspaces : mergeWorkspace.py workspace_out_mjj.root *.root"<<std::endl;	

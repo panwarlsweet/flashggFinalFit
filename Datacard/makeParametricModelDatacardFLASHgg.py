@@ -182,7 +182,7 @@ for node in whichNodes:
      combProc[proc] = proc
      allNodes.append(proc)
      allProcs.append(proc)
-for p in 'ggHH_kl_0_kt_1,ggHH_kl_1_kt_1,ggHH_kl_2p45_kt_1,ggHH_kl_5_kt_1'.split(','):
+for p in 'ggHH_kl_0_kt_1,ggHH_kl_1_kt_1,ggHH_kl_2p45_kt_1,ggHH_kl_5_kt_1,qqHH_CV_1_C2V_1_kl_1,qqHH_CV_1_C2V_2_kl_1,qqHH_CV_1_C2V_1_kl_2,qqHH_CV_1_C2V_1_kl_0,qqHH_CV_0p5_C2V_1_kl_1,qqHH_CV_1p5_C2V_1_kl_1'.split(','):
    for y in ['2016','2017','2018']:
      combProc[p+'_'+y] = p+'_'+y
      allNodes.append(p+'_'+y)
@@ -347,12 +347,9 @@ else:
   fileDetails['qqH_hgg']       = [sigFile.replace('$PROC',"vbf"),sigWS,'hggpdfsmrel_%dTeV_vbf_$CHANNEL'%sqrts]
   fileDetails['ttH_hgg']       = [sigFile.replace('$PROC',"tth"),sigWS,'hggpdfsmrel_%dTeV_tth_$CHANNEL'%sqrts]
   for proc in allProcs:
-      if (proc in allNodes) and ('2018' in proc) : fileDetails[proc] = 	[nodesFile[2],sigWS,'%s_%dTeV_%s_$CHANNEL'%(signalPdfName,sqrts,proc)]
-      elif (proc in allNodes) and ('2017' in proc): fileDetails[proc] = 	[nodesFile[1],sigWS,'%s_%dTeV_%s_$CHANNEL'%(signalPdfName,sqrts,proc)]
-      elif (proc in allNodes) and ('2016' in proc): fileDetails[proc] = 	[nodesFile[0],sigWS,'%s_%dTeV_%s_$CHANNEL'%(signalPdfName,sqrts,proc)]
-      elif ('2018' in proc) : fileDetails[proc] = 	[sigFiles[2],sigWS,'%s_%dTeV_%s_$CHANNEL'%(signalPdfName,sqrts,proc)]
-      elif ('2017' in proc) : fileDetails[proc] = 	[sigFiles[1],sigWS,'%s_%dTeV_%s_$CHANNEL'%(signalPdfName,sqrts,proc)]
-      elif ('2016' in proc) : fileDetails[proc] = 	[sigFiles[0],sigWS,'%s_%dTeV_%s_$CHANNEL'%(signalPdfName,sqrts,proc)]
+      #if (proc in allNodes)  : fileDetails[proc] = 	[nodesFile[0],sigWS,'%s_%dTeV_%s_$CHANNEL'%(signalPdfName,sqrts,proc)]
+      #elif : fileDetails[proc] = 	[sigFiles[0],sigWS,'%s_%dTeV_%s_$CHANNEL'%(signalPdfName,sqrts,proc)]
+      fileDetails[proc] = 	[sigFile,sigWS,'%s_%dTeV_%s_$CHANNEL'%(signalPdfName,sqrts,proc)]
 
   if splitVH:
     fileDetails['WH_hgg']      =  [sigFile.replace('$PROC',"wh"),sigWS,'hggpdfsmrel_%dTeV_wh_$CHANNEL'%sqrts]
@@ -892,7 +889,8 @@ def printTheorySystHHbbgg():
        theory_dict[current_proc] = unc
 
   #for cons in 'tth,qqh,vh,hh,ggh'.split(','):
-  for cons in 'tth,qqh,vh,ggh,ggHH_kl_0_kt_1,ggHH_kl_1_kt_1,ggHH_kl_2p45_kt_1,ggHH_kl_5_kt_1'.split(','):
+  for cons in 'tth,qqh,vh,ggh,ggHH_kl_1_kt_1,ggHH_kl_2p45_kt_1,ggHH_kl_5_kt_1'.split(','):
+  #for cons in 'tth,qqh,vh,ggh,ggHH_kl_0_kt_1,ggHH_kl_1_kt_1,ggHH_kl_2p45_kt_1,ggHH_kl_5_kt_1,qqHH_CV_1_C2V_1_kl_1,qqHH_CV_1_C2V_2_kl_1,qqHH_CV_1_C2V_1_kl_2,qqHH_CV_1_C2V_1_kl_0,qqHH_CV_0p5_C2V_1_kl_1,qqHH_CV_1p5_C2V_1_kl_1'.split(','):
     outFile.write('%s%-35s   lnN   '%('pdf_',cons))
     for c in options.cats:
        for p in options.procs:
@@ -1206,7 +1204,7 @@ def printFileOptions():
       pdfname = info[2].replace('$CHANNEL','%s'%c)
       if typ not in options.procs and typ!='data_obs': continue
       #outFile.write('shapes %-10s %-15s %-30s %-30s\n'%(typ,'%s_%dTeV'%(c,sqrts),file.replace(".root","_%s_%s.root"%(typ,c)),wsname+':'+pdfname))
-      if 'DoubleHTag_10' in c or 'DoubleHTag_11' in c : outFile.write('shapes %-10s %-15s %-30s %-30s\n'%(typ,'%s_%dTeV'%(c,sqrts),file.replace('70GeV','90GeV'),wsname+':'+pdfname))
+      if 'DoubleHTag_10' in c or 'DoubleHTag_11' in c : outFile.write('shapes %-10s %-15s %-30s %-30s\n'%(typ,'%s_%dTeV'%(c,sqrts),file.replace('70GeV','90GeV').replace('.root','_MjjRenamed.root'),wsname+':'+pdfname))  #this is needed because we have different range for these two categories
       else : outFile.write('shapes %-10s %-15s %-30s %-30s\n'%(typ,'%s_%dTeV'%(c,sqrts),file,wsname+':'+pdfname))
       #outFile.write('shapes %-10s %-15s %-30s %-30s\n'%(typ,'%s_%dTeV'%(c,sqrts),file,wsname+':'+pdfname))
   outFile.write('\n')

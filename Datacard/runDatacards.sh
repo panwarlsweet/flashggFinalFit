@@ -216,24 +216,23 @@ done
 ##################################### NLO ###########################3
 for node in SM;
 do
-   name2D=DoubleEG_cats70GeV
+   name2D=DoubleEG_cats70GeV  #in the makeDatacard script this 70GeV will be changed to 90 GeV for DoubleHTag_10 and 11.
    outtag=ftest
   # nodename="ggHH_kl_0_kt_1_2016,ggHH_kl_0_kt_1_2017,ggHH_kl_0_kt_1_2018,ggHH_kl_1_kt_1_2016,ggHH_kl_1_kt_1_2017,ggHH_kl_1_kt_1_2018,ggHH_kl_5_kt_1_2016,ggHH_kl_5_kt_1_2017,ggHH_kl_5_kt_1_2018"
-   nodename="ggHH_kl_2p45_kt_1_2016,ggHH_kl_2p45_kt_1_2017,ggHH_kl_2p45_kt_1_2018,ggHH_kl_1_kt_1_2016,ggHH_kl_1_kt_1_2017,ggHH_kl_1_kt_1_2018,ggHH_kl_5_kt_1_2016,ggHH_kl_5_kt_1_2017,ggHH_kl_5_kt_1_2018"
-   #nodename="ggHH_kl_1_kt_1_2016,ggHH_kl_1_kt_1_2017,ggHH_kl_1_kt_1_2018"
-   #PROCS="tth_2018,ggh_2018,qqh_2018,vh_2018"
-   #nodename="ggHH_kl_1_kt_1_2018"
-   outname="outputs/cms_HHbbgg2D_DoubleEG_cats70GeV_ftest_datacard_nodeSM_18_02_2020_nlo_comb3.txt" 
+   #nodename="ggHH_kl_2p45_kt_1_2016,ggHH_kl_2p45_kt_1_2017,ggHH_kl_2p45_kt_1_2018,ggHH_kl_1_kt_1_2016,ggHH_kl_1_kt_1_2017,ggHH_kl_1_kt_1_2018,ggHH_kl_5_kt_1_2016,ggHH_kl_5_kt_1_2017,ggHH_kl_5_kt_1_2018"
+   nodename="ggHH_kl_2p45_kt_1_2016,ggHH_kl_2p45_kt_1_2017,ggHH_kl_2p45_kt_1_2018,ggHH_kl_1_kt_1_2016,ggHH_kl_1_kt_1_2017,ggHH_kl_1_kt_1_2018,ggHH_kl_5_kt_1_2016,ggHH_kl_5_kt_1_2017,ggHH_kl_5_kt_1_2018,qqHH_CV_1_C2V_1_kl_1_2016,qqHH_CV_1_C2V_1_kl_1_2017,qqHH_CV_1_C2V_1_kl_1_2018,qqHH_CV_1_C2V_2_kl_1_2016,qqHH_CV_1_C2V_2_kl_1_2017,qqHH_CV_1_C2V_2_kl_1_2018,qqHH_CV_1_C2V_1_kl_2_2016,qqHH_CV_1_C2V_1_kl_2_2017,qqHH_CV_1_C2V_1_kl_2_2018,qqHH_CV_1_C2V_1_kl_0_2016,qqHH_CV_1_C2V_1_kl_0_2017,qqHH_CV_1_C2V_1_kl_0_2018,qqHH_CV_0p5_C2V_1_kl_1_2016,qqHH_CV_0p5_C2V_1_kl_1_2017,qqHH_CV_0p5_C2V_1_kl_1_2018,qqHH_CV_1p5_C2V_1_kl_1_2016,qqHH_CV_1p5_C2V_1_kl_1_2017,qqHH_CV_1p5_C2V_1_kl_1_2018"
+   #outname="outputs/cms_HHbbgg2D_DoubleEG_cats70GeV_ftest_datacard_nodeSM_${DATE}_nlo_comb3.txt" 
+   outname="outputs/cms_HHbbgg2D_DoubleEG_cats70GeV_ftest_datacard_nodeSM_${DATE}_qqHH_ggHH_comb3.txt" 
 
    if [ $DO_SYSTEMATIC -gt 0 ] 
    then
-   	outname="outputs/cms_HHbbgg2D_DoubleEG_cats70GeV_ftest_datacard_nodeSM_18_02_2020_nlo_comb3_systematics.txt" 
+   	outname="outputs/cms_HHbbgg2D_DoubleEG_cats70GeV_ftest_datacard_nodeSM_${DATE}_nlo_comb3_systematics.txt" 
    fi
    SYSINPUTFILE="/scratch/nchernya/HHbbgg/18_02_2020/workspaces_systematics/output_singleh.root,/scratch/nchernya/HHbbgg/18_02_2020/workspaces_systematics/output_ggHH_nlo_systematics.root" # if no systematics, then whatever file is ok
    DATAFILE="inputs/CMS-HGG_multipdf2D_${name2D}_${outtag}_HHbbgg_2016_2017_2018_${DATE}.root"
-   DATE="18_02_2020_nlo_merged_70GeV"
-   NODESFILE="inputs/CMS-HGG_sigfit_MggMjj_2016_2017_2018_${DATE}.root,inputs/CMS-HGG_sigfit_MggMjj_2016_2017_2018_${DATE}.root,inputs/CMS-HGG_sigfit_MggMjj_2016_2017_2018_${DATE}.root"
-   SIGNALFILE="inputs/CMS-HGG_sigfit_MggMjj_2016_2017_2018_${DATE}.root,inputs/CMS-HGG_sigfit_MggMjj_2016_2017_2018_${DATE}.root,inputs/CMS-HGG_sigfit_MggMjj_2016_2017_2018_${DATE}.root"
+   DATE="18_02_2020_nlo_merged_70GeV" #in the makeDatacard script this 70GeV will be changed to 90 GeV for DoubleHTag_10 and 11.
 
-  ./makeParametricModelDatacardFLASHgg.py -i $SYSINPUTFILE -s $SIGNALFILE --nodesFile $NODESFILE --signalProc $nodename -d $DATAFILE -p $PROCS,$nodename -c $CATS --photonCatScales ../Signal/dat/photonCatSyst.dat --photonCatSmears ../Signal/dat/photonCatSyst.dat --isMultiPdf  -o ${outname} --intLumi2016 $INTLUMI2016 --intLumi2017 $INTLUMI2017 --intLumi2018 $INTLUMI2018 --do_HHbbgg_systematics $DO_SYSTEMATIC --do2D --btagReshapeFalse $btagReshapeFalse
+   SIGNALFILE="inputs/CMS-HGG_sigfit_MggMjj_2016_2017_2018_${DATE}.root"
+
+  ./makeParametricModelDatacardFLASHgg.py -i $SYSINPUTFILE -s $SIGNALFILE  --signalProc $nodename -d $DATAFILE -p $PROCS,$nodename -c $CATS --photonCatScales ../Signal/dat/photonCatSyst.dat --photonCatSmears ../Signal/dat/photonCatSyst.dat --isMultiPdf  -o ${outname} --intLumi2016 $INTLUMI2016 --intLumi2017 $INTLUMI2017 --intLumi2018 $INTLUMI2018 --do_HHbbgg_systematics $DO_SYSTEMATIC --do2D --btagReshapeFalse $btagReshapeFalse
 done
