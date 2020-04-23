@@ -215,10 +215,10 @@ def get_options():
     parser = OptionParser()
     ###########################For final result before unblinding with VBF add lepton Veto #####################
     #parser.add_option("--inp-files",type='string',dest='inp_files',default='qqh,tth,vh,ggh')  
-    #parser.add_option("--inp-files",type='string',dest='inp_files',default='qqh,tth,vh,ggh,vbfhh')  
     #parser.add_option("--inp-files",type='string',dest='inp_files',default='hh')  
     #parser.add_option("--inp-files",type='string',dest='inp_files',default='qqHH_CV_1_C2V_1_kl_1,qqHH_CV_1_C2V_2_kl_1,qqHH_CV_1_C2V_1_kl_2,qqHH_CV_1_C2V_1_kl_0,qqHH_CV_0p5_C2V_1_kl_1,qqHH_CV_1p5_C2V_1_kl_1')  
-    parser.add_option("--inp-files",type='string',dest='inp_files',default='hh_nlo_cHHH0,hh_nlo_cHHH1,hh_nlo_cHHH2p45,hh_nlo_cHHH5,qqHH_CV_1_C2V_1_kl_1,qqHH_CV_1_C2V_2_kl_1,qqHH_CV_1_C2V_1_kl_2,qqHH_CV_1_C2V_1_kl_0,qqHH_CV_0p5_C2V_1_kl_1,qqHH_CV_1p5_C2V_1_kl_1')  
+    #parser.add_option("--inp-files",type='string',dest='inp_files',default='hh_nlo_cHHH0,hh_nlo_cHHH1,hh_nlo_cHHH2p45,hh_nlo_cHHH5,qqHH_CV_1_C2V_1_kl_1,qqHH_CV_1_C2V_2_kl_1,qqHH_CV_1_C2V_1_kl_2,qqHH_CV_1_C2V_1_kl_0,qqHH_CV_0p5_C2V_1_kl_1,qqHH_CV_1p5_C2V_1_kl_1')  
+    parser.add_option("--inp-files",type='string',dest='inp_files',default='hh_nlo_cHHH0,hh_nlo_cHHH1,hh_nlo_cHHH2p45,hh_nlo_cHHH5')  
     #parser.add_option("--inp-files",type='string',dest='inp_files',default='hh_nlo_cHHH0,hh_nlo_cHHH1,hh_nlo_cHHH2p45,hh_nlo_cHHH5')  
     #parser.add_option("--inp-dir",type='string',dest="inp_dir",default='/work/nchernya/DiHiggs/inputs/04_02_2020/trees/')
     #parser.add_option("--out-dir",type='string',dest="out_dir",default='/work/nchernya/DiHiggs/inputs/18_02_2020/')
@@ -351,9 +351,7 @@ for num,f in enumerate(input_files):
                ggHH2017_file = opt.inp_dir + 'output_hh_nlo_cHHH1_2017.root' 
                ggHH_frame2016=rpd.read_root(ggHH2016_file,'tagsDumper/trees/hh2016_13TeV_125_13TeV_DoubleHTag_0', columns = ['weight','rho'])
                ggHH_frame2017=rpd.read_root(ggHH2017_file,'tagsDumper/trees/hh2017_13TeV_125_13TeV_DoubleHTag_0', columns = ['weight','rho'])
-               print data['weight']
                reweight_rho('rho',ggHH_frame2016,ggHH_frame2017,data)
-               print data['weight']
             ###########################################################################################################
 
             if opt.doNLO and not ('qqHH' in target_names[num]) : data = data.query("(abs(genweight)<0.1)") #remove crazy LHE weights 
