@@ -31,6 +31,10 @@ CONFIGDAT="output/out_${DATE}_${EXT}/dat/newConfig_${EXT}.dat"
 #runLocal='--runLocal'
 runLocal=''
 
+#COndor
+#BATCH=HTCONDOR
+#DEFAULTQUEUE=espresso  #espresso : 20min.  microcentury - 1h, longlunch-2h, workday - 8h, tomorrow -1d
+
 BATCH=T3CH
 DEFAULTQUEUE="short.q " #for slurm not used  #-l h_vmem=6g"  #increase memory for systematics -l h_vmem=6g
 #CATS="DoubleHTag_0,DoubleHTag_1,DoubleHTag_2,DoubleHTag_3,DoubleHTag_4,DoubleHTag_5,DoubleHTag_6,DoubleHTag_7,DoubleHTag_8,DoubleHTag_9,DoubleHTag_10,DoubleHTag_11"
