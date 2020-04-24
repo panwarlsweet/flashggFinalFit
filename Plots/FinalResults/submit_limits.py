@@ -62,6 +62,7 @@ parser.add_option("--channels_to_run",default="all", help = "which channels to r
 #parser.add_option("--freeze_kl_fit_params",default = "--freezeNuisances param0_DoubleHTag_0,param1_DoubleHTag_0,param2_DoubleHTag_0,param0_DoubleHTag_1,param1_DoubleHTag_1,param2_DoubleHTag_1,param0_DoubleHTag_2,param1_DoubleHTag_2,param2_DoubleHTag_2,param0_DoubleHTag_3,param1_DoubleHTag_3,param2_DoubleHTag_3,param0_DoubleHTag_4,param1_DoubleHTag_4,param2_DoubleHTag_4,param0_DoubleHTag_5,param1_DoubleHTag_5,param2_DoubleHTag_5,param0_DoubleHTag_6,param1_DoubleHTag_6,param2_DoubleHTag_6,param0_DoubleHTag_7,param1_DoubleHTag_7,param2_DoubleHTag_7,param0_DoubleHTag_8,param1_DoubleHTag_8,param2_DoubleHTag_8,param0_DoubleHTag_9,param1_DoubleHTag_9,param2_DoubleHTag_9,param0_DoubleHTag_10,param1_DoubleHTag_10,param2_DoubleHTag_10,param0_DoubleHTag_11,param1_DoubleHTag_11,param2_DoubleHTag_11")
 parser.add_option("--freeze_kl_fit_params",default = "--freezeParameters param0_DoubleHTag_0,param1_DoubleHTag_0,param2_DoubleHTag_0,param0_DoubleHTag_1,param1_DoubleHTag_1,param2_DoubleHTag_1,param0_DoubleHTag_2,param1_DoubleHTag_2,param2_DoubleHTag_2,param0_DoubleHTag_3,param1_DoubleHTag_3,param2_DoubleHTag_3,param0_DoubleHTag_4,param1_DoubleHTag_4,param2_DoubleHTag_4,param0_DoubleHTag_5,param1_DoubleHTag_5,param2_DoubleHTag_5,param0_DoubleHTag_6,param1_DoubleHTag_6,param2_DoubleHTag_6,param0_DoubleHTag_7,param1_DoubleHTag_7,param2_DoubleHTag_7,param0_DoubleHTag_8,param1_DoubleHTag_8,param2_DoubleHTag_8,param0_DoubleHTag_9,param1_DoubleHTag_9,param2_DoubleHTag_9,param0_DoubleHTag_10,param1_DoubleHTag_10,param2_DoubleHTag_10,param0_DoubleHTag_11,param1_DoubleHTag_11,param2_DoubleHTag_11")
 parser.add_option("--hhReweightDir",default='/work/nchernya/DiHiggs/inputs/18_02_2020/categorizedTrees/kl_kt_finebinning/',help="hh reweighting directory with all txt files" )
+parser.add_option("--c2vGridConfig",default='/work/nchernya/DiHiggs/CMSSW_7_4_7/src/flashggFinalFit/Plots/FinalResults/c2v_grids/c2v_grid_coarse.json',help="grid for c2v scan" )
 parser.add_option("--do2D",type="int",default=0,help="do 2D or 1D " )
 parser.add_option("--doNLOHH",type="int",default=0,help="do NLO HH model or not " )
 parser.add_option("--whatToFloat",type="string",default="r",help="what to float : r, r_qqhh or r_gghh " )
@@ -332,11 +333,14 @@ checkValidMethod()
 system('mkdir -p %s/Jobs/'%opts.outDir)
 
 if opts.do_c2v_scan:
+  opts.c2vGridConfig
+  with open(opts.c2vGridConfig,"r") as rew_json:
+    rew_dict = json.load(rew_json)
   counter=0
-  c2vmin=-4
-  c2vmxn=6
-  Nc2v=51 
-  c2vstep = 0.2
+  c2vmin=rew_dict['c2vmin']
+  c2vmax=rew_dict['c2vmax']
+  Nc2v=rew_dict['Nc2v']
+  c2vstep=rew_dict['c2vstep']
   for ic2v in range(0,Nc2v):
     c2v = c2vmin + ic2v*c2vstep
     c2v_str = ("{:.6f}".format(c2v)).replace('.','d').replace('-','m') 
