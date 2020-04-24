@@ -126,7 +126,7 @@ def writePreamble(sub_file):
       sub_file.write('tmpdir=/scratch/$USER/$RANDOM\n')
       sub_file.write('mkdir -p $tmpdir\n')
       sub_file.write('cd $tmpdir\n')
-  else :
+  if( opts.batch == "HTCONDOR" ):
       sub_file.write('number=$RANDOM\n')
       sub_file.write('mkdir -p scratch_$number\n')
       sub_file.write('cd scratch_$number\n')
