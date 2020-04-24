@@ -54,12 +54,12 @@ using namespace boost;
 
 namespace po = program_options;
 
-bool BLIND = false;
+bool BLIND = true;
 bool runFtestCheckWithToys=false;
 int mgg_low =100;
 int mgg_high =180;
-//int mjj_low =70;
-int mjj_low =90;
+int mjj_low =70;
+//int mjj_low =90;
 int mjj_high =190;
 //int nBinsForMass = 4*(mgg_high-mgg_low);
 int nBinsForMass = mgg_high-mgg_low;

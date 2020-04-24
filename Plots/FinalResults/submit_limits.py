@@ -64,7 +64,9 @@ parser.add_option("--freeze_kl_fit_params",default = "--freezeParameters param0_
 parser.add_option("--hhReweightDir",default='/work/nchernya/DiHiggs/inputs/18_02_2020/categorizedTrees/kl_kt_finebinning/',help="hh reweighting directory with all txt files" )
 parser.add_option("--do2D",type="int",default=0,help="do 2D or 1D " )
 parser.add_option("--doNLOHH",type="int",default=0,help="do NLO HH model or not " )
+parser.add_option("--whatToFloat",type="string",default="r",help="what to float : r, r_qqhh or r_gghh " )
 parser.add_option("--do_kl_scan",default=False,action="store_true",help="do kl scan?" )
+parser.add_option("--do_c2v_scan",default=False,action="store_true",help="do c2v scan?" )
 parser.add_option("--Nbench",type="int",default=14,help="nunber of benchmarks" )
 parser.add_option("--do_benchmarks_scan",default=False,action="store_true",help="do benchmark scan?" )
 parser.add_option("--do_kl_likelihood",default=False,action="store_true",help="prepare datacard for kl likelihood" )
@@ -196,14 +198,28 @@ def text2workspace(card,mask=False,model=''):
     return exec_line
 
 
-def writeAsymptoticFor2D(jobid,card,outtag,kl=1.):
+def writeAsymptoticFor2D(jobid,card,outtag,coupling_dict={}):
+    kl=coupling_dict["kl"]
+    kt=coupling_dict["kt"]
+    c2v=coupling_dict["c2v"]
+    cv=coupling_dict["cv"]
     print '[INFO] MultiDim Fit for 2D'
     file = open('%s/Jobs/sub_job%d.sh'%(opts.outDir,jobid),'w')
     writePreamble(file)
     if opts.doNLOHH: 
        model = ' -P HHModel:HHdefault'
        exec_line = text2workspace(card,model=model)
-       exec_line += "combine %s/%s  -n %s  -M AsymptoticLimits -m 125. --saveWorkspace --redefineSignalPOIs r --setParameters r_qqhh=1,r_gghh=1,kt=1,kl=%.3f,CV=1,C2V=1 --freezeParameters r_gghh,r_qqhh,kt,kl,CV,C2V  --X-rtd TMCSO_AdaptivePseudoAsimov=0 --X-rtd TMCSO_PseudoAsimov=0 --cminDefaultMinimizerStrategy 0 --cminFallbackAlgo Minuit2,Migrad,0:0.1 --X-rt MINIMIZER_freezeDisassociatedParams --X-rtd MINIMIZER_multiMin_hideConstants --X-rtd MINIMIZER_multiMin_maskConstraints --X-rtd MINIMIZER_multiMin_maskChannels=2 "%(os.getcwd(),card.replace(".txt",".root"),outtag,kl)
+       fix_signal_stregths = ''
+       set_signal_stregths = ''
+       for mu in 'r,r_gghh,r_qqhh'.split(','):
+          if mu!=opts.whatToFloat:
+             set_signal_stregths += "%s=1,"%mu 
+             fix_signal_stregths += "%s,"%mu
+       if set_signal_stregths!='' : set_signal_stregths = set_signal_stregths[0:len(set_signal_stregths)-1]#remove the comma
+       if fix_signal_stregths!='' : fix_signal_stregths = fix_signal_stregths[0:len(fix_signal_stregths)-1]#remove the comma
+ 
+       model_line =" --redefineSignalPOIs %s --setParameters %s,kt=%.3f,kl=%.3f,CV=%.3f,C2V=%.3f --freezeParameters %s,kt,kl,CV,C2V "%(opts.whatToFloat,set_signal_stregths,kt,kl,cv,c2v,fix_signal_stregths)  
+       exec_line += "combine %s/%s  -n %s  -M AsymptoticLimits -m 125. --saveWorkspace %s --X-rtd TMCSO_AdaptivePseudoAsimov=0 --X-rtd TMCSO_PseudoAsimov=0 --cminDefaultMinimizerStrategy 0 --cminFallbackAlgo Minuit2,Migrad,0:0.1 --X-rt MINIMIZER_freezeDisassociatedParams --X-rtd MINIMIZER_multiMin_hideConstants --X-rtd MINIMIZER_multiMin_maskConstraints --X-rtd MINIMIZER_multiMin_maskChannels=2 "%(os.getcwd(),card.replace(".txt",".root"),outtag,model_line)
        if opts.S0: exec_line += ' -S 0 '
        if opts.expected: exec_line += ' --run=blind -t -1'
     else: 
@@ -284,9 +300,34 @@ cats_map['MVA0'] = 'DoubleHTag_0,DoubleHTag_1,DoubleHTag_2,DoubleHTag_3'.split('
 cats_map['MVA1'] = 'DoubleHTag_4,DoubleHTag_5,DoubleHTag_6,DoubleHTag_7'.split(',')
 cats_map['MVA2'] = 'DoubleHTag_8,DoubleHTag_9,DoubleHTag_10,DoubleHTag_11'.split(',')
 
+coupling_dict = {}
+coupling_dict["kl"] = 1.
+coupling_dict["kt"] = 1.
+coupling_dict["c2v"] = 1.
+coupling_dict["cv"] = 1.
+
 
 checkValidMethod()
 system('mkdir -p %s/Jobs/'%opts.outDir)
+
+if opts.do_c2v_scan:
+  counter=0
+  c2vmin=-4
+  c2vmxn=6
+  Nc2v=51 
+  c2vstep = 0.2
+  for ic2v in range(0,Nc2v):
+    c2v = c2vmin + ic2v*c2vstep
+    c2v_str = ("{:.6f}".format(c2v)).replace('.','d').replace('-','m') 
+    if opts.doNLOHH : hhcard_name = opts.datacard
+    outtag = '_c2v_%s'%(c2v_str)+'_'+opts.outtag
+    print "job ", counter , " , c2v =  ", c2v, '  outtag = ',outtag
+    coupling_dict['c2v']=c2v
+    if not opts.do2D : 
+       writeAsymptotic(counter,hhcard_name,outtag)
+    else :
+       writeAsymptoticFor2D(counter,hhcard_name,outtag,coupling_dict=coupling_dict)
+    counter =  counter+1
 if opts.do_kl_scan:
   counter=0
   with open(opts.hhReweightDir+"config.json","r") as rew_json:
@@ -297,6 +338,8 @@ if opts.do_kl_scan:
     for ikt in range(0,rew_dict['Nkt']):
       kt = rew_dict['ktmin'] + ikt*rew_dict['ktstep']
       kt_str = ("{:.6f}".format(kt)).replace('.','d').replace('-','m') 
+      coupling_dict['kl']=kl
+      coupling_dict['kt']=kt
       if opts.doNLOHH : hhcard_name = opts.datacard
       else : hhcard_name = opts.datacard.replace('.txt','_kl_%s_kt_%s.txt'%(kl_str,kt_str))
       outtag = '_kl_%s_kt_%s'%(kl_str,kt_str)+'_'+opts.outtag
@@ -304,7 +347,7 @@ if opts.do_kl_scan:
       if not opts.do2D : 
          writeAsymptotic(counter,hhcard_name,outtag)
       else :
-         writeAsymptoticFor2D(counter,hhcard_name,outtag,kl=kl)
+         writeAsymptoticFor2D(counter,hhcard_name,outtag,coupling_dict=coupling_dict)
       counter =  counter+1
 if opts.do_benchmarks_scan:
   counter=0
