@@ -166,7 +166,25 @@ def writePostamble(sub_file, exec_line):
           system(command)
     if (opts.batch == "IC") : 
       system('qsub -q %s -l h_rt=0:20:0 -o %s.log -e %s.err %s'%(opts.queue,os.path.abspath(sub_file.name),os.path.abspath(sub_file.name),os.path.abspath(sub_file.name)))
-      #print "system(",'qsub -q %s -o %s.log -e %s.err %s '%(opts.queue,os.path.abspath(sub_file.name),os.path.abspath(sub_file.name),os.path.abspath(sub_file.name)),")"
+      #print "system(",'qsub -q %s -o %s.log -e %s.err %s '%(opts.queue,os.path.abspath(sub_file.name),os.path.abspath(sub_file.name),os.path.abspath(sub_file.name)),")"    
+    if( opts.batch == "HTCONDOR" ):
+      sub_file_name = re.sub("\.sh","",os.path.abspath(sub_file.name))
+      HTCondorSubfile = open("%s.sub"%sub_file_name,'w')
+      HTCondorSubfile.write('+JobFlavour = "%s"\n'%(opts.queue))
+      HTCondorSubfile.write('\n')
+      HTCondorSubfile.write('executable  = %s.sh\n'%sub_file_name)
+      HTCondorSubfile.write('output  = %s.out\n'%sub_file_name)
+      HTCondorSubfile.write('error  = %s.err\n'%sub_file_name)
+      HTCondorSubfile.write('log  = %s.log\n'%sub_file_name)
+      HTCondorSubfile.write('\n')
+      HTCondorSubfile.write('max_retries = 1\n')
+      HTCondorSubfile.write('queue 1\n')
+      subprocess.Popen("condor_submit "+HTCondorSubfile.name,
+                             shell=True, # bufsize=bufsize,
+                             stdin=subprocess.PIPE,
+                             stdout=subprocess.PIPE,
+                             stderr=subprocess.PIPE,
+                             close_fds=True)
 
 
 #######################################
