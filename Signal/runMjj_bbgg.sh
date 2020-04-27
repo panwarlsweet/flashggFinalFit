@@ -1,12 +1,12 @@
 #YEAR="2016"
 #YEAR="2017"
 YEAR="2018"
-mergeYears=0  #used for all procs
+mergeYears=1  #used for all procs
 mergeCats=0 #used for single Higgs and 12 DoubleHTag cats only, not for VBF
 
 DATE="22_04_2020"
 
-#EXT="singleHiggsVBF"$YEAR
+#EXT="singleHiggs"$YEAR
 #EXT="hhNLO"$YEAR
 EXT="qqHH"$YEAR
 
@@ -30,8 +30,7 @@ CATS="DoubleHTag_0,DoubleHTag_1,DoubleHTag_2,DoubleHTag_3,DoubleHTag_4,DoubleHTa
 #############HH NLO ############
 #PROCS="ggHH_kl_0_kt_1,ggHH_kl_1_kt_1,ggHH_kl_2p45_kt_1,ggHH_kl_5_kt_1"
 ############# qqHH NLO ############
-PROCS="qqHH_CV_0p5_C2V_1_kl_1"
-#PROCS="qqHH_CV_1_C2V_1_kl_1,qqHH_CV_1_C2V_2_kl_1,qqHH_CV_1_C2V_1_kl_2,qqHH_CV_1_C2V_1_kl_0,qqHH_CV_0p5_C2V_1_kl_1,qqHH_CV_1p5_C2V_1_kl_1"
+PROCS="qqHH_CV_1_C2V_1_kl_1,qqHH_CV_1_C2V_2_kl_1,qqHH_CV_1_C2V_1_kl_2,qqHH_CV_1_C2V_1_kl_0,qqHH_CV_0p5_C2V_1_kl_1,qqHH_CV_1p5_C2V_1_kl_1"
 ################################
 
 for PROC in $(echo $PROCS | sed "s/,/ /g")

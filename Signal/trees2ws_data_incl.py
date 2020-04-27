@@ -85,15 +85,15 @@ def add_dataset_to_workspace(data=None,ws=None,name=None,systematics_labels=[],a
 def get_options():
 
     parser = OptionParser()
-    #parser.add_option("--inp-files",type='string',dest='inp_files',default='DoubleEG_2016_2017_2018_22_04_2020')  
-    parser.add_option("--inp-files",type='string',dest='inp_files',default='DoubleEG_2018_22_04_2020')  
+    parser.add_option("--inp-files",type='string',dest='inp_files',default='DoubleEG_2016_2017_2018_22_04_2020')  
+    #parser.add_option("--inp-files",type='string',dest='inp_files',default='DoubleEG_2018_22_04_2020')  
     parser.add_option("--inp-dir",type='string',dest="inp_dir",default='/work/nchernya/DiHiggs/inputs/22_04_2020/trees/')
     parser.add_option("--out-dir",type='string',dest="out_dir",default='/work/nchernya/DiHiggs/inputs/22_04_2020/')
-    parser.add_option("--outtag",type='string',dest="outtag",default='_cats70GeV')
-    parser.add_option("--MjjLow",type='float',dest="MjjLow",default='70')
-    #parser.add_option("--cats",type='string',dest="cats",default='DoubleHTag_0,DoubleHTag_1,DoubleHTag_2,DoubleHTag_3,DoubleHTag_4,DoubleHTag_5,DoubleHTag_6,DoubleHTag_7,DoubleHTag_8,DoubleHTag_9,DoubleHTag_10,DoubleHTag_11')
-    parser.add_option("--cats",type='string',dest="cats",default='DoubleHTag_0,DoubleHTag_1,DoubleHTag_2,DoubleHTag_3,DoubleHTag_4,DoubleHTag_5,DoubleHTag_6,DoubleHTag_7,DoubleHTag_8,DoubleHTag_9,VBFDoubleHTag_0')
-   # parser.add_option("--cats",type='string',dest="cats",default='DoubleHTag_10,DoubleHTag_11')
+    parser.add_option("--outtag",type='string',dest="outtag",default='_cats90GeV')
+    parser.add_option("--MjjLow",type='float',dest="MjjLow",default='90')
+   # parser.add_option("--cats",type='string',dest="cats",default='DoubleHTag_0,DoubleHTag_1,DoubleHTag_2,DoubleHTag_3,DoubleHTag_4,DoubleHTag_5,DoubleHTag_6,DoubleHTag_7,DoubleHTag_8,DoubleHTag_9,DoubleHTag_10,DoubleHTag_11')
+   # parser.add_option("--cats",type='string',dest="cats",default='DoubleHTag_0,DoubleHTag_1,DoubleHTag_2,DoubleHTag_3,DoubleHTag_4,DoubleHTag_5,DoubleHTag_6,DoubleHTag_7,DoubleHTag_8,DoubleHTag_9,VBFDoubleHTag_0')
+    parser.add_option("--cats",type='string',dest="cats",default='DoubleHTag_10,DoubleHTag_11')
     #parser.add_option("--MVAcats",type='string',dest="MVAcats",default='0.44,0.67,0.79,1')
     #parser.add_option("--MXcats",type='string',dest="MXcats",default='250,385,470,640,10000,250,345,440,515,10000,250,330,365,545,10000')
     parser.add_option("--MVAcats",type='string',dest="MVAcats",default='0.37,0.62,0.78,1')
@@ -153,7 +153,8 @@ for num,f in enumerate(input_files):
        print 'doing selection ', selection
        data = rpd.read_root(tfilename,'%s'%(treeDirName+initial_name)).query(selection)
        data['leadingJet_pt_Mjj'] = data['leadingJet_pt']/data['Mjj'] 
-       data = data.query("(leadingJet_pt_Mjj>0.55)")  #1/2.5 for all categories
+       #data = data.query("(leadingJet_pt_Mjj>0.55)")  #1/2.5 for all categories
+       if not 'VBFDoubleHTag' in cat : data = data.query("(leadingJet_pt_Mjj>0.55)")  #1/2.5 for all categories
       # data = data.query("(leadingJet_pt_Over_Mjj>0.55)")  #1/2.5 for all categories #ivan
  
        datasets += add_dataset_to_workspace( data, ws, name,'') #systemaitcs[1] : this should be done for nominal only, to add weights

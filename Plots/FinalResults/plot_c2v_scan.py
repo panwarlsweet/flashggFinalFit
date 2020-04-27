@@ -37,8 +37,6 @@ def getVals(fname):
 			lim = tIn.limit
 			vals.append((qe,lim))
 	else :
-		#for qe in [0.025,0.16,0.5,0.84,0.975,0.]:
-	#		vals.append((qe,59.))
 			vals = -1
 	return vals
 
@@ -64,7 +62,8 @@ def nnlo_xsec_ggF_kl_wrap(x,par):
 ################################################################################################
 ###########OPTIONS
 parser = OptionParser()
-parser.add_option("--hhReweightDir",default='',help="hh reweighting directory with all txt files" )
+parser.add_option("--c2vGridConfig",default='/work/nchernya/DiHiggs/CMSSW_7_4_7/src/flashggFinalFit/Plots/FinalResults/c2v_grids/c2v_grid_finish.json',help="grid for c2v scan" )
+parser.add_option("--c2vGridPrediction",default='/work/nchernya/DiHiggs/CMSSW_7_4_7/src/flashggFinalFit/Plots/FinalResults/c2v_grids/vbfhhc2vline_finish.txt',help="theory prediction for c2v scan" )
 parser.add_option("--whatToFloat",default='r',help="what to float" )
 parser.add_option("--indir", help="Input directory ")
 parser.add_option("--outdir", help="Output directory ")
@@ -75,8 +74,8 @@ parser.add_option("--nlo", action="store_true",help="NLO samples (need to normal
 ###########
 ###CREATE TAGS
 
-#datalumi = "136.8 fb^{-1} (13 TeV)"
-datalumi = "59.4 fb^{-1} (13 TeV)"
+datalumi = "136.8 fb^{-1} (13 TeV)"
+#datalumi = "59.4 fb^{-1} (13 TeV)"
 
 
 c1 = ROOT.TCanvas("c1", "c1", 650, 500)
@@ -106,7 +105,7 @@ ptsList = [] # (x, obs, exp, p2s, p1s, m1s, m2s)
 
 coupling_xs = []
 #Get XS predicted 
-with open("vbfhhc2vline.txt") as fobj:
+with open(options.c2vGridPrediction) as fobj:
 	for line in fobj:
 		row = line.split()
 		coupling_xs.append(row)
@@ -114,7 +113,7 @@ with open("vbfhhc2vline.txt") as fobj:
 ### read the scan with normal width
 c2v_min =  0. 
 c2v_max = 0.
-with open(options.hhReweightDir+"c2v_grid2.json","r") as rew_json:
+with open(options.c2vGridConfig,"r") as rew_json:
   rew_dict = json.load(rew_json)
   c2v_min = rew_dict['c2vmin'] 
   c2v_max = rew_dict['c2vmax'] 
@@ -315,6 +314,24 @@ xval_line=[]
 #xmax=31.4
 xmin=-6
 xmax=8
+
+
+graph = ROOT.TGraph("c2v_grids//vbfhhc2vline_prediction.txt")
+ci = ROOT.TColor.GetColor("#ff0000")
+graph.SetLineColor(ci)
+graph.SetLineWidth(2)
+for k in range (0,graph.GetN()): 
+	if options.whatToFloat=='r' : 
+		theory_value = eval_nnlo_xsec_ggF(1.)*BR_hhbbgg + graph.GetY()[k]*1000.*BR_hhbbgg*qqHH_NNLO_kfactor
+		graph.GetY()[k] = theory_value
+		if (graph.GetX()[k]>=c2v_min) and (graph.GetX()[k]<=c2v_max) : theory_line.append(theory_value) 
+	elif options.whatToFloat=='r_qqhh' : 
+		theory_value = graph.GetY()[k]*1000.*BR_hhbbgg*qqHH_NNLO_kfactor 
+		graph.GetY()[k] = theory_value
+		if (graph.GetX()[k]>=c2v_min) and (graph.GetX()[k]<=c2v_max) : theory_line.append(theory_value) 
+	if (graph.GetX()[k]>=c2v_min) and (graph.GetX()[k]<=c2v_max) : xval_line.append(graph.GetX()[k])
+
+
 ## myFunc =  ROOT.TF1("myFunc","(2.09*[0]*[0]*[0]*[0] + 0.28*[0]*[0]*x*[0]*x*[0] -1.37*[0]*[0]*[0]*x*[0])*2.44185/[1]",xmin,xmax);
 #myFunc = ROOT.TF1 ("myFunc", functionGF_kl_wrap, xmin, xmax, 1)
 #if options.nlo : 
@@ -348,40 +365,30 @@ xmax=8
 #Graph_syst_Scale.SetLineColor(ROOT.kRed)
 #Graph_syst_Scale.SetFillColor(ROOT.kRed)
 #Graph_syst_Scale.SetFillStyle(3001)
-#exp_line = exp_inter(xval_line)
-#obs_line = obs_inter(xval_line)
 
-#print 'Expected Median and theory xsec'
-#for ipt in range(0,grexp.GetN()):
-#   x = ROOT.Double(0)
-#   y = ROOT.Double(0)
-#   grexp.GetPoint(ipt, x, y)
-#idx = np.argwhere(np.diff(np.sign(exp_line-theory_line ))).flatten()
-#print np.array(xval_line)[idx], np.array(theory_line)[idx],np.array(exp_line)[idx]
-#print 'Observed :'
-#idx = np.argwhere(np.diff(np.sign(obs_line-theory_line ))).flatten()
-#print np.array(xval_line)[idx], np.array(theory_line)[idx],np.array(obs_line)[idx]
+exp_line = exp_inter(xval_line)
+obs_line = obs_inter(xval_line)
 
 
-graph = ROOT.TGraph("vbfhhc2vline.txt")
-ci = ROOT.TColor.GetColor("#ff0000")
-graph.SetLineColor(ci)
-graph.SetLineWidth(2)
-for k in range (0,graph.GetN()): 
-	#graph.GetY()[k] *= scaleToXS
-	#graph.GetY()[k] *= scaleToXS
-	if options.whatToFloat=='r' : graph.GetY()[k] = eval_nnlo_xsec_ggF(1.)*BR_hhbbgg + graph.GetY()[k]*1000.*BR_hhbbgg*qqHH_NNLO_kfactor 
-	elif options.whatToFloat=='r_qqhh' : graph.GetY()[k] = graph.GetY()[k]*1000.*BR_hhbbgg*qqHH_NNLO_kfactor 
+print 'Expected Median and theory xsec'
+idx = np.argwhere(np.diff(np.sign(exp_line-theory_line ))).flatten()
+print np.array(xval_line)[idx], np.array(theory_line)[idx],np.array(exp_line)[idx]
+if options.unblind:
+	print 'Observed :'
+	idx = np.argwhere(np.diff(np.sign(obs_line-theory_line ))).flatten()
+	print np.array(xval_line)[idx], np.array(theory_line)[idx],np.array(obs_line)[idx]
+
+
 
 
 hframe = ROOT.TH1F('hframe', '', 100, -5, 7)
 if options.whatToFloat=='r' :
 	hframe.SetMinimum(0.0)
-	hframe.SetMaximum(3.)
+	hframe.SetMaximum(2.5)
 if options.whatToFloat=='r_qqhh' :
 	ROOT.gPad.SetLogy()
 	hframe.SetMinimum(0.0005)
-	hframe.SetMaximum(100000) 
+	hframe.SetMaximum(10000) 
 
 hframe.GetYaxis().SetTitleSize(0.047)
 hframe.GetXaxis().SetTitleSize(0.055)

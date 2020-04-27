@@ -135,7 +135,9 @@ sample_list = [
 
 #Create an array with couplings (cv,c2v,kl) to scan. In our case is c2v scan.
 #couplingstoscan_list = [ [1,-5.0 + (x*0.1),1] for x in range(0,121)]     
-couplingstoscan_list = [ [1,-4. + (x*0.2),1] for x in range(0,51)]     
+#couplingstoscan_list = [ [1,-4. + (x*0.2),1] for x in range(0,51)]     
+couplingstoscan_list = [ [1,-4. + (x*0.01),1] for x in range(0,1001)]     
+#couplingstoscan_list = [ [1,-2. + (x*1.),1] for x in range(0,10)]     
 #Compute coefficients to be used during histogram building and save them in a text file
 print "[INFO] VBF-HH CALCULATOR RESULTS"
 calculatecoeffients(sample_list,couplingstoscan_list)

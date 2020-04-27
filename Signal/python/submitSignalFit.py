@@ -15,6 +15,8 @@ from Queue import Queue
 
 from threading import Thread, Semaphore
 from multiprocessing import cpu_count
+import subprocess
+
 
 class Wrap:
     def __init__(self, func, args, queue):

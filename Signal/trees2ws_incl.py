@@ -217,8 +217,8 @@ def get_options():
     #parser.add_option("--inp-files",type='string',dest='inp_files',default='qqh,tth,vh,ggh')  
     #parser.add_option("--inp-files",type='string',dest='inp_files',default='hh')  
     #parser.add_option("--inp-files",type='string',dest='inp_files',default='qqHH_CV_1_C2V_1_kl_1,qqHH_CV_1_C2V_2_kl_1,qqHH_CV_1_C2V_1_kl_2,qqHH_CV_1_C2V_1_kl_0,qqHH_CV_0p5_C2V_1_kl_1,qqHH_CV_1p5_C2V_1_kl_1')  
-    #parser.add_option("--inp-files",type='string',dest='inp_files',default='hh_nlo_cHHH0,hh_nlo_cHHH1,hh_nlo_cHHH2p45,hh_nlo_cHHH5,qqHH_CV_1_C2V_1_kl_1,qqHH_CV_1_C2V_2_kl_1,qqHH_CV_1_C2V_1_kl_2,qqHH_CV_1_C2V_1_kl_0,qqHH_CV_0p5_C2V_1_kl_1,qqHH_CV_1p5_C2V_1_kl_1')  
-    parser.add_option("--inp-files",type='string',dest='inp_files',default='hh_nlo_cHHH0,hh_nlo_cHHH1,hh_nlo_cHHH2p45,hh_nlo_cHHH5')  
+    parser.add_option("--inp-files",type='string',dest='inp_files',default='hh_nlo_cHHH0,hh_nlo_cHHH1,hh_nlo_cHHH2p45,hh_nlo_cHHH5,qqHH_CV_1_C2V_1_kl_1,qqHH_CV_1_C2V_2_kl_1,qqHH_CV_1_C2V_1_kl_2,qqHH_CV_1_C2V_1_kl_0,qqHH_CV_0p5_C2V_1_kl_1,qqHH_CV_1p5_C2V_1_kl_1')  
+    #parser.add_option("--inp-files",type='string',dest='inp_files',default='hh_nlo_cHHH0,hh_nlo_cHHH1,hh_nlo_cHHH2p45,hh_nlo_cHHH5')  
     #parser.add_option("--inp-files",type='string',dest='inp_files',default='hh_nlo_cHHH0,hh_nlo_cHHH1,hh_nlo_cHHH2p45,hh_nlo_cHHH5')  
     #parser.add_option("--inp-dir",type='string',dest="inp_dir",default='/work/nchernya/DiHiggs/inputs/04_02_2020/trees/')
     #parser.add_option("--out-dir",type='string',dest="out_dir",default='/work/nchernya/DiHiggs/inputs/18_02_2020/')
@@ -297,11 +297,17 @@ for num,f in enumerate(input_files):
       target_names.append(target +'_%s_13TeV'%year)
       target_files.append('output_' + target +'_%s'%year )
    elif 'qqHH' in name :
+     ###################################### Tmp VBF only : reweight 2017 to match 2016 ########################
       input_names.append('vbfhh'+year+'_13TeV_125_13TeV')
       target = name
       target_names.append(target +'_%s_13TeV'%year)
       target_files.append('output_' + target +'_%s'%year )
-
+      if opt.doNLO and ('2016' in year) :
+			input_names[num]=input_names[num].replace('2016','2017')
+      if 'qqHH_CV_1_C2V_1_kl_2' in name and '2017' in year : input_names[num] = 'VBFHHTo2B2G_CV_1_C2V_1_C3_2_13TeV_madgraph_13TeV'
+      if 'qqHH_CV_1_C2V_1_kl_0' in name and '2017' in year : input_names[num] = 'VBFHHTo2B2G_CV_1_C2V_1_C3_0_13TeV_madgraph_13TeV'
+      if 'qqHH_CV_0p5_C2V_1_kl_1' in name and '2017' in year : input_names[num] = 'VBFHHTo2B2G_CV_0_5_C2V_1_C3_1_13TeV_madgraph_13TeV'
+      if 'qqHH_CV_1p5_C2V_1_kl_1' in name and '2017' in year : input_names[num] = 'VBFHHTo2B2G_CV_1_5_C2V_1_C3_1_13TeV_madgraph_13TeV'
 #opt.inp_dir = opt.inp_dir+'/' + year + '/'
 #opt.inp_dir = opt.inp_dir+'/rho_rew_'+year+ '_v2/' #ivan
 
@@ -343,8 +349,10 @@ for num,f in enumerate(input_files):
             data = rpd.read_root(tfilename,'%s'%(treeDirName+initial_name)).query(selection)
             data['leadingJet_pt_Mjj'] = data['leadingJet_pt']/data['Mjj']
             data['subleadingJet_pt_Mjj'] = data['subleadingJet_pt']/data['Mjj']
-            data = data.query("(leadingJet_pt_Mjj>0.55)")  #1/2.5 for all categories
-
+            #data = data.query("(leadingJet_pt_Mjj>0.55)")  #1/2.5 for all categories
+            if not 'VBFDoubleHTag' in cat : 
+					data = data.query("(leadingJet_pt_Mjj>0.55)")  #1/2.5 for all categories
+					print 'doing the pt/Mjj>0.55 cut' 
             ###################################### Tmp VBF only : reweight 2017 to match 2016 ########################
             if opt.doNLO and ('qqHH' in target_names[num]) and ('2016' in year) :
                ggHH2016_file = opt.inp_dir + 'output_hh_nlo_cHHH1_2016.root' 
@@ -375,7 +383,8 @@ for num,f in enumerate(input_files):
          if opt.doNLO and ('qqHH' in target_names[num]): 
              sample_name = target_names[num][0:target_names[num].find('_201')]#remove the year from the name
              nlo_renormalization =  LHEweight_rescale_dict[sample_name]['gen_xsec_MG5']*qqHH_NNLO_kfactor*BR_hhbbgg #qqHH normalization
-         print nlo_renormalization 
+             print  LHEweight_rescale_dict[sample_name]['gen_xsec_MG5'], qqHH_NNLO_kfactor, BR_hhbbgg #qqHH normalization
+         print nlo_renormalization,sum(data["weight"]) 
          if not opt.add_benchmarks : systematics_datasets += add_dataset_to_workspace( data, ws, newname,systematics_labels,btag_norm = btag_renorm,nlo_renormalization=nlo_renormalization) #systemaitcs[1] : this should be done for nominal only, to add weights
          else : systematics_datasets += add_dataset_to_workspace( data, ws, newname,systematics_labels,btag_norm = btag_renorm,nlo_renormalization=nlo_renormalization, add_benchmarks=opt.add_benchmarks,benchmark_num=benchmark_num,benchmark_norm = calculate_benchmark_normalization(normalizations,year,benchmark_num))
          #print newname, " ::: Entries =", ws.data(newname).numEntries(), ", SumEntries =", ws.data(newname).sumEntries()
