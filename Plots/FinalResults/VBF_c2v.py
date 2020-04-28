@@ -110,7 +110,8 @@ def calculatecoeffients(sample_list,couplingstoscan):
          #   if abs(factors[k]) == 0: factors[k]=0 
          #   if abs(factors[k]) < 0.001: factors[k]=0 
          print ">>> XS (fb) = %f, target (CV,C2V,kl) = (%.2f,%.1f, %.1f)" %((xsec)/(1), t_CV, t_C2V, t_kl )  
-         the_file.write('%.2f %.6f \n'%(t_C2V,(xsec)/(1)))
+         #the_file.write('%.2f %.6f \n'%(t_C2V,(xsec)/(1)))
+         the_file.write('%.2f %.6f \n'%(t_kl,(xsec)/(1)))
 
 #################################################################################################
 print "WELCOME TO THE VBF-HH CALCULATOR"
@@ -136,7 +137,8 @@ sample_list = [
 #Create an array with couplings (cv,c2v,kl) to scan. In our case is c2v scan.
 #couplingstoscan_list = [ [1,-5.0 + (x*0.1),1] for x in range(0,121)]     
 #couplingstoscan_list = [ [1,-4. + (x*0.2),1] for x in range(0,51)]     
-couplingstoscan_list = [ [1,-4. + (x*0.01),1] for x in range(0,1001)]     
+#couplingstoscan_list = [ [1,-4. + (x*0.01),1] for x in range(0,1001)]     
+couplingstoscan_list = [ [1,1,-10. + (x*0.5),1] for x in range(0,51)]  #kl    
 #couplingstoscan_list = [ [1,-2. + (x*1.),1] for x in range(0,10)]     
 #Compute coefficients to be used during histogram building and save them in a text file
 print "[INFO] VBF-HH CALCULATOR RESULTS"
