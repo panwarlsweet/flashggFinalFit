@@ -139,7 +139,7 @@ def apply_selection(data=None,reco_name=None):
   #recobin_data = recobin_data[((recobin_data['mgg']>=100.)&(recobin_data['mgg']<=180.))]
   return recobin_data
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-def add_dataset_to_workspace(data=None,ws=None,name=None,systematics_labels=[],btag_norm = 1.,nlo_renormalization = 1.,add_benchmarks = False, benchmark_num = -1, benchmark_norm = 1.):
+def add_dataset_to_workspace(data=None,ws=None,name=None,systematics_labels=[],btag_norm = 1.,nlo_renormalization = 1.,save_every_nth_event = 1,add_benchmarks = False, benchmark_num = -1, benchmark_norm = 1.):
 
   #apply selection to extract correct recobin
   #recobin_data = apply_selecetion(data,selection_name)
@@ -172,6 +172,9 @@ def add_dataset_to_workspace(data=None,ws=None,name=None,systematics_labels=[],b
 #Apply proper NNLO x BR for NLO samples, otherwise x 1. is applied
   data['weight'] *= nlo_renormalization 
 
+  total_sum_events = sum(data['weight'])
+  used_sum_events = sum(data.query('event%4=%d!=0'%save_every_nth_event)['weight']) #using only events not used in the training
+
   #Fill the dataset with values
   for index,row in data.iterrows():
     for var in variables:
@@ -183,10 +186,10 @@ def add_dataset_to_workspace(data=None,ws=None,name=None,systematics_labels=[],b
 
     w_val = row['weight']
 
-    if add_benchmarks :
-      if row["event"]%2!=0 : 
+    if save_every_nth_event!=1 : #if it is 1 then we do not need to discard any events
+      if row["event"]%save_every_nth_event==0 : 
           w_val = 0.
-      else : w_val = w_val*2. ## because discaring exactly half of events 
+      else : w_val = w_val*total_sum_events/used_sum_events ## because discaring exactly half of events 
 
 
     roodataset.add( arg_set, w_val )
@@ -319,6 +322,7 @@ for num,f in enumerate(input_files):
  #tfilename = opt.inp_dir + "output_"+f+".root" #ivan
  tfile = ROOT.TFile(tfilename)
  if not opt.add_benchmarks : whichNodes = [1]
+ save_every_nth_event = 1
  for benchmark_num in whichNodes:
    systematics_datasets = [] 
    #define roo fit workspace
@@ -381,12 +385,15 @@ for num,f in enumerate(input_files):
              sample_name = target_names[num][0:target_names[num].find('kt_1')+len('kt_1')]
              nlo_renormalization =  (eval_nnlo_xsec_ggF(LHEweight_rescale_dict[sample_name]['kl'])*BR_hhbbgg)*LHEweight_rescale_dict[sample_name]['LHE_SF_powheg'][year] #ggHH normalization for NLO samples
          if opt.doNLO and ('qqHH' in target_names[num]): 
+             save_every_nth_event = 4 # one quater of events used for vbfhh training
              sample_name = target_names[num][0:target_names[num].find('_201')]#remove the year from the name
              nlo_renormalization =  LHEweight_rescale_dict[sample_name]['gen_xsec_MG5']*qqHH_NNLO_kfactor*BR_hhbbgg #qqHH normalization
              print  LHEweight_rescale_dict[sample_name]['gen_xsec_MG5'], qqHH_NNLO_kfactor, BR_hhbbgg #qqHH normalization
          print nlo_renormalization,sum(data["weight"]) 
-         if not opt.add_benchmarks : systematics_datasets += add_dataset_to_workspace( data, ws, newname,systematics_labels,btag_norm = btag_renorm,nlo_renormalization=nlo_renormalization) #systemaitcs[1] : this should be done for nominal only, to add weights
-         else : systematics_datasets += add_dataset_to_workspace( data, ws, newname,systematics_labels,btag_norm = btag_renorm,nlo_renormalization=nlo_renormalization, add_benchmarks=opt.add_benchmarks,benchmark_num=benchmark_num,benchmark_norm = calculate_benchmark_normalization(normalizations,year,benchmark_num))
+         if not opt.add_benchmarks : systematics_datasets += add_dataset_to_workspace( data, ws, newname,systematics_labels,btag_norm = btag_renorm,nlo_renormalization=nlo_renormalization,save_every_nth_event=save_every_nth_event) #systemaitcs[1] : this should be done for nominal only, to add weights
+         else :
+             save_every_nth_event=2 
+             systematics_datasets += add_dataset_to_workspace( data, ws, newname,systematics_labels,btag_norm = btag_renorm,nlo_renormalization=nlo_renormalization,save_every_nth_event=save_every_nth_event, add_benchmarks=opt.add_benchmarks,benchmark_num=benchmark_num,benchmark_norm = calculate_benchmark_normalization(normalizations,year,benchmark_num))
          #print newname, " ::: Entries =", ws.data(newname).numEntries(), ", SumEntries =", ws.data(newname).sumEntries()
 
          masses_array = masses
