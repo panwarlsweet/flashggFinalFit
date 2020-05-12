@@ -102,9 +102,9 @@ void OptionParser(int argc, char *argv[]){
 		("plotdir,p", po::value<string>(&plotdir_)->default_value("test/"), "Plot dir")
 		("procs", po::value<string>(&procStr_)->default_value("hh_node_SM,ggh,qqh,vh,tth"), "Processes (comma sep)")
 		//("signalproc,s", po::value<string>(&signalproc_)->default_value("hh_node_SM"), "Name of the signal process")
-		("signalproc,s", po::value<string>(&signalprocStr_)->default_value("hh_node_SM,ggHH_kl_0_kt_1,ggHH_kl_1_kt_1,ggHH_kl_2p45_kt_1,ggHH_kl_5_kt_1,qqHH_CV_1_C2V_1_kl_1,qqHH_CV_1_C2V_2_kl_1,qqHH_CV_1_C2V_1_kl_2,qqHH_CV_1_C2V_1_kl_0,qqHH_CV_0p5_C2V_1_kl_1,qqHH_CV_1p5_C2V_1_kl_1"), "Name of the signal process")
+		("signalproc,s", po::value<string>(&signalprocStr_)->default_value("hh_node_SM,ggHH_kl_0_kt_1,ggHH_kl_1_kt_1,ggHH_kl_2p45_kt_1,ggHH_kl_5_kt_1,qqHH_CV_1_C2V_1_kl_1,qqHH_CV_1_C2V_2_kl_1,qqHH_CV_1_C2V_1_kl_2,qqHH_CV_1_C2V_1_kl_0,qqHH_CV_0p5_C2V_1_kl_1,qqHH_CV_1p5_C2V_1_kl_1,qqHH_CV_1_C2V_0_kl_1"), "Name of the signal process")
 //		("flashggCats,f", po::value<string>(&flashggCatsStr_)->default_value("DoubleHTag_0,DoubleHTag_1,DoubleHTag_2,DoubleHTag_3,DoubleHTag_4,DoubleHTag_5,DoubleHTag_6,DoubleHTag_7,DoubleHTag_8,DoubleHTag_9,DoubleHTag_10,DoubleHTag_11"), "Flashgg categories")
-		("flashggCats,f", po::value<string>(&flashggCatsStr_)->default_value("DoubleHTag_0,DoubleHTag_1,DoubleHTag_2,DoubleHTag_3,DoubleHTag_4,DoubleHTag_5,DoubleHTag_6,DoubleHTag_7,DoubleHTag_8,DoubleHTag_9,DoubleHTag_10,DoubleHTag_11,VBFDoubleHTag_0"), "Flashgg categories")
+		("flashggCats,f", po::value<string>(&flashggCatsStr_)->default_value("DoubleHTag_0,DoubleHTag_1,DoubleHTag_2,DoubleHTag_3,DoubleHTag_4,DoubleHTag_5,DoubleHTag_6,DoubleHTag_7,DoubleHTag_8,DoubleHTag_9,DoubleHTag_10,DoubleHTag_11,VBFDoubleHTag_0,VBFDoubleHTag_1"), "Flashgg categories")
 		("nCats", po::value<int>(&nCats_)->default_value(12), "Numer of flashgg categories")
 		("nMVA", po::value<int>(&nMVA_)->default_value(3), "Numer of MVA categories")
 		("nMX", po::value<int>(&nMX_)->default_value(4), "Numer of MX categories")
@@ -316,7 +316,7 @@ int main(int argc, char *argv[]){
 		{
 			auto icat = flashggCats_[ic];
 			int c = stoi(icat.substr(icat.find_last_of("_")+1)); //find category number used
-			if (icat.find("VBFDoubleHTag") != string::npos ) c = 12; //category number is 12 if it is VBFDoubleHTAg
+			if (icat.find("VBFDoubleHTag") != string::npos ) c = 12+stoi(icat.substr(icat.find_last_of("_")+1)); //category number is 12+0/1/2.... if it is VBFDoubleHTAg
 			
 			if(iproc.find("ggh") != string::npos || iproc.find("qqh") != string::npos) {
 					MjjSig[ic] = new RooBernstein(("MjjHig_"+iproc+"_cat"+std::to_string(c)).c_str(),"",*Mjj,
