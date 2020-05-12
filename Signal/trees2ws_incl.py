@@ -173,7 +173,7 @@ def add_dataset_to_workspace(data=None,ws=None,name=None,systematics_labels=[],b
   data['weight'] *= nlo_renormalization 
 
   total_sum_events = sum(data['weight'])
-  used_sum_events = sum(data.query('event%4=%d!=0'%save_every_nth_event)['weight']) #using only events not used in the training
+  used_sum_events = sum(data.query('event%d!=0'%save_every_nth_event)['weight']) #using only events not used in the training
 
   #Fill the dataset with values
   for index,row in data.iterrows():
