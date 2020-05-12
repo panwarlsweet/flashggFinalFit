@@ -63,12 +63,12 @@ def nnlo_xsec_ggF_kl_wrap(x,par):
 ################################################################################################
 ###########OPTIONS
 parser = OptionParser()
-parser.add_option("--gridConfig",default='/work/nchernya/DiHiggs/CMSSW_7_4_7/src/flashggFinalFit/Plots/FinalResults/c2v_grids/c2v_grid_finish.json',help="grid for coupling scan" )
-parser.add_option("--gridCrossSection",default='/work/nchernya/DiHiggs/CMSSW_7_4_7/src/flashggFinalFit/Plots/FinalResults/c2v_grids/vbfhhc2vline_finish.txt',help="theory prediction for coupling  scan for vbfhh" )
-parser.add_option("--vbfhhTheoryPrediction",default='/work/nchernya/DiHiggs/CMSSW_7_4_7/src/flashggFinalFit/Plots/FinalResults/c2v_grids/vbfhhc2vline_prediction.txt',help="theory prediction for coupling scan for vbfhh" )
-#parser.add_option("--gridConfig",default='/work/nchernya/DiHiggs/CMSSW_7_4_7/src/flashggFinalFit/Plots/FinalResults/kl_grids/kl_grid.json',help="grid for coupling scan" )
-#parser.add_option("--gridCrossSection",default='/work/nchernya/DiHiggs/CMSSW_7_4_7/src/flashggFinalFit/Plots/FinalResults/kl_grids/kl_grid_vbfhh.txt',help="theory prediction for couping scan for vbfhh" )
-#parser.add_option("--vbfhhTheoryPrediction",default='/work/nchernya/DiHiggs/CMSSW_7_4_7/src/flashggFinalFit/Plots/FinalResults/kl_grids/kl_grid_vbfhh_prediction.txt',help="theory prediction for coupling scan for vbfhh" )
+#parser.add_option("--gridConfig",default='/work/nchernya/DiHiggs/CMSSW_7_4_7/src/flashggFinalFit/Plots/FinalResults/c2v_grids/c2v_grid_finish.json',help="grid for coupling scan" )
+#parser.add_option("--gridCrossSection",default='/work/nchernya/DiHiggs/CMSSW_7_4_7/src/flashggFinalFit/Plots/FinalResults/c2v_grids/vbfhhc2vline_finish.txt',help="theory prediction for coupling  scan for vbfhh" )
+#parser.add_option("--vbfhhTheoryPrediction",default='/work/nchernya/DiHiggs/CMSSW_7_4_7/src/flashggFinalFit/Plots/FinalResults/c2v_grids/vbfhhc2vline_prediction.txt',help="theory prediction for coupling scan for vbfhh" )
+parser.add_option("--gridConfig",default='/work/nchernya/DiHiggs/CMSSW_7_4_7/src/flashggFinalFit/Plots/FinalResults/kl_grids/kl_grid.json',help="grid for coupling scan" )
+parser.add_option("--gridCrossSection",default='/work/nchernya/DiHiggs/CMSSW_7_4_7/src/flashggFinalFit/Plots/FinalResults/kl_grids/kl_grid_vbfhh.txt',help="theory prediction for couping scan for vbfhh" )
+parser.add_option("--vbfhhTheoryPrediction",default='/work/nchernya/DiHiggs/CMSSW_7_4_7/src/flashggFinalFit/Plots/FinalResults/kl_grids/kl_grid_vbfhh_prediction.txt',help="theory prediction for coupling scan for vbfhh" )
 parser.add_option("--coupling",default='c2v',help="coupling to use for a limit : c2v,kl" )
 parser.add_option("--whatToFloat",default='r',help="what to float" )
 parser.add_option("--indir", help="Input directory ")
@@ -175,6 +175,7 @@ for ipt, pt in enumerate(ptsList):
 	m2s  = pt[6]
 
 	grexp.SetPoint(ipt, xval, exp)
+	print xval,exp
 	exp_list.append(exp)
 	obs_list.append(obs)
 	xval_list.append(xval)
@@ -453,6 +454,6 @@ pt4.Draw()
 c1.Update()
 # raw_input()
 
-c1.Print('%s/%s_scan_%s_to_%s_test.pdf'%(options.outdir,coupling,options.outtag,options.whatToFloat), 'pdf')
+c1.Print('%s/%s_scan_%s_to_%s_test2.pdf'%(options.outdir,coupling,options.outtag,options.whatToFloat), 'pdf')
 
 

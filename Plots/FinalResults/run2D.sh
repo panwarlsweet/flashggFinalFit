@@ -10,10 +10,19 @@ DATE="18_02_2020"
 #outtag=ivanjsonMC
 name2D=$1
 outtag=$2
-
-combineout=HHbbgg2D_${name2D}_${outtag}_${DATE}_systematics
-DATACARD="Datacards/cms_HHbbgg2D_${name2D}_${outtag}_datacard_nodeSM_${DATE}_systematics.txt"  #_ivannorm.txt"
-DATACARDroot="Datacards/cms_HHbbgg2D_${name2D}_${outtag}_datacard_nodeSM_${DATE}_systematics.root"  #_ivannorm.root"
+combineout=HHbbgg2D_${name2D}_${outtag}_${DATE}_nlo_kl1
+#DATACARD="Datacards/cms_HHbbgg2D_${name2D}_${outtag}_datacard_nodeSM_${DATE}_cats90GeV_wo_ggHvH_systematics.txt"  
+#DATACARDroot="Datacards/cms_HHbbgg2D_${name2D}_${outtag}_datacard_nodeSM_${DATE}_cats90GeV_wo_ggHvH_systematics.root"
+#DATACARD="Datacards/cms_HHbbgg2D_${name2D}_${outtag}_datacard_nodeSM_${DATE}_cats90GeV_MjjRenamed_ggHvH_05systematics.txt"  
+#DATACARDroot="Datacards/cms_HHbbgg2D_${name2D}_${outtag}_datacard_nodeSM_${DATE}_cats90GeV_MjjRenamed_ggHvH_05systematics.root" 
+#DATACARD="Datacards/cms_HHbbgg2D_${name2D}_${outtag}_datacard_nodeSM_${DATE}_2018_vbfhh.txt"  
+#DATACARDroot="Datacards/cms_HHbbgg2D_${name2D}_${outtag}_datacard_nodeSM_${DATE}_2018_vbfhh.root"
+DATACARD="Datacards/cms_HHbbgg2D_${name2D}_${outtag}_datacard_nodeSM_${DATE}_nlo_kl1.txt" 
+DATACARDroot="Datacards/cms_HHbbgg2D_${name2D}_${outtag}_datacard_nodeSM_${DATE}_nlo_kl1.root" 
+#DATACARD="Datacards/cms_HHbbgg2D_${name2D}_${outtag}_datacard_nodeSM_${DATE}_cats90GeV_MjjRenamed_systematics.txt" 
+#DATACARDroot="Datacards/cms_HHbbgg2D_${name2D}_${outtag}_datacard_nodeSM_${DATE}_cats90GeV_MjjRenamed_systematics.root" 
+#DATACARD="Datacards/cms_HHbbgg2D_${name2D}_${outtag}_datacard_nodeSM_${DATE}_cats90GeV_MjjRenamed.txt"  
+#DATACARDroot="Datacards/cms_HHbbgg2D_${name2D}_${outtag}_datacard_nodeSM_${DATE}_cats90GeV_MjjRenamed.root"  
 
 echo $name2D 
 echo $outtag

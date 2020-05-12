@@ -493,12 +493,14 @@ HHcomb3 = HHModel(
     name            = 'HHcomb3'
 )
 
-# g = GGFHHFormula(GGF_sample_list)
-# print g.sigma
-# print g.sigma.evalf(subs = {
-#     kl : 2.45,
-#     kt : 1.0,
-#     s1 : s.sample_list[0].val_xs,
-#     s2 : s.sample_list[1].val_xs,
-#     s3 : s.sample_list[2].val_xs,
-# })
+g = GGFHHFormula(GGF_sample_list_comb3)
+print g.sigma
+v = VBFHHFormula(VBF_sample_list)
+print v.sigma
+#print g.sigma.evalf(subs = {
+#    kl : 2.45,
+#    kt : 1.0,
+#    s1 : s.sample_list[0].val_xs,
+#    s2 : s.sample_list[1].val_xs,
+#    s3 : s.sample_list[2].val_xs,
+#})
