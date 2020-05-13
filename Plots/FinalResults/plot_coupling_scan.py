@@ -175,7 +175,7 @@ for ipt, pt in enumerate(ptsList):
 	m2s  = pt[6]
 
 	grexp.SetPoint(ipt, xval, exp)
-	print xval,exp
+	#print xval,exp
 	exp_list.append(exp)
 	obs_list.append(obs)
 	xval_list.append(xval)
@@ -454,6 +454,6 @@ pt4.Draw()
 c1.Update()
 # raw_input()
 
-c1.Print('%s/%s_scan_%s_to_%s_test2.pdf'%(options.outdir,coupling,options.outtag,options.whatToFloat), 'pdf')
+c1.Print('%s/%s_scan_%s_to_%s_test3.pdf'%(options.outdir,coupling,options.outtag,options.whatToFloat), 'pdf')
 
 
