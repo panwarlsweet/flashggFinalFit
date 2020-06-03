@@ -158,7 +158,7 @@ def writePostamble(sub_file, exec_line,outtag):
 
   #print "[INFO] writing to postamble"
   sub_file.write('if ( %s ) then\n'%exec_line)
-  sub_file.write('\t mv higgsCombine%s*.root %s\n'%(outtag,os.path.abspath(opts.outDir)))
+  sub_file.write('\t mv higgsCombine%s.*root %s\n'%(outtag,os.path.abspath(opts.outDir)))
   sub_file.write('\t touch %s.done\n'%os.path.abspath(sub_file.name))
   sub_file.write('else\n')
   sub_file.write('\t touch %s.fail\n'%os.path.abspath(sub_file.name))
@@ -320,7 +320,7 @@ def generateAsimovHHSM(card,channels="all",cats_map_mask={"MVA0":""}):
     if not opts.do2D : exec_line += "combine %s/%s  -M GenerateOnly -m 125.00 -t -1 --saveToys -n SM_AsimovToy_%s_%s --setPhysicsModelParameters kl=1,r=1%s %s,kl"%(os.getcwd(),card,channels,opts.outtag,mask_str,opts.freeze_kl_fit_params)
     else : exec_line += "combine %s/%s  -M GenerateOnly -m 125.00 -t -1 --saveToys -n SM_AsimovToy_%s_%s --setParameters kl=1.0,r=1%s %s,kl  --X-rtd TMCSO_AdaptivePseudoAsimov=0 --X-rtd TMCSO_PseudoAsimov=0  --cminDefaultMinimizerStrategy 0 --cminFallbackAlgo Minuit2,Migrad,0:0.1 --X-rt MINIMIZER_freezeDisassociatedParams --X-rtd MINIMIZER_multiMin_hideConstants --X-rtd MINIMIZER_multiMin_maskConstraints --X-rtd MINIMIZER_multiMin_maskChannels=2  "%(os.getcwd(),card.replace('.txt','.root'),channels,opts.outtag,mask_str,opts.freeze_kl_fit_params)
     system(exec_line)
-    system('mv higgsCombineSM_AsimovToy_*%s*.root %s\n'%(opts.outtag,os.path.abspath(opts.outDir)))
+    system('mv higgsCombineSM_AsimovToy_*%s.*root %s\n'%(opts.outtag,os.path.abspath(opts.outDir)))
     
 
 def checkValidMethod():
