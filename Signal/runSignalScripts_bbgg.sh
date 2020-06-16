@@ -1,19 +1,21 @@
 doFTEST=0
-doFIT=1
+doFIT=0
 doPACKAGER=0
+doPLOTS=1
 doCALCPHOSYST=0 #Not needed, only for shape syst, checked to be negligible
 MASS=''
 
 #YEAR="2016"
-YEAR="2017"
-#YEAR="2018"
+#YEAR="2017"
+YEAR="2018"
+
 
 #DATE="24_01_2020"
-DATE="22_04_2020"
+#DATE="22_04_2020"
 #DATE="27_03_2020"
 #EXT="singleHiggs"$YEAR
 #EXT="hhNLO"$YEAR
-EXT="qqHH"$YEAR
+#EXT="qqHH"$YEAR
 
 #EXT="nodes"$YEAR
 #EXT="vbfhh"$YEAR
@@ -38,7 +40,8 @@ runLocal=''
 BATCH=T3CH
 DEFAULTQUEUE="short.q " #for slurm not used  #-l h_vmem=6g"  #increase memory for systematics -l h_vmem=6g
 #CATS="DoubleHTag_0,DoubleHTag_1,DoubleHTag_2,DoubleHTag_3,DoubleHTag_4,DoubleHTag_5,DoubleHTag_6,DoubleHTag_7,DoubleHTag_8,DoubleHTag_9,DoubleHTag_10,DoubleHTag_11"
-CATS="DoubleHTag_0,DoubleHTag_1,DoubleHTag_2,DoubleHTag_3,DoubleHTag_4,DoubleHTag_5,DoubleHTag_6,DoubleHTag_7,DoubleHTag_8,DoubleHTag_9,DoubleHTag_10,DoubleHTag_11,VBFDoubleHTag_0"
+#CATS="DoubleHTag_0,DoubleHTag_1,DoubleHTag_2,DoubleHTag_3,DoubleHTag_4,DoubleHTag_5,DoubleHTag_6,DoubleHTag_7,DoubleHTag_8,DoubleHTag_9,DoubleHTag_10,DoubleHTag_11,VBFDoubleHTag_0"
+
 REFTAG="DoubleHTag_0"
 INTLUMI=136.8
 
@@ -175,6 +178,12 @@ if [ $YEAR == "2018" ]; then
 	LUMI=59.4
 fi
 
+###########paper_plots
+CATS="DoubleHTag_0" 
+PROC_SM="hh_node_SM_$YEAR"
+DATE="18_02_2020" #paper plots
+EXT="nodes"$YEAR
+############
 
 if [ $doPACKAGER -gt 0 ]; then
 	echo 'in the packager'
@@ -195,5 +204,8 @@ if [ $doPACKAGER -gt 0 ]; then
 	   ./bin/PackageOutput  --skipMasses 120,130 -i $SIGFILES --procs $PROC_SM -l $LUMI -p $OUTDIR/sigfit -W wsig_13TeV -f $CATS -L 120 -H 130 -o $OUTDIR/CMS-HGG_sigfit_${EXT}_${PROC_SM}_packager.root > package.out
 	   ./bin/makeParametricSignalModelPlots -i  ${OUTDIR}/CMS-HGG_sigfit_${EXT}_${PROC_SM}_packager.root -o $OUTDIR/signalModel -p $PROC_SM -f $CATS 
 	done
+fi
+if [ $doPLOTS -gt 0 ]; then
+	./bin/makeParametricSignalModelPlots -i  ${OUTDIR}/CMS-HGG_sigfit_${EXT}_${PROC_SM}_packager.root -o $OUTDIR/signalModel -p $PROC_SM -f $CATS 
 fi
 

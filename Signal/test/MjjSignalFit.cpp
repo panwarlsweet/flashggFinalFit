@@ -87,11 +87,13 @@ bool mergeFitMVAcats_;
 int nCats_;
 int nMVA_;
 int nMX_;
+bool paper_;
 
 void OptionParser(int argc, char *argv[]){
 	po::options_description desc1("Allowed options");
 	desc1.add_options()
 		("indir,d", po::value<string>(&indir_), "Input file dir")
+		("paper", po::value<bool>(&paper_)->default_value(false), "Style for paper")
 		("infiles,i", po::value<string>(&infilesStr_)->default_value(""), "Input files (comma sep), without inputdir")
 		("infileWithAllYears", po::value<string>(&infileWithAllYearsStr_)->default_value(""), "Files(comma sep) with all years if you want to merge 2016,2017 and 2018. Input dir should be already in the name")
 		("template,t", po::value<string>(&templatefile_), "Fit template file name")
@@ -148,7 +150,7 @@ vector<double> getFWHM(TH1F *h) {
 }
 
 
-pair<double,double> getEffSigma(RooRealVar *mass, RooAbsPdf *pdf, double wmin=90., double wmax=170., double step=0.5, double epsilon=1.e-4){
+pair<double,double> getEffSigma(RooRealVar *mass, RooAbsPdf *pdf, double wmin=90., double wmax=170., double step=0.5, double epsilon=1.e-2){
 
   RooAbsReal *cdf = pdf->createCdf(RooArgList(*mass));
   cout << "Computing effSigma...." << endl;
@@ -241,12 +243,14 @@ void RooDraw(TCanvas *can, TH1F *h, RooPlot* frame,RooDataHist* hist, RooAbsPdf*
 	TString newtitle = iproc;
 	if (iproc.find("vbfhh") != std::string::npos) newtitle = "VBF HH SM : H#rightarrow bb H#rightarrow#gamma#gamma"; 
 	else if (iproc.find("hh") != std::string::npos) newtitle = "ggF HH SM : H#rightarrow bb H#rightarrow#gamma#gamma"; 
+	if (paper_) if (iproc.find("hh") != std::string::npos) newtitle = "HH#rightarrow#gamma#gammab#bar{b}"; 
 	TLatex *lat1 = new TLatex(.129+0.03+offset,0.85,newtitle);
 	lat1->SetNDC(1);
 	lat1->SetTextSize(0.047);
 
 	TString catLabel_humanReadable  = year_+" "+category;
 	if (!putyear) catLabel_humanReadable  = category;
+	if (paper_) catLabel_humanReadable  = category;
 	catLabel_humanReadable.ReplaceAll("_"," ");
 	catLabel_humanReadable.ReplaceAll("DoubleHTag"," CAT");
 	TLatex *lat2 = new TLatex(0.93,0.88,catLabel_humanReadable);
@@ -286,9 +290,9 @@ void RooDraw(TCanvas *can, TH1F *h, RooPlot* frame,RooDataHist* hist, RooAbsPdf*
 	lat1->Draw("same");
 	leg->Draw("same");
 
-//	string sim="Simulation Preliminary";
+	TString sim="Simulation Preliminary";
    writeExtraText = true;
-	TString sim="Simulation"; //for the paper
+	if (paper_) sim="Simulation"; //for the paper
 	CMS_lumi( can, 0,0,sim);
 	can->Update();
 }

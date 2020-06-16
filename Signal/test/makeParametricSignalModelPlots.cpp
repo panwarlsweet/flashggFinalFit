@@ -514,7 +514,8 @@ void Plot(RooRealVar *mass, RooDataSet *data, RooAbsPdf *pdf, pair<double,double
   //TLatex lat1(0.65,0.85,"#splitline{CMS Simulation}{}");
   
   TString newtitle = "H#rightarrow#gamma#gamma";
-  if (title.find("hh") != std::string::npos) newtitle = "HH SM : H#rightarrow bb H#rightarrow#gamma#gamma"; 
+  //if (title.find("hh") != std::string::npos) newtitle = "HH SM : H#rightarrow bb H#rightarrow#gamma#gamma"; 
+  if (title.find("hh") != std::string::npos) newtitle = "HH#rightarrow#gamma#gammab#bar{b}"; 
   TLatex  lat1(.129+0.03+offset,0.85,newtitle);
   lat1.SetNDC(1);
   lat1.SetTextSize(0.047);
@@ -536,6 +537,7 @@ void Plot(RooRealVar *mass, RooDataSet *data, RooAbsPdf *pdf, pair<double,double
   catLabel_humanReadable.ReplaceAll("TTHHadronicTag","TTH Hadronic Tag");
   catLabel_humanReadable.ReplaceAll("all","All Categories");
   catLabel_humanReadable.ReplaceAll("DoubleHTag","CAT");
+  catLabel_humanReadable.ReplaceAll("2018","");
 
   TLatex lat2(0.93,0.88,catLabel_humanReadable);
   lat2.SetTextAlign(33);
@@ -570,8 +572,8 @@ void Plot(RooRealVar *mass, RooDataSet *data, RooAbsPdf *pdf, pair<double,double
     negBinsArrow->Draw("same <>");
 
   }
-  string sim="Simulation Preliminary";
-  //string sim="Simulation"; //for the paper
+//  string sim="Simulation Preliminary";
+  string sim="Simulation"; //for the paper
   CMS_lumi( canv, 0,0,sim);
   canv->Print(Form("%s.pdf",savename.c_str()));
   canv->Print(Form("%s.png",savename.c_str()));
