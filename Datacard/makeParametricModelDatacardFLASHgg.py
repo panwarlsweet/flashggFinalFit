@@ -889,7 +889,7 @@ def printTheorySystHHbbgg():
        theory_dict[current_proc] = unc
 
   #for cons in 'tth,qqh,vh,hh,ggh'.split(','):
-  for cons in 'tth,qqh,vh,ggh,ggHH_kl_1_kt_1,ggHH_kl_2p45_kt_1,ggHH_kl_5_kt_1'.split(','):
+  for cons in 'tth,qqh,vh,ggh,ggHH_kl_1_kt_1,ggHH_kl_2p45_kt_1,ggHH_kl_5_kt_1,qqHH_CV_1_C2V_1_kl_1,qqHH_CV_1_C2V_2_kl_1,qqHH_CV_1_C2V_1_kl_2,qqHH_CV_1_C2V_1_kl_0,qqHH_CV_1_C2V_0_kl_1,qqHH_CV_1p5_C2V_1_kl_1'.split(','):
   #for cons in 'tth,qqh,vh,ggh,ggHH_kl_0_kt_1,ggHH_kl_1_kt_1,ggHH_kl_2p45_kt_1,ggHH_kl_5_kt_1,qqHH_CV_1_C2V_1_kl_1,qqHH_CV_1_C2V_2_kl_1,qqHH_CV_1_C2V_1_kl_2,qqHH_CV_1_C2V_1_kl_0,qqHH_CV_0p5_C2V_1_kl_1,qqHH_CV_1p5_C2V_1_kl_1'.split(','):
     outFile.write('%s%-35s   lnN   '%('pdf_',cons))
     for c in options.cats:
@@ -898,14 +898,15 @@ def printTheorySystHHbbgg():
          if p in bkgProcs:
            outFile.write('- ')
          elif (p.split('_')[0]) in cons :
-           outFile.write('%s '%(theory_dict[('pdf_'+(p.split('_201')[0]))])) #removing the year from the name
+           #outFile.write('%s '%(theory_dict[('pdf_'+(p.split('_201')[0]))])) #removing the year from the name
+           outFile.write('%s '%(theory_dict[('pdf_'+(p.split('_')[0]))])) 
          else : 
            outFile.write('- ')
     outFile.write('\n')
     outFile.write('\n')
 
   #for cons in 'tth,qqh,vh,hh,ggh'.split(','):
-  for cons in 'tth,qqh,vh,ggh'.split(','):
+  for cons in 'tth,qqh,vh,ggh,ggHH_kl_1_kt_1,ggHH_kl_2p45_kt_1,ggHH_kl_5_kt_1,qqHH_CV_1_C2V_1_kl_1,qqHH_CV_1_C2V_2_kl_1,qqHH_CV_1_C2V_1_kl_2,qqHH_CV_1_C2V_1_kl_0,qqHH_CV_1_C2V_0_kl_1,qqHH_CV_1p5_C2V_1_kl_1'.split(','):
     outFile.write('%s%-35s   lnN   '%('QCDscale_',cons))
     for c in options.cats:
        for p in options.procs:
@@ -913,7 +914,8 @@ def printTheorySystHHbbgg():
          if p in bkgProcs:
            outFile.write('- ')
          elif (p.split('_')[0]) in cons :
-           outFile.write('%s '%(theory_dict[('QCDscale_'+(p.split('_201')[0]))]))#removing the year from the name
+           #outFile.write('%s '%(theory_dict[('QCDscale_'+(p.split('_201')[0]))]))#removing the year from the name
+           outFile.write('%s '%(theory_dict[('QCDscale_'+(p.split('_')[0]))]))
          else : 
            outFile.write('- ')
     outFile.write('\n')
@@ -1063,6 +1065,8 @@ if options.do_HHbbgg_systematics:
   flashggSysts['JetBTagReshapeWeight'] = 'JetBTagReshapeWeight'
   flashggSysts['JEC'] = 'JEC' 
   flashggSysts['JER'] = 'JER' 
+  flashggSysts['PUJIDShift'] = 'PUJIDShift'
+  flashggSysts['MvaShift'] = 'phoIdMva'   #photonID
  
 
 

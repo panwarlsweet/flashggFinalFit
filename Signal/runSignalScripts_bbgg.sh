@@ -1,7 +1,7 @@
 doFTEST=0
 doFIT=0
-doPACKAGER=0
-doPLOTS=1
+doPACKAGER=1
+doPLOTS=0
 doCALCPHOSYST=0 #Not needed, only for shape syst, checked to be negligible
 MASS=''
 
@@ -179,17 +179,26 @@ if [ $YEAR == "2018" ]; then
 fi
 
 ###########paper_plots
-CATS="DoubleHTag_0" 
-PROC_SM="hh_node_SM_$YEAR"
-DATE="18_02_2020" #paper plots
-EXT="nodes"$YEAR
+#CATS="DoubleHTag_0" 
+#PROC_SM="hh_node_SM_$YEAR"
+#DATE="18_02_2020" #paper plots
+#EXT="nodes"$YEAR
 ############
+
+###########VBF plots
+CATS="VBFDoubleHTag_0,VBFDoubleHTag_1" 
+PROCS="qqHH_CV_1_C2V_1_kl_1_${YEAR},qqHH_CV_1_C2V_0_kl_1_${YEAR}"
+DATE="12_06_2020" 
+EXT="vbfhh"$YEAR
+OUTDIR="output/out_fit_${DATE}_${EXT}"
+############
+
 
 if [ $doPACKAGER -gt 0 ]; then
 	echo 'in the packager'
 	for PROC_SM in $(echo $PROCS | sed "s/,/ /g")
 	do
-		ls $PWD/$OUTDIR/CMS-HGG_sigfit_${EXT}_${PROC_SM}_DoubleHTag_*.root > $OUTDIR/${PROC_SM}.txt
+		ls $PWD/$OUTDIR/CMS-HGG_sigfit_${EXT}_${PROC_SM}_*DoubleHTag_*.root > $OUTDIR/${PROC_SM}.txt
 		inputfile="$OUTDIR/${PROC_SM}.txt"
 		counter=0
 		while read p ; do
@@ -205,6 +214,7 @@ if [ $doPACKAGER -gt 0 ]; then
 	   ./bin/makeParametricSignalModelPlots -i  ${OUTDIR}/CMS-HGG_sigfit_${EXT}_${PROC_SM}_packager.root -o $OUTDIR/signalModel -p $PROC_SM -f $CATS 
 	done
 fi
+
 if [ $doPLOTS -gt 0 ]; then
 	./bin/makeParametricSignalModelPlots -i  ${OUTDIR}/CMS-HGG_sigfit_${EXT}_${PROC_SM}_packager.root -o $OUTDIR/signalModel -p $PROC_SM -f $CATS 
 fi

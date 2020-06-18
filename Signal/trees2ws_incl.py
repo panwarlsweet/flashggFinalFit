@@ -35,7 +35,7 @@ def getSystLabelsWeights(isMET = False):
     metsystlabels=[]
     systlabels=['']
     for direction in ["Up","Down"]:
-     #   phosystlabels.append("MvaShift%s01sigma" % direction)
+        phosystlabels.append("MvaShift%s01sigma" % direction)
         phosystlabels.append("SigmaEOverEShift%s01sigma" % direction)
      #   phosystlabels.append("MaterialCentralBarrel%s01sigma" % direction)
      #   phosystlabels.append("MaterialOuterBarrel%s01sigma" % direction)
@@ -46,7 +46,7 @@ def getSystLabelsWeights(isMET = False):
      #   phosystlabels.append("MCScaleGain1EB%s01sigma" % direction)
         jetsystlabels.append("JEC%s01sigma" % direction)
         jetsystlabels.append("JER%s01sigma" % direction)
-     #   jetsystlabels.append("PUJIDShift%s01sigma" % direction)
+        jetsystlabels.append("PUJIDShift%s01sigma" % direction)
      #   metsystlabels.append("metJecUncertainty%s01sigma" % direction)
      #   metsystlabels.append("metJerUncertainty%s01sigma" % direction)
      #   metsystlabels.append("metPhoUncertainty%s01sigma" % direction)
@@ -62,8 +62,8 @@ def getSystLabelsWeights(isMET = False):
     if isMET:
         systlabels += metsystlabels
 
-    #systweights = ["UnmatchedPUWeight", "MvaLinearSyst", "LooseMvaSF", "PreselSF", "electronVetoSF", "TriggerWeight", "FracRVWeight", "FracRVNvtxWeight", "ElectronWeight", "MuonIDWeight", "MuonIsoWeight", "JetBTagCutWeight"] #, "JetBTagReshapeWeight"]
-    systweights = ["JetBTagReshapeWeight","PreselSF", "electronVetoSF", "TriggerWeight","LooseMvaSF"] 
+    systweights = [ "PreselSF", "electronVetoSF", "TriggerWeight", "FracRVWeight",  "MuonIDWeight", "MuonIsoWeight", "ElectronIDWeight", "ElectronRecoWeight", "JetBTagReshapeWeight"] #, "JetBTagReshapeWeight"]
+    #systweights = ["JetBTagReshapeWeight","PreselSF", "electronVetoSF", "TriggerWeight","LooseMvaSF"] 
     return systlabels,systweights
 
 
@@ -171,9 +171,10 @@ def add_dataset_to_workspace(data=None,ws=None,name=None,systematics_labels=[],b
 #######################################################
 #Apply proper NNLO x BR for NLO samples, otherwise x 1. is applied
   data['weight'] *= nlo_renormalization 
-
+  
+  data.event = data.event.astype('int64')
   total_sum_events = sum(data['weight'])
-  used_sum_events = sum(data.query('event%d!=0'%save_every_nth_event)['weight']) #using only events not used in the training
+  used_sum_events = sum(data.query('event %% %d!=0'%save_every_nth_event)['weight']) #using only events not used in the training
 
   #Fill the dataset with values
   for index,row in data.iterrows():
@@ -217,10 +218,10 @@ def get_options():
 
     parser = OptionParser()
     ###########################For final result before unblinding with VBF add lepton Veto #####################
-    #parser.add_option("--inp-files",type='string',dest='inp_files',default='qqh,tth,vh,ggh')  
+    parser.add_option("--inp-files",type='string',dest='inp_files',default='qqh,tth,vh,ggh')  
     #parser.add_option("--inp-files",type='string',dest='inp_files',default='hh')  
     #parser.add_option("--inp-files",type='string',dest='inp_files',default='qqHH_CV_1_C2V_1_kl_1,qqHH_CV_1_C2V_2_kl_1,qqHH_CV_1_C2V_1_kl_2,qqHH_CV_1_C2V_1_kl_0,qqHH_CV_0p5_C2V_1_kl_1,qqHH_CV_1p5_C2V_1_kl_1')  
-    parser.add_option("--inp-files",type='string',dest='inp_files',default='hh_nlo_cHHH0,hh_nlo_cHHH1,hh_nlo_cHHH2p45,hh_nlo_cHHH5,qqHH_CV_1_C2V_1_kl_1,qqHH_CV_1_C2V_2_kl_1,qqHH_CV_1_C2V_1_kl_2,qqHH_CV_1_C2V_1_kl_0,qqHH_CV_0p5_C2V_1_kl_1,qqHH_CV_1p5_C2V_1_kl_1')  
+    #parser.add_option("--inp-files",type='string',dest='inp_files',default='hh_nlo_cHHH0,hh_nlo_cHHH1,hh_nlo_cHHH2p45,hh_nlo_cHHH5,qqHH_CV_1_C2V_1_kl_1,qqHH_CV_1_C2V_2_kl_1,qqHH_CV_1_C2V_1_kl_2,qqHH_CV_1_C2V_1_kl_0,qqHH_CV_0p5_C2V_1_kl_1,qqHH_CV_1p5_C2V_1_kl_1')  
     #parser.add_option("--inp-files",type='string',dest='inp_files',default='hh_nlo_cHHH0,hh_nlo_cHHH1,hh_nlo_cHHH2p45,hh_nlo_cHHH5')  
     #parser.add_option("--inp-files",type='string',dest='inp_files',default='hh_nlo_cHHH0,hh_nlo_cHHH1,hh_nlo_cHHH2p45,hh_nlo_cHHH5')  
     #parser.add_option("--inp-dir",type='string',dest="inp_dir",default='/work/nchernya/DiHiggs/inputs/04_02_2020/trees/')
@@ -229,10 +230,10 @@ def get_options():
     #parser.add_option("--out-dir",type='string',dest="out_dir",default='/work/nchernya/DiHiggs/inputs/18_02_2020/nlo_updated/')
     #parser.add_option("--inp-dir",type='string',dest="inp_dir",default='/scratch/nchernya/HHbbgg/18_02_2020/trees_systematics/nlo/')
     #parser.add_option("--out-dir",type='string',dest="out_dir",default='/scratch/nchernya/HHbbgg/18_02_2020/workspaces_systematics/')
-    parser.add_option("--inp-dir",type='string',dest="inp_dir",default='/work/nchernya/DiHiggs/inputs/22_04_2020/trees/')
-    parser.add_option("--out-dir",type='string',dest="out_dir",default='/work/nchernya/DiHiggs/inputs/22_04_2020/')
+    parser.add_option("--inp-dir",type='string',dest="inp_dir",default='/work/nchernya/DiHiggs/inputs/16_06_2020/trees/')
+    parser.add_option("--out-dir",type='string',dest="out_dir",default='/work/nchernya/DiHiggs/inputs/16_06_2020/')
     #parser.add_option("--cats",type='string',dest="cats",default='DoubleHTag_0,DoubleHTag_1,DoubleHTag_2,DoubleHTag_3,DoubleHTag_4,DoubleHTag_5,DoubleHTag_6,DoubleHTag_7,DoubleHTag_8,DoubleHTag_9,DoubleHTag_10,DoubleHTag_11')
-    parser.add_option("--cats",type='string',dest="cats",default='DoubleHTag_0,DoubleHTag_1,DoubleHTag_2,DoubleHTag_3,DoubleHTag_4,DoubleHTag_5,DoubleHTag_6,DoubleHTag_7,DoubleHTag_8,DoubleHTag_9,DoubleHTag_10,DoubleHTag_11,VBFDoubleHTag_0')
+    parser.add_option("--cats",type='string',dest="cats",default='DoubleHTag_0,DoubleHTag_1,DoubleHTag_2,DoubleHTag_3,DoubleHTag_4,DoubleHTag_5,DoubleHTag_6,DoubleHTag_7,DoubleHTag_8,DoubleHTag_9,DoubleHTag_10,DoubleHTag_11,VBFDoubleHTag_0,VBFDoubleHTag_1')
     #parser.add_option("--MVAcats",type='string',dest="MVAcats",default='0.44,0.67,0.79,1')
     #parser.add_option("--MXcats",type='string',dest="MXcats",default='250,385,470,640,10000,250,345,440,515,10000,250,330,365,545,10000')
    # parser.add_option("--MVAcats",type='string',dest="MVAcats",default='0.248,0.450,0.728,1')
@@ -300,17 +301,11 @@ for num,f in enumerate(input_files):
       target_names.append(target +'_%s_13TeV'%year)
       target_files.append('output_' + target +'_%s'%year )
    elif 'qqHH' in name :
-     ###################################### Tmp VBF only : reweight 2017 to match 2016 ########################
       input_names.append('vbfhh'+year+'_13TeV_125_13TeV')
       target = name
       target_names.append(target +'_%s_13TeV'%year)
       target_files.append('output_' + target +'_%s'%year )
-      if opt.doNLO and ('2016' in year) :
-			input_names[num]=input_names[num].replace('2016','2017')
-      if 'qqHH_CV_1_C2V_1_kl_2' in name and '2017' in year : input_names[num] = 'VBFHHTo2B2G_CV_1_C2V_1_C3_2_13TeV_madgraph_13TeV'
-      if 'qqHH_CV_1_C2V_1_kl_0' in name and '2017' in year : input_names[num] = 'VBFHHTo2B2G_CV_1_C2V_1_C3_0_13TeV_madgraph_13TeV'
-      if 'qqHH_CV_0p5_C2V_1_kl_1' in name and '2017' in year : input_names[num] = 'VBFHHTo2B2G_CV_0_5_C2V_1_C3_1_13TeV_madgraph_13TeV'
-      if 'qqHH_CV_1p5_C2V_1_kl_1' in name and '2017' in year : input_names[num] = 'VBFHHTo2B2G_CV_1_5_C2V_1_C3_1_13TeV_madgraph_13TeV'
+
 #opt.inp_dir = opt.inp_dir+'/' + year + '/'
 #opt.inp_dir = opt.inp_dir+'/rho_rew_'+year+ '_v2/' #ivan
 
@@ -339,8 +334,6 @@ for num,f in enumerate(input_files):
              name = input_names[num]+'_'+cat+'_'+syst
              initial_name = input_names[num]+'_DoubleHTag_0_' + syst
          else : 
-             #if 'vbfhh' in f :  name='VBFHHTo2B2G_CV_1_C2V_1_C3_1_TuneCP5_PSWeights_13TeV_madgraph_pythia8_13TeV_'+cat
-             #else :
              name = input_names[num]+'_'+cat
              initial_name = input_names[num]+'_DoubleHTag_0'
          #if opt.doCategorization : selection = "(MX <= %.2f and MX > %.2f) and (MVAOutputTransformed <= %.2f and MVAOutputTransformed > %.2f) and (ttHScore >= %.2f) "%(cat_def[cat]["MX"][0],cat_def[cat]["MX"][1],cat_def[cat]["MVA"][0],cat_def[cat]["MVA"][1],opt.ttHScore)
@@ -357,14 +350,6 @@ for num,f in enumerate(input_files):
             if not 'VBFDoubleHTag' in cat : 
 					data = data.query("(leadingJet_pt_Mjj>0.55)")  #1/2.5 for all categories
 					print 'doing the pt/Mjj>0.55 cut' 
-            ###################################### Tmp VBF only : reweight 2017 to match 2016 ########################
-            if opt.doNLO and ('qqHH' in target_names[num]) and ('2016' in year) :
-               ggHH2016_file = opt.inp_dir + 'output_hh_nlo_cHHH1_2016.root' 
-               ggHH2017_file = opt.inp_dir + 'output_hh_nlo_cHHH1_2017.root' 
-               ggHH_frame2016=rpd.read_root(ggHH2016_file,'tagsDumper/trees/hh2016_13TeV_125_13TeV_DoubleHTag_0', columns = ['weight','rho'])
-               ggHH_frame2017=rpd.read_root(ggHH2017_file,'tagsDumper/trees/hh2017_13TeV_125_13TeV_DoubleHTag_0', columns = ['weight','rho'])
-               reweight_rho('rho',ggHH_frame2016,ggHH_frame2017,data)
-            ###########################################################################################################
 
             if opt.doNLO and not ('qqHH' in target_names[num]) : data = data.query("(abs(genweight)<0.1)") #remove crazy LHE weights 
             if cat_num == 0 :  data_structure = pd.DataFrame(data=None, columns=data.columns) 
@@ -392,7 +377,7 @@ for num,f in enumerate(input_files):
          print nlo_renormalization,sum(data["weight"]) 
          if not opt.add_benchmarks : systematics_datasets += add_dataset_to_workspace( data, ws, newname,systematics_labels,btag_norm = btag_renorm,nlo_renormalization=nlo_renormalization,save_every_nth_event=save_every_nth_event) #systemaitcs[1] : this should be done for nominal only, to add weights
          else :
-             save_every_nth_event=2 
+             save_every_nth_event=1 
              systematics_datasets += add_dataset_to_workspace( data, ws, newname,systematics_labels,btag_norm = btag_renorm,nlo_renormalization=nlo_renormalization,save_every_nth_event=save_every_nth_event, add_benchmarks=opt.add_benchmarks,benchmark_num=benchmark_num,benchmark_norm = calculate_benchmark_normalization(normalizations,year,benchmark_num))
          #print newname, " ::: Entries =", ws.data(newname).numEntries(), ", SumEntries =", ws.data(newname).sumEntries()
 
