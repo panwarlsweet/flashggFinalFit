@@ -766,6 +766,15 @@ lumiSyst_2018=0.025
 lumiSyst_2017=0.023  
 lumiSyst_2016=0.025  
 lumiSyst=0.025  #Correct for Moriond17
+lumi_systematics = [ 
+		{'name':'lumi_13TeV_Uncorrelated','title':'lumi_13TeV_Uncorrelated','type':'constant','prior':'lnN','correlateAcrossYears':0,'value':{'2016':'1.022','2017':'1.020','2018':'1.015'}},
+		{'name':'lumi_13TeV_X_Y_Factorization','title':'lumi_13TeV_X_Y_Factorization','type':'constant','prior':'lnN','correlateAcrossYears':-1,'value':{'2016':'1.009','2017':'1.008','2018':'1.020'}},
+		{'name':'lumi_13TeV_Length_Scale','title':'lumi_13TeV_Length_Scale','type':'constant','prior':'lnN','correlateAcrossYears':-1,'value':{'2016':'-','2017':'1.003','2018':'1.002'}},
+		{'name':'lumi_13TeV_Beam_Beam_Deflection','title':'lumi_13TeV_Beam_Beam_Deflection','type':'constant','prior':'lnN','correlateAcrossYears':-1,'value':{'2016':'1.004','2017':'1.004','2018':'-'}},
+		{'name':'lumi_13TeV_Dynamic_Beta','title':'lumi_13TeV_Dynamic_Beta','type':'constant','prior':'lnN','correlateAcrossYears':-1,'value':{'2016':'1.005','2017':'1.005','2018':'-'}},
+		{'name':'lumi_13TeV_Beam_Current_Calibration','title':'lumi_13TeV_Beam_Current_Calibration','type':'constant','prior':'lnN','correlateAcrossYears':-1,'value':{'2016':'-','2017':'1.003','2018':'1.002'}},
+		{'name':'lumi_13TeV_Ghosts_And_Satellites','title':'lumi_13TeV_Ghosts_And_Satellites','type':'constant','prior':'lnN','correlateAcrossYears':-1,'value':{'2016':'1.004','2017':'1.001','2018':'-'}}]
+
 
 ##Printing Functions
 def printBRSyst():
@@ -889,7 +898,7 @@ def printTheorySystHHbbgg():
        theory_dict[current_proc] = unc
 
   #for cons in 'tth,qqh,vh,hh,ggh'.split(','):
-  for cons in 'tth,qqh,vh,ggh,ggHH_kl_1_kt_1,ggHH_kl_2p45_kt_1,ggHH_kl_5_kt_1,qqHH_CV_1_C2V_1_kl_1,qqHH_CV_1_C2V_2_kl_1,qqHH_CV_1_C2V_1_kl_2,qqHH_CV_1_C2V_1_kl_0,qqHH_CV_1_C2V_0_kl_1,qqHH_CV_1p5_C2V_1_kl_1'.split(','):
+  for cons in 'tth,qqh,vh,ggh,ggHH,qqHH'.split(','):
   #for cons in 'tth,qqh,vh,ggh,ggHH_kl_0_kt_1,ggHH_kl_1_kt_1,ggHH_kl_2p45_kt_1,ggHH_kl_5_kt_1,qqHH_CV_1_C2V_1_kl_1,qqHH_CV_1_C2V_2_kl_1,qqHH_CV_1_C2V_1_kl_2,qqHH_CV_1_C2V_1_kl_0,qqHH_CV_0p5_C2V_1_kl_1,qqHH_CV_1p5_C2V_1_kl_1'.split(','):
     outFile.write('%s%-35s   lnN   '%('pdf_',cons))
     for c in options.cats:
@@ -906,7 +915,7 @@ def printTheorySystHHbbgg():
     outFile.write('\n')
 
   #for cons in 'tth,qqh,vh,hh,ggh'.split(','):
-  for cons in 'tth,qqh,vh,ggh,ggHH_kl_1_kt_1,ggHH_kl_2p45_kt_1,ggHH_kl_5_kt_1,qqHH_CV_1_C2V_1_kl_1,qqHH_CV_1_C2V_2_kl_1,qqHH_CV_1_C2V_1_kl_2,qqHH_CV_1_C2V_1_kl_0,qqHH_CV_1_C2V_0_kl_1,qqHH_CV_1p5_C2V_1_kl_1'.split(','):
+  for cons in 'tth,qqh,vh,ggh,ggHH,qqHH'.split(','):
     outFile.write('%s%-35s   lnN   '%('QCDscale_',cons))
     for c in options.cats:
        for p in options.procs:
@@ -921,6 +930,36 @@ def printTheorySystHHbbgg():
     outFile.write('\n')
     outFile.write('\n')
 
+def printLumiSystFullSchema():
+  for lumi_syst_dict in lumi_systematics:
+    if lumi_syst_dict['correlateAcrossYears']==0: #uncorrelated
+       for year in list(lumi_syst_dict['value'].keys()):
+         outFile.write('%-35s   lnN   '%('%s_%s'%(lumi_syst_dict['name'],year)))
+         for c in options.cats:
+           for p in options.procs:
+               if '%s:%s'%(p,c) in options.toSkip: continue
+               if p in bkgProcs:
+                  outFile.write('- ')
+               elif year in p :
+                outFile.write('%5.3f '%(float(lumi_syst_dict['value'][year])))
+               else : 
+                outFile.write('- ')
+         outFile.write('\n')
+         outFile.write('\n')
+    if lumi_syst_dict['correlateAcrossYears']==-1: #partially correlated
+       outFile.write('%-35s   lnN   '%('%s'%(lumi_syst_dict['name'])))
+       for c in options.cats:
+         for p in options.procs:
+             year_p = (p[p.find('_201')+1:])
+             if '%s:%s'%(p,c) in options.toSkip: continue
+             if p in bkgProcs:
+                outFile.write('- ')
+             elif year_p in list(lumi_syst_dict['value'].keys()) and lumi_syst_dict['value'][year_p]!='-' :
+              outFile.write('%5.3f '%(float(lumi_syst_dict['value'][year_p])))
+             else : 
+              outFile.write('- ')
+       outFile.write('\n')
+       outFile.write('\n')
 
 
 def printLumiSyst(year='2016'):
@@ -1797,9 +1836,10 @@ if ((options.justThisSyst== "batch_split") or options.justThisSyst==""):
   printObsProcBinLines()
   printMultiPdf()
  # printBRSyst() # not needed for the limit
-  printLumiSyst(year='2016')
-  printLumiSyst(year='2017')
-  printLumiSyst(year='2018')
+  printLumiSystFullSchema()
+#  printLumiSyst(year='2016')
+#  printLumiSyst(year='2017')
+#  printLumiSyst(year='2018')
   #nuisance param systematics
   #printNuisParams()
   #printMultiPdf()
