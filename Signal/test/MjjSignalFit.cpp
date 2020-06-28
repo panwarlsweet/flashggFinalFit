@@ -150,7 +150,8 @@ vector<double> getFWHM(TH1F *h) {
 }
 
 
-pair<double,double> getEffSigma(RooRealVar *mass, RooAbsPdf *pdf, double wmin=90., double wmax=170., double step=0.5, double epsilon=1.e-2){
+//pair<double,double> getEffSigma(RooRealVar *mass, RooAbsPdf *pdf, double wmin=90., double wmax=170., double step=0.5, double epsilon=1.e-2){
+pair<double,double> getEffSigma(RooRealVar *mass, RooAbsPdf *pdf, double wmin=90., double wmax=170., double step=0.5, double epsilon=1.e-1){
 
   RooAbsReal *cdf = pdf->createCdf(RooArgList(*mass));
   cout << "Computing effSigma...." << endl;
@@ -220,7 +221,7 @@ void RooDraw(TCanvas *can, TH1F *h, RooPlot* frame,RooDataHist* hist, RooAbsPdf*
 	frame->GetYaxis()->SetTitleOffset(1.5);
 	frame->SetMinimum(0.0);
 	TGaxis::SetExponentOffset(-0.07,0,"xy");
-   frame->GetYaxis()->SetTitle(Form("Events / (%.1f GeV)",h->GetBinWidth(1)));
+   frame->GetYaxis()->SetTitle(Form("Events / ( %.1f GeV )",h->GetBinWidth(1)));
    frame->GetYaxis()->SetNdivisions(505);
 	frame->GetYaxis()->SetRangeUser(0.,h->GetBinContent(h->GetMaximumBin())*1.2);
  	frame->Draw();
