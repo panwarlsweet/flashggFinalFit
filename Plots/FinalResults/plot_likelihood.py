@@ -82,6 +82,12 @@ def create_gr(tree,color):
       deltaNll_list.append(2.*tree.deltaNLL)
   kl_list, deltaNll_list = zip(*sorted(zip(kl_list, deltaNll_list)))
 
+  deltaNll_list = [x-(min(deltaNll_list)) for x in deltaNll_list]
+  list_min = [np.argmin(deltaNll_list)]
+  print 'Minimum found at ', list_min
+  for m in range(0,len(list_min)):
+    print 'min at ',kl_list[list_min[m]] 
+
   for i in range(0,len(kl_list)): 
     gr.SetPoint(gr.GetN(), kl_list[i], deltaNll_list[i]) ## plot -2 log L
 
@@ -139,7 +145,8 @@ for ich,ch in enumerate(options.channels_to_run.split(",")):
       fname =  fInName.replace("all",ch) 
       xmin = -20
       xmax = 20
-      ymax = .6
+      if "DoubleHTag" in ch or "MVA" in ch :
+         ymax = .6
       dolegend = True
    fIn = ROOT.TFile.Open(fname)
    tree = fIn.Get('limit')
@@ -184,12 +191,12 @@ sigma2_line = np.array([sigmas[1]*sigmas[1]]*5000)
 if 'kl' in coupling : xval_line = np.linspace(-5,11,5000) 
 if 'c2v' in coupling : xval_line = np.linspace(-3,4,5000) 
 if 'cv' in coupling : xval_line = np.linspace(-2,2,5000) 
-if len(exp_list)>0 : 
-  exp_line = exp_inter(xval_line)
-  idx_sigma1 = np.argwhere(np.diff(np.sign(exp_line-sigma1_line ))).flatten()
-  idx_sigma2 = np.argwhere(np.diff(np.sign(exp_line-sigma2_line ))).flatten()
-  print '68% : ', np.array(xval_line)[idx_sigma1], np.array(sigma1_line)[idx_sigma1],np.array(exp_line)[idx_sigma1]
-  print '95% : ', np.array(xval_line)[idx_sigma2], np.array(sigma2_line)[idx_sigma2],np.array(exp_line)[idx_sigma2]
+#if len(exp_list)>0 : 
+#  exp_line = exp_inter(xval_line)
+#  idx_sigma1 = np.argwhere(np.diff(np.sign(exp_line-sigma1_line ))).flatten()
+#  idx_sigma2 = np.argwhere(np.diff(np.sign(exp_line-sigma2_line ))).flatten()
+#  print '68% : ', np.array(xval_line)[idx_sigma1], np.array(sigma1_line)[idx_sigma1],np.array(exp_line)[idx_sigma1]
+#  print '95% : ', np.array(xval_line)[idx_sigma2], np.array(sigma2_line)[idx_sigma2],np.array(exp_line)[idx_sigma2]
 
 lines = []
 for s in sigmas:
@@ -211,7 +218,7 @@ for isigma,s in enumerate(sigmas):
 for l in labels: l.Draw()
 
 if 'kl' in coupling : exp_text = 'Expected (#kappa_{#lambda} = 1)' 
-if 'c2v' in coupling : exp_text = 'Expected (c_{2V} = 1)' 
+if 'c2v' in coupling : exp_text = 'Expected (c_{2V} = 1.1)' 
 if 'cv' in coupling : exp_text = 'Expected (c_{V} = 1)' 
 et = extra_texts(exp_text)
 for t in et[0:len(et)-1]: t.Draw()
@@ -228,7 +235,7 @@ legend.SetTextSize(0.03)
 for ich,ch in enumerate(options.channels_to_run.split(",")):
    if ch=="all" :
     legend.AddEntry(graphs[ich],"Combined","L")
-   elif "MVA" in ch : legend.AddEntry(graphs[ich],ch,"L")
+   elif not "DoubleHTag" in ch : legend.AddEntry(graphs[ich],ch,"L")
    else : legend.AddEntry(graphs[ich],"CAT %s"%(ch.replace("DoubleHTag_","")),"L")
 if dolegend : legend.Draw("same")
 

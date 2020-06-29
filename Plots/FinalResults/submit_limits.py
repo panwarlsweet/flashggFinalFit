@@ -59,11 +59,12 @@ class Parallel:
 parser = OptionParser()
 parser.add_option("-d","--datfile",help="Pick up running options from datfile")
 parser.add_option("--cmssw",default='/work/nchernya/DiHiggs/CMSSW_10_2_13/src/HiggsAnalysis/CombinedLimit/',help="path to CMSSW" )
-parser.add_option("--cats",default="DoubleHTag_0,DoubleHTag_1,DoubleHTag_2,DoubleHTag_3,DoubleHTag_4,DoubleHTag_5,DoubleHTag_6,DoubleHTag_7,DoubleHTag_8,DoubleHTag_9,DoubleHTag_10,DoubleHTag_11", help = "categories")
+#parser.add_option("--cats",default="DoubleHTag_0,DoubleHTag_1,DoubleHTag_2,DoubleHTag_3,DoubleHTag_4,DoubleHTag_5,DoubleHTag_6,DoubleHTag_7,DoubleHTag_8,DoubleHTag_9,DoubleHTag_10,DoubleHTag_11", help = "categories")
+parser.add_option("--cats",default="DoubleHTag_0,DoubleHTag_1,DoubleHTag_2,DoubleHTag_3,DoubleHTag_4,DoubleHTag_5,DoubleHTag_6,DoubleHTag_7,DoubleHTag_8,DoubleHTag_9,DoubleHTag_10,DoubleHTag_11,VBFDoubleHTag_0,VBFDoubleHTag_1", help = "categories")
 parser.add_option("--channels_to_run",default="all", help = "which channels to run on")
 #parser.add_option("--freeze_kl_fit_params",default = "--freezeNuisances param0_DoubleHTag_0,param1_DoubleHTag_0,param2_DoubleHTag_0,param0_DoubleHTag_1,param1_DoubleHTag_1,param2_DoubleHTag_1,param0_DoubleHTag_2,param1_DoubleHTag_2,param2_DoubleHTag_2,param0_DoubleHTag_3,param1_DoubleHTag_3,param2_DoubleHTag_3,param0_DoubleHTag_4,param1_DoubleHTag_4,param2_DoubleHTag_4,param0_DoubleHTag_5,param1_DoubleHTag_5,param2_DoubleHTag_5,param0_DoubleHTag_6,param1_DoubleHTag_6,param2_DoubleHTag_6,param0_DoubleHTag_7,param1_DoubleHTag_7,param2_DoubleHTag_7,param0_DoubleHTag_8,param1_DoubleHTag_8,param2_DoubleHTag_8,param0_DoubleHTag_9,param1_DoubleHTag_9,param2_DoubleHTag_9,param0_DoubleHTag_10,param1_DoubleHTag_10,param2_DoubleHTag_10,param0_DoubleHTag_11,param1_DoubleHTag_11,param2_DoubleHTag_11")
 parser.add_option("--freeze_kl_fit_params",default = "--freezeParameters param0_DoubleHTag_0,param1_DoubleHTag_0,param2_DoubleHTag_0,param0_DoubleHTag_1,param1_DoubleHTag_1,param2_DoubleHTag_1,param0_DoubleHTag_2,param1_DoubleHTag_2,param2_DoubleHTag_2,param0_DoubleHTag_3,param1_DoubleHTag_3,param2_DoubleHTag_3,param0_DoubleHTag_4,param1_DoubleHTag_4,param2_DoubleHTag_4,param0_DoubleHTag_5,param1_DoubleHTag_5,param2_DoubleHTag_5,param0_DoubleHTag_6,param1_DoubleHTag_6,param2_DoubleHTag_6,param0_DoubleHTag_7,param1_DoubleHTag_7,param2_DoubleHTag_7,param0_DoubleHTag_8,param1_DoubleHTag_8,param2_DoubleHTag_8,param0_DoubleHTag_9,param1_DoubleHTag_9,param2_DoubleHTag_9,param0_DoubleHTag_10,param1_DoubleHTag_10,param2_DoubleHTag_10,param0_DoubleHTag_11,param1_DoubleHTag_11,param2_DoubleHTag_11")
-parser.add_option("--klGridConfig",default='/work/nchernya/DiHiggs/CMSSW_7_4_7/src/flashggFinalFit/MetaData_HHbbgg/kl_grids/kl_grid.json',help="grid for kl" )
+parser.add_option("--klGridConfig",default='/work/nchernya/DiHiggs/CMSSW_7_4_7/src/flashggFinalFit/MetaData_HHbbgg/kl_grids/kl_grid_fine.json',help="grid for kl" )
 parser.add_option("--c2vGridConfig",default='/work/nchernya/DiHiggs/CMSSW_7_4_7/src/flashggFinalFit/MetaData_HHbbgg/c2v_grids/c2v_grid_finish.json',help="grid for c2v scan" )
 parser.add_option("--cvGridConfig",default='/work/nchernya/DiHiggs/CMSSW_7_4_7/src/flashggFinalFit/MetaData_HHbbgg/cv_grids/cv_grid_finish.json',help="grid for cv scan" )
 parser.add_option("--do2D",type="int",default=0,help="do 2D or 1D " )
@@ -74,6 +75,7 @@ parser.add_option("--do_excl_scan",default=False,action="store_true",help="do ex
 parser.add_option("--coupling_param",type="string",default="kl",help="coupling parameter : kl,c2v,cv" )
 parser.add_option("--do_benchmarks_scan",default=False,action="store_true",help="do benchmark scan?" )
 parser.add_option("--do_likelihood",default=False,action="store_true",help="prepare datacard for likelihood" )
+parser.add_option("--do_signal_fit",default=False,action="store_true",help="do simple fit" )
 parser.add_option("--likelihood_float_mu",default=False,action="store_true",help="likelihood, float r" )
 parser.add_option("--generateAsimovHHSM",default=False,action="store_true",help="generate SM S+B HH Asimov" )
 parser.add_option("-q","--queue",default='short.q',help="Which batch queue")
@@ -168,7 +170,8 @@ def writePostamble(sub_file, exec_line,outtag):
   sub_file.close()
   system('chmod +x %s'%os.path.abspath(sub_file.name))
   if opts.runLocal:
-     system('bash %s > %s.log'%(os.path.abspath(sub_file.name),os.path.abspath(sub_file.name)))
+     #system('bash %s > %s.log'%(os.path.abspath(sub_file.name),os.path.abspath(sub_file.name)))
+     system('bash %s '%(os.path.abspath(sub_file.name)))
   elif opts.queue:
     system('rm -f %s.done'%os.path.abspath(sub_file.name))
     system('rm -f %s.fail'%os.path.abspath(sub_file.name))
@@ -270,18 +273,18 @@ def writeMultiDimFitLikelihood(card,toysFile,channels="all",param_range="kl=-10,
     param = opts.coupling_param
     if 'c2v' in param or 'cv' in param : param=param.upper()
     mask_str = ""
-    if channels!="all" and not "MVA" in channels :
+    if channels!="all" and "DoubleHTag" in channels :
        for cat in opts.cats.split(","):
          if channels != cat:
            mask_str += ",mask_%s_13TeV=1"%(cat)
-    elif "MVA" in channels :
+    elif not "DoubleHTag" in channels :
       for to_mask in set(cats_map_mask[channels])^set(opts.cats.split(",")): 
            mask_str += ",mask_%s_13TeV=1"%(to_mask)
     for i in range(opts.jobs):
        file = open('%s/Jobs/sub_%s_job_%s_%d.sh'%(opts.outDir,channels,param,i),'w')
        writePreamble(file)
        set_parameters = ''
-       for p in 'kt,kl,CV,C2V'.split(','):
+       for p in 'kt,kl,CV,C2V,r,r_qqhh,r_gghh'.split(','):
           if not p in param:
              set_parameters += "%s=1,"%p
        if set_parameters!='' : set_parameters = set_parameters[0:len(set_parameters)-1]#remove the comma
@@ -290,7 +293,7 @@ def writeMultiDimFitLikelihood(card,toysFile,channels="all",param_range="kl=-10,
           if not opts.do2D : exec_line = 'combine %s/%s -M MultiDimFit -m 125.00 --algo grid --points %s -P %s --floatOtherPOIs 0 --setPhysicsModelParameterRanges %s --setPhysicsModelParameters r=1%s --firstPoint=%d --lastPoint=%d -n MultiDim_%s_%s_Job%d -L $CMSSW_BASE/lib/$SCRAM_ARCH/libHiggsAnalysisGBRLikelihood.so %s '%(os.getcwd(),card,opts.pointsperjob*opts.jobs,param,param_range,mask_str,i*opts.pointsperjob,(i+1)*opts.pointsperjob-1,channels,opts.outtag,i,opts.freeze_kl_fit_params)
           else : 
              if opts.doNLOHH: 
-                exec_line = 'combine %s/%s -M MultiDimFit -m 125.00 --algo grid --points %s  --redefineSignalPOIs %s  --setParameterRanges %s --setParameters r=1,r_qqhh=1,r_gghh=1,%s%s --freezeParameters r,r_gghh,r_qqhh,kt,kl,CV,C2V  --firstPoint=%d --lastPoint=%d -n MultiDim_%s_%s_Job%d -L $CMSSW_BASE/lib/$SCRAM_ARCH/libHiggsAnalysisGBRLikelihood.so --X-rtd TMCSO_AdaptivePseudoAsimov=0 --X-rtd TMCSO_PseudoAsimov=0 --cminDefaultMinimizerStrategy 0 --cminFallbackAlgo Minuit2,Migrad,0:0.1 --X-rt MINIMIZER_freezeDisassociatedParams --X-rtd MINIMIZER_multiMin_hideConstants --X-rtd MINIMIZER_multiMin_maskConstraints --X-rtd MINIMIZER_multiMin_maskChannels=2 '%(os.getcwd(),card.replace('.txt','.root'),opts.pointsperjob*opts.jobs,param,param_range,set_parameters,mask_str,i*opts.pointsperjob,(i+1)*opts.pointsperjob-1,channels,opts.outtag,i)
+                exec_line = 'combine %s/%s -M MultiDimFit -m 125.00 --algo grid --points %s  --redefineSignalPOIs %s  --setParameterRanges %s --setParameters %s%s --freezeParameters r,r_gghh,r_qqhh,kt,kl,CV,C2V  --firstPoint=%d --lastPoint=%d -n MultiDim_%s_%s_Job%d -L $CMSSW_BASE/lib/$SCRAM_ARCH/libHiggsAnalysisGBRLikelihood.so --X-rtd TMCSO_AdaptivePseudoAsimov=0 --X-rtd TMCSO_PseudoAsimov=0 --cminDefaultMinimizerStrategy 0 --cminFallbackAlgo Minuit2,Migrad,0:0.1 --X-rt MINIMIZER_freezeDisassociatedParams --X-rtd MINIMIZER_multiMin_hideConstants --X-rtd MINIMIZER_multiMin_maskConstraints --X-rtd MINIMIZER_multiMin_maskChannels=2 '%(os.getcwd(),card.replace('.txt','.root'),opts.pointsperjob*opts.jobs,param,param_range,set_parameters,mask_str,i*opts.pointsperjob,(i+1)*opts.pointsperjob-1,channels,opts.outtag,i)
              else: 
                 exec_line = 'combine %s/%s -M MultiDimFit -m 125.00 --algo grid --points %s -P %s --floatOtherPOIs 0 --setParameterRanges %s --setParameters r=1%s --firstPoint=%d --lastPoint=%d -n MultiDim_%s_%s_Job%d -L $CMSSW_BASE/lib/$SCRAM_ARCH/libHiggsAnalysisGBRLikelihood.so %s --X-rtd TMCSO_AdaptivePseudoAsimov=0 --X-rtd TMCSO_PseudoAsimov=0 --cminDefaultMinimizerStrategy 0 --cminFallbackAlgo Minuit2,Migrad,0:0.1 --X-rt MINIMIZER_freezeDisassociatedParams --X-rtd MINIMIZER_multiMin_hideConstants --X-rtd MINIMIZER_multiMin_maskConstraints --X-rtd MINIMIZER_multiMin_maskChannels=2 '%(os.getcwd(),card.replace('.txt','.root'),opts.pointsperjob*opts.jobs,param,param_range,mask_str,i*opts.pointsperjob,(i+1)*opts.pointsperjob-1,channels,opts.outtag,i,opts.freeze_kl_fit_params)
        else:
@@ -304,17 +307,54 @@ def writeMultiDimFitLikelihood(card,toysFile,channels="all",param_range="kl=-10,
        writePostamble(file,exec_line,"MultiDim_%s_%s_Job%d"%(channels,opts.outtag,i))
 
 
+def writeMultiDimFit(card,channels="all",cats_map_mask={"MVA0":""}):
+    print "[INFO] writing multidim fit"
+    file = open('%s/Jobs/sub_job.sh'%(opts.outDir),'w')
+    writePreamble(file)
+    mask_str = ""
+    if channels!="all" and "DoubleHTag" in channels :
+       for cat in opts.cats.split(","):
+         if channels != cat:
+           mask_str += ",mask_%s_13TeV=1"%(cat)
+    elif not "DoubleHTag" in channels :
+      for to_mask in set(cats_map_mask[channels])^set(opts.cats.split(",")): 
+           mask_str += ",mask_%s_13TeV=1"%(to_mask)
+    if opts.doNLOHH: 
+       model = ' -P HHModel:HHdefault'
+       exec_line = text2workspace(card,model=model)
+       fix_signal_stregths = ''
+       set_signal_stregths = ''
+       bounds = '--autoBoundsPOIs %s --autoMaxPOIs %s'%(opts.whatToFloat,opts.whatToFloat) 
+       for mu in 'r,r_gghh,r_qqhh'.split(','):
+          if not mu in opts.whatToFloat.split(','):
+             set_signal_stregths += "%s=1,"%mu 
+             fix_signal_stregths += "%s,"%mu
+       if set_signal_stregths!='' : set_signal_stregths = set_signal_stregths[0:len(set_signal_stregths)-1]#remove the comma
+       if fix_signal_stregths!='' : fix_signal_stregths = fix_signal_stregths[0:len(fix_signal_stregths)-1]#remove the comma
+ 
+       model_line =" --redefineSignalPOIs %s  %s  --freezeParameters %s,kt,kl,CV,C2V --setParameters %s,kt=1,kl=1,CV=1,C2V=1"%(opts.whatToFloat,bounds,fix_signal_stregths,set_signal_stregths)  
+ 
+       exec_line = 'combine %s/%s -M MultiDimFit -m 125.00 --algo singles  %s%s  -n MultiDim_floating_%s_%s_%s -L $CMSSW_BASE/lib/$SCRAM_ARCH/libHiggsAnalysisGBRLikelihood.so --X-rtd TMCSO_AdaptivePseudoAsimov=0 --X-rtd TMCSO_PseudoAsimov=0 --cminDefaultMinimizerStrategy 0 --cminFallbackAlgo Minuit2,Migrad,0:0.1 --X-rt MINIMIZER_freezeDisassociatedParams --X-rtd MINIMIZER_multiMin_hideConstants --X-rtd MINIMIZER_multiMin_maskConstraints --X-rtd MINIMIZER_multiMin_maskChannels=2 '%(os.getcwd(),card.replace('.txt','.root'),model_line,mask_str,opts.whatToFloat.replace(',','_'),channels,opts.outtag)
+       if opts.S0: exec_line += ' -S 0 '
+       if opts.expected: 
+           exec_line += ' -t -1 '
+       writePostamble(file,exec_line,"MultiDim_floating_%s_%s_%s"%(opts.whatToFloat.replace(',','_'),channels,opts.outtag))
+
+
+
+
+
 
 def generateAsimovHHSM(card,channels="all",cats_map_mask={"MVA0":""}):
     print "[INFO] generating Asimov SM S+B for channels : %s"%channels
     exec_line = ""
     if '.txt' in card : exec_line = text2workspace(card,mask=True)
     mask_str = ""
-    if channels!="all" and not "MVA" in channels :
+    if channels!="all" and "DoubleH" in channels :
        for cat in opts.cats.split(","):
          if channels != cat:
            mask_str += ",mask_%s_13TeV=1"%(cat)
-    elif "MVA" in channels :
+    elif not "DoubleH" in channels :
       for to_mask in set(cats_map_mask[channels])^set(opts.cats.split(",")): 
            mask_str += ",mask_%s_13TeV=1"%(to_mask)
     if not opts.do2D : exec_line += "combine %s/%s  -M GenerateOnly -m 125.00 -t -1 --saveToys -n SM_AsimovToy_%s_%s --setPhysicsModelParameters kl=1,r=1%s %s,kl"%(os.getcwd(),card,channels,opts.outtag,mask_str,opts.freeze_kl_fit_params)
@@ -333,6 +373,9 @@ cats_map = {}
 cats_map['MVA0'] = 'DoubleHTag_0,DoubleHTag_1,DoubleHTag_2,DoubleHTag_3'.split(',')
 cats_map['MVA1'] = 'DoubleHTag_4,DoubleHTag_5,DoubleHTag_6,DoubleHTag_7'.split(',')
 cats_map['MVA2'] = 'DoubleHTag_8,DoubleHTag_9,DoubleHTag_10,DoubleHTag_11'.split(',')
+cats_map['ggF'] = 'DoubleHTag_0,DoubleHTag_1,DoubleHTag_2,DoubleHTag_3,DoubleHTag_4,DoubleHTag_5,DoubleHTag_6,DoubleHTag_7,DoubleHTag_8,DoubleHTag_9,DoubleHTag_10,DoubleHTag_11'.split(',')
+cats_map['VBF'] = 'VBFDoubleHTag_0,VBFDoubleHTag_1'.split(',')
+cats_map['all'] = 'DoubleHTag_0,DoubleHTag_1,DoubleHTag_2,DoubleHTag_3,DoubleHTag_4,DoubleHTag_5,DoubleHTag_6,DoubleHTag_7,DoubleHTag_8,DoubleHTag_9,DoubleHTag_10,DoubleHTag_11,VBFDoubleHTag_0,VBFDoubleHTag_1'.split(',')
 
 coupling_dict = {}
 coupling_dict["kl"] = 1.
@@ -388,17 +431,24 @@ elif opts.do_likelihood:
     if param=='c2v' : param_range = "C2V=-4,6"
     if param=='cv' : param_range = "CV=-3,3"
     if param=='cv,c2v' : param_range = "CV=-2,2:C2V=-3,3"
+    if param=='r_gghh,r_qqhh' : param_range = "r_gghh=-20,20:r_qqhh=-300,300"
     for ch in opts.channels_to_run.split(","):
        if ch!="all" : 
           if not opts.doNLOHH: 
              toysFile = opts.toysFile.replace("all",ch)
           if param=='kl' : param_range = "kl=-20,20"
+          if param=='kl' and 'VBF' in ch: param_range = "kl=-40,40"
           if param=='c2v' : param_range = "C2V=-8,8"
           if param=='cv' : param_range = "CV=-6,6"
-          if param=='cv,c2v' : param_range = "CV=-6,6:C2V=-8,8"
+          if param=='r_gghh,r_qqhh' : param_range = "r_gghh=-20,20:r_qqhh=-300,300"
        writeMultiDimFitLikelihood(opts.datacard,toysFile,ch,param_range,cats_map)
 elif opts.generateAsimovHHSM:
     for ch in opts.channels_to_run.split(","): 
       generateAsimovHHSM(opts.datacard,ch,cats_map)
+elif opts.do_signal_fit:
+    for ch in opts.channels_to_run.split(","):
+       writeMultiDimFit(opts.datacard,ch,cats_map)
+    
+
     
 
