@@ -67,11 +67,13 @@ parser.add_option("--freeze_kl_fit_params",default = "--freezeParameters param0_
 parser.add_option("--klGridConfig",default='/work/nchernya/DiHiggs/CMSSW_7_4_7/src/flashggFinalFit/MetaData_HHbbgg/kl_grids/kl_grid_fine.json',help="grid for kl" )
 parser.add_option("--c2vGridConfig",default='/work/nchernya/DiHiggs/CMSSW_7_4_7/src/flashggFinalFit/MetaData_HHbbgg/c2v_grids/c2v_grid_finish.json',help="grid for c2v scan" )
 parser.add_option("--cvGridConfig",default='/work/nchernya/DiHiggs/CMSSW_7_4_7/src/flashggFinalFit/MetaData_HHbbgg/cv_grids/cv_grid_finish.json',help="grid for cv scan" )
+parser.add_option("--addOption",type="string",default="",help="additional combine ooptions " )
 parser.add_option("--do2D",type="int",default=0,help="do 2D or 1D " )
 parser.add_option("--doNLOHH",type="int",default=0,help="do NLO HH model or not " )
 parser.add_option("--whatToFloat",type="string",default="r",help="what to float : r, r_qqhh or r_gghh " )
 parser.add_option("--Nbench",type="int",default=14,help="nunber of benchmarks" )
 parser.add_option("--do_excl_scan",default=False,action="store_true",help="do exclusion scan?" )
+parser.add_option("--do_limit",default=False,action="store_true",help="do U.L.?" )
 parser.add_option("--coupling_param",type="string",default="kl",help="coupling parameter : kl,c2v,cv" )
 parser.add_option("--do_benchmarks_scan",default=False,action="store_true",help="do benchmark scan?" )
 parser.add_option("--do_likelihood",default=False,action="store_true",help="prepare datacard for likelihood" )
@@ -227,14 +229,22 @@ def text2workspace(card,mask=False,model=''):
     return exec_line
 
 
-def writeAsymptoticFor2D(jobid,card,outtag,coupling_dict={}):
+def writeAsymptoticFor2D(jobid,card,coupling_dict={},channels="all",cats_map_mask={"MVA0":""}):
     kl=coupling_dict["kl"]
     kt=coupling_dict["kt"]
     c2v=coupling_dict["c2v"]
     cv=coupling_dict["cv"]
     print '[INFO] MultiDim Fit for 2D'
-    file = open('%s/Jobs/sub_job%d.sh'%(opts.outDir,jobid),'w')
+    file = open('%s/Jobs/sub_%s_%s_job_%d.sh'%(opts.outDir,channels,opts.whatToFloat,jobid),'w')
     writePreamble(file)
+    mask_str = ""
+    if channels!="all" and "DoubleHTag" in channels :
+       for cat in opts.cats.split(","):
+         if channels != cat:
+           mask_str += ",mask_%s_13TeV=1"%(cat)
+    elif not "DoubleHTag" in channels :
+      for to_mask in set(cats_map_mask[channels])^set(opts.cats.split(",")): 
+           mask_str += ",mask_%s_13TeV=1"%(to_mask)
     if opts.doNLOHH: 
        model = ' -P HHModel:HHdefault'
        exec_line = text2workspace(card,model=model)
@@ -247,24 +257,24 @@ def writeAsymptoticFor2D(jobid,card,outtag,coupling_dict={}):
        if set_signal_stregths!='' : set_signal_stregths = set_signal_stregths[0:len(set_signal_stregths)-1]#remove the comma
        if fix_signal_stregths!='' : fix_signal_stregths = fix_signal_stregths[0:len(fix_signal_stregths)-1]#remove the comma
  
-       model_line =" --redefineSignalPOIs %s --setParameters %s,kt=%.3f,kl=%.3f,CV=%.3f,C2V=%.3f --freezeParameters %s,kt,kl,CV,C2V "%(opts.whatToFloat,set_signal_stregths,kt,kl,cv,c2v,fix_signal_stregths)  
-       exec_line += "combine %s/%s  -n %s  -M AsymptoticLimits -m 125. --saveWorkspace %s --X-rtd TMCSO_AdaptivePseudoAsimov=0 --X-rtd TMCSO_PseudoAsimov=0 --cminDefaultMinimizerStrategy 0 --cminFallbackAlgo Minuit2,Migrad,0:0.1 --X-rt MINIMIZER_freezeDisassociatedParams --X-rtd MINIMIZER_multiMin_hideConstants --X-rtd MINIMIZER_multiMin_maskConstraints --X-rtd MINIMIZER_multiMin_maskChannels=2 "%(os.getcwd(),card.replace(".txt",".root"),outtag,model_line)
+       model_line =" --redefineSignalPOIs %s --freezeParameters %s,kt,kl,CV,C2V --setParameters %s,kt=%.3f,kl=%.3f,CV=%.3f,C2V=%.3f%s"%(opts.whatToFloat,fix_signal_stregths,set_signal_stregths,kt,kl,cv,c2v,mask_str)  
+       exec_line += "combine %s/%s  -n %s_%s_%s  -M AsymptoticLimits -m 125. --saveWorkspace %s --X-rtd TMCSO_AdaptivePseudoAsimov=0 --X-rtd TMCSO_PseudoAsimov=0 --cminDefaultMinimizerStrategy 0 --cminFallbackAlgo Minuit2,Migrad,0:0.1 --X-rt MINIMIZER_freezeDisassociatedParams --X-rtd MINIMIZER_multiMin_hideConstants --X-rtd MINIMIZER_multiMin_maskConstraints --X-rtd MINIMIZER_multiMin_maskChannels=2 "%(os.getcwd(),card.replace(".txt",".root"),opts.outtag,opts.whatToFloat,channels,model_line)
        if opts.S0: exec_line += ' -S 0 '
        if opts.expected: exec_line += ' --run=blind -t -1'
     else: 
        exec_line = text2workspace(card)
        if opts.expected: 
-          exec_line += "combine %s/%s  -n %s  -M MultiDimFit -m 125. --saveWorkspace --X-rtd TMCSO_AdaptivePseudoAsimov=0 --X-rtd TMCSO_PseudoAsimov=0 --cminDefaultMinimizerStrategy 0 --cminFallbackAlgo Minuit2,Migrad,0:0.1 --X-rt MINIMIZER_freezeDisassociatedParams --X-rtd MINIMIZER_multiMin_hideConstants --X-rtd MINIMIZER_multiMin_maskConstraints --X-rtd MINIMIZER_multiMin_maskChannels=2"%(os.getcwd(),card.replace(".txt",".root"),outtag)
+          exec_line += "combine %s/%s  -n %s  -M MultiDimFit -m 125. --saveWorkspace --X-rtd TMCSO_AdaptivePseudoAsimov=0 --X-rtd TMCSO_PseudoAsimov=0 --cminDefaultMinimizerStrategy 0 --cminFallbackAlgo Minuit2,Migrad,0:0.1 --X-rt MINIMIZER_freezeDisassociatedParams --X-rtd MINIMIZER_multiMin_hideConstants --X-rtd MINIMIZER_multiMin_maskConstraints --X-rtd MINIMIZER_multiMin_maskChannels=2"%(os.getcwd(),card.replace(".txt",".root"),opts.outtag)
           if opts.expected: exec_line += ' -t -1' 
           exec_line += '\n' 
-          exec_line += "combine higgsCombine%s.MultiDimFit.mH125.root --snapshotName MultiDimFit -n %s  -M AsymptoticLimits -m 125. --saveWorkspace --X-rtd TMCSO_AdaptivePseudoAsimov=0 --X-rtd TMCSO_PseudoAsimov=0 --cminDefaultMinimizerStrategy 0 --cminFallbackAlgo Minuit2,Migrad,0:0.1 --X-rt MINIMIZER_freezeDisassociatedParams --X-rtd MINIMIZER_multiMin_hideConstants --X-rtd MINIMIZER_multiMin_maskConstraints --X-rtd MINIMIZER_multiMin_maskChannels=2"%(outtag,outtag)
+          exec_line += "combine higgsCombine%s.MultiDimFit.mH125.root --snapshotName MultiDimFit -n %s  -M AsymptoticLimits -m 125. --saveWorkspace --X-rtd TMCSO_AdaptivePseudoAsimov=0 --X-rtd TMCSO_PseudoAsimov=0 --cminDefaultMinimizerStrategy 0 --cminFallbackAlgo Minuit2,Migrad,0:0.1 --X-rt MINIMIZER_freezeDisassociatedParams --X-rtd MINIMIZER_multiMin_hideConstants --X-rtd MINIMIZER_multiMin_maskConstraints --X-rtd MINIMIZER_multiMin_maskChannels=2"%(opts.outtag,opts.outtag)
           if opts.S0: exec_line += ' -S 0 '
           if opts.expected: exec_line += ' --run=blind -t -1'
        else: 
-          exec_line += "combine %s/%s  -n %s  -M AsymptoticLimits -m 125.  --X-rtd TMCSO_AdaptivePseudoAsimov=0 --X-rtd TMCSO_PseudoAsimov=0 --cminDefaultMinimizerStrategy 0 --cminFallbackAlgo Minuit2,Migrad,0:0.1 --X-rt MINIMIZER_freezeDisassociatedParams --X-rtd MINIMIZER_multiMin_hideConstants --X-rtd MINIMIZER_multiMin_maskConstraints --X-rtd MINIMIZER_multiMin_maskChannels=2"%(os.getcwd(),card.replace(".txt",".root"),outtag)
+          exec_line += "combine %s/%s  -n %s  -M AsymptoticLimits -m 125.  --X-rtd TMCSO_AdaptivePseudoAsimov=0 --X-rtd TMCSO_PseudoAsimov=0 --cminDefaultMinimizerStrategy 0 --cminFallbackAlgo Minuit2,Migrad,0:0.1 --X-rt MINIMIZER_freezeDisassociatedParams --X-rtd MINIMIZER_multiMin_hideConstants --X-rtd MINIMIZER_multiMin_maskConstraints --X-rtd MINIMIZER_multiMin_maskChannels=2"%(os.getcwd(),card.replace(".txt",".root"),opts.outtag)
 
 
-    writePostamble(file,exec_line,outtag)
+    writePostamble(file,exec_line,"%s_%s_%s"%(opts.outtag,opts.whatToFloat,channels))
 
 
 
@@ -285,10 +295,10 @@ def writeMultiDimFitLikelihood(card,toysFile,channels="all",param_range="kl=-10,
        writePreamble(file)
        set_parameters = ''
        for p in 'kt,kl,CV,C2V,r,r_qqhh,r_gghh'.split(','):
-          if not p in param:
+          if not p in param.split(','):
              set_parameters += "%s=1,"%p
        if set_parameters!='' : set_parameters = set_parameters[0:len(set_parameters)-1]#remove the comma
- 
+
        if not opts.likelihood_float_mu: #to run with r=1
           if not opts.do2D : exec_line = 'combine %s/%s -M MultiDimFit -m 125.00 --algo grid --points %s -P %s --floatOtherPOIs 0 --setPhysicsModelParameterRanges %s --setPhysicsModelParameters r=1%s --firstPoint=%d --lastPoint=%d -n MultiDim_%s_%s_Job%d -L $CMSSW_BASE/lib/$SCRAM_ARCH/libHiggsAnalysisGBRLikelihood.so %s '%(os.getcwd(),card,opts.pointsperjob*opts.jobs,param,param_range,mask_str,i*opts.pointsperjob,(i+1)*opts.pointsperjob-1,channels,opts.outtag,i,opts.freeze_kl_fit_params)
           else : 
@@ -334,7 +344,7 @@ def writeMultiDimFit(card,channels="all",cats_map_mask={"MVA0":""}):
  
        model_line =" --redefineSignalPOIs %s  %s  --freezeParameters %s,kt,kl,CV,C2V --setParameters %s,kt=1,kl=1,CV=1,C2V=1"%(opts.whatToFloat,bounds,fix_signal_stregths,set_signal_stregths)  
  
-       exec_line = 'combine %s/%s -M MultiDimFit -m 125.00 --algo singles  %s%s  -n MultiDim_floating_%s_%s_%s -L $CMSSW_BASE/lib/$SCRAM_ARCH/libHiggsAnalysisGBRLikelihood.so --X-rtd TMCSO_AdaptivePseudoAsimov=0 --X-rtd TMCSO_PseudoAsimov=0 --cminDefaultMinimizerStrategy 0 --cminFallbackAlgo Minuit2,Migrad,0:0.1 --X-rt MINIMIZER_freezeDisassociatedParams --X-rtd MINIMIZER_multiMin_hideConstants --X-rtd MINIMIZER_multiMin_maskConstraints --X-rtd MINIMIZER_multiMin_maskChannels=2 '%(os.getcwd(),card.replace('.txt','.root'),model_line,mask_str,opts.whatToFloat.replace(',','_'),channels,opts.outtag)
+       exec_line = 'combine %s/%s -M MultiDimFit -m 125.00 --algo singles  %s%s  -n MultiDim_floating_%s_%s_%s -L $CMSSW_BASE/lib/$SCRAM_ARCH/libHiggsAnalysisGBRLikelihood.so --X-rtd TMCSO_AdaptivePseudoAsimov=0 --X-rtd TMCSO_PseudoAsimov=0 --cminDefaultMinimizerStrategy 0 --cminFallbackAlgo Minuit2,Migrad,0:0.1 --X-rt MINIMIZER_freezeDisassociatedParams --X-rtd MINIMIZER_multiMin_hideConstants --X-rtd MINIMIZER_multiMin_maskConstraints --X-rtd MINIMIZER_multiMin_maskChannels=2 %s '%(os.getcwd(),card.replace('.txt','.root'),model_line,mask_str,opts.whatToFloat.replace(',','_'),channels,opts.outtag,opts.addOption)
        if opts.S0: exec_line += ' -S 0 '
        if opts.expected: 
            exec_line += ' -t -1 '
@@ -409,10 +419,16 @@ if opts.do_excl_scan:
     print "job ", counter , " , %s =  "%param, coupl, '  outtag = ',outtag
     coupling_dict['%s'%param]=coupl
     if not opts.do2D : 
-       writeAsymptotic(counter,hhcard_name,outtag)
+       writeAsymptotic(counter,hhcard_name)
     else :
-       writeAsymptoticFor2D(counter,hhcard_name,outtag,coupling_dict=coupling_dict)
+       for ch in opts.channels_to_run.split(","):
+         writeAsymptoticFor2D(counter,hhcard_name,coupling_dict,ch,cats_map)
     counter =  counter+1
+if opts.do_limit:  
+    if opts.doNLOHH : hhcard_name = opts.datacard
+    if opts.do2D : 
+       for ch in opts.channels_to_run.split(","):
+         writeAsymptoticFor2D(1,hhcard_name,coupling_dict,ch,cats_map)
 if opts.do_benchmarks_scan:
   counter=0
   Nbenchmarks = opts.Nbench  #12 + SM + box
@@ -421,9 +437,10 @@ if opts.do_benchmarks_scan:
       outtag = '_benchmarks_%d'%(inode)+'_'+opts.outtag
       print "job ", counter , " , benchmark =  ", inode
       if not opts.do2D : 
-         writeAsymptotic(counter,hhcard_name,outtag)
+         writeAsymptotic(counter,hhcard_name)
       else :
-         writeAsymptoticFor2D(counter,hhcard_name,outtag)
+        for ch in opts.channels_to_run.split(","):
+           writeAsymptoticFor2D(counter,hhcard_name,coupling_dict,ch,cats_map)
       counter =  counter+1
 elif opts.do_likelihood:
     toysFile = opts.toysFile
@@ -432,6 +449,7 @@ elif opts.do_likelihood:
     if param=='cv' : param_range = "CV=-3,3"
     if param=='cv,c2v' : param_range = "CV=-2,2:C2V=-3,3"
     if param=='r_gghh,r_qqhh' : param_range = "r_gghh=-20,20:r_qqhh=-300,300"
+    if param=='r_qqhh' : param_range = "r_qqhh=-200,200"
     for ch in opts.channels_to_run.split(","):
        if ch!="all" : 
           if not opts.doNLOHH: 
@@ -441,6 +459,7 @@ elif opts.do_likelihood:
           if param=='c2v' : param_range = "C2V=-8,8"
           if param=='cv' : param_range = "CV=-6,6"
           if param=='r_gghh,r_qqhh' : param_range = "r_gghh=-20,20:r_qqhh=-300,300"
+          if param=='r_qqhh' : param_range = "r_qqhh=-200,200"
        writeMultiDimFitLikelihood(opts.datacard,toysFile,ch,param_range,cats_map)
 elif opts.generateAsimovHHSM:
     for ch in opts.channels_to_run.split(","): 
