@@ -178,19 +178,27 @@ if [ $YEAR == "2018" ]; then
 	LUMI=59.4
 fi
 
+
+
+
+if [ $YEAR == "2018" ]; then
+	LUMI=137.
+fi
 ###########paper_plots
-#CATS="DoubleHTag_0" 
-#PROC_SM="hh_node_SM_$YEAR"
-#DATE="18_02_2020" #paper plots
-#EXT="nodes"$YEAR
+CATS="DoubleHTag_0" 
+PROC_SM="hh_node_SM_$YEAR"
+PROCS="hh_node_SM_$YEAR"
+DATE="18_02_2020" #paper plots
+EXT="nodes"$YEAR
+OUTDIR="output/out_fit_${DATE}_${EXT}"
 ############
 
 ###########VBF plots
-CATS="VBFDoubleHTag_0,VBFDoubleHTag_1" 
-PROCS="qqHH_CV_1_C2V_1_kl_1_${YEAR},qqHH_CV_1_C2V_0_kl_1_${YEAR}"
-DATE="12_06_2020" 
-EXT="vbfhh"$YEAR
-OUTDIR="output/out_fit_${DATE}_${EXT}"
+#CATS="VBFDoubleHTag_0,VBFDoubleHTag_1" 
+#PROCS="qqHH_CV_1_C2V_1_kl_1_${YEAR},qqHH_CV_1_C2V_0_kl_1_${YEAR}"
+#DATE="12_06_2020" 
+#EXT="vbfhh"$YEAR
+#OUTDIR="output/out_fit_${DATE}_${EXT}"
 ############
 
 

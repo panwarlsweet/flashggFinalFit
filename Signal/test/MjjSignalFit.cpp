@@ -12,6 +12,7 @@
 #include <TH2F.h>
 #include <TCanvas.h>
 #include <TPaveText.h>
+#include "TGaxis.h"
 
 // RooFit headers
 #include <RooWorkspace.h>
@@ -150,8 +151,8 @@ vector<double> getFWHM(TH1F *h) {
 }
 
 
-//pair<double,double> getEffSigma(RooRealVar *mass, RooAbsPdf *pdf, double wmin=90., double wmax=170., double step=0.5, double epsilon=1.e-2){
-pair<double,double> getEffSigma(RooRealVar *mass, RooAbsPdf *pdf, double wmin=90., double wmax=170., double step=0.5, double epsilon=1.e-1){
+pair<double,double> getEffSigma(RooRealVar *mass, RooAbsPdf *pdf, double wmin=90., double wmax=170., double step=0.5, double epsilon=1.e-2){
+//pair<double,double> getEffSigma(RooRealVar *mass, RooAbsPdf *pdf, double wmin=90., double wmax=170., double step=0.5, double epsilon=1.e-1){
 
   RooAbsReal *cdf = pdf->createCdf(RooArgList(*mass));
   cout << "Computing effSigma...." << endl;
@@ -220,7 +221,8 @@ void RooDraw(TCanvas *can, TH1F *h, RooPlot* frame,RooDataHist* hist, RooAbsPdf*
 	frame->GetYaxis()->SetTitleSize(0.05);
 	frame->GetYaxis()->SetTitleOffset(1.5);
 	frame->SetMinimum(0.0);
-	TGaxis::SetExponentOffset(-0.07,0,"xy");
+	TGaxis::SetExponentOffset(-0.09,0,"xy");
+	TGaxis::SetMaxDigits(4);
    frame->GetYaxis()->SetTitle(Form("Events / ( %.1f GeV )",h->GetBinWidth(1)));
    frame->GetYaxis()->SetNdivisions(505);
 	frame->GetYaxis()->SetRangeUser(0.,h->GetBinContent(h->GetMaximumBin())*1.2);
@@ -244,7 +246,8 @@ void RooDraw(TCanvas *can, TH1F *h, RooPlot* frame,RooDataHist* hist, RooAbsPdf*
 	TString newtitle = iproc;
 	if (iproc.find("vbfhh") != std::string::npos) newtitle = "VBF HH SM : H#rightarrow bb H#rightarrow#gamma#gamma"; 
 	else if (iproc.find("hh") != std::string::npos) newtitle = "ggF HH SM : H#rightarrow bb H#rightarrow#gamma#gamma"; 
-	if (paper_) if (iproc.find("hh") != std::string::npos) newtitle = "HH#rightarrow#gamma#gammab#bar{b}"; 
+	if (paper_) if (iproc.find("hh_node_SM") != std::string::npos) newtitle = "ggF HH#rightarrow#gamma#gammab#bar{b}"; 
+	if (paper_) if (iproc.find("qqHH") != std::string::npos) newtitle = "VBF HH#rightarrow#gamma#gammab#bar{b}"; 
 	TLatex *lat1 = new TLatex(.129+0.03+offset,0.85,newtitle);
 	lat1->SetNDC(1);
 	lat1->SetTextSize(0.047);
@@ -253,7 +256,8 @@ void RooDraw(TCanvas *can, TH1F *h, RooPlot* frame,RooDataHist* hist, RooAbsPdf*
 	if (!putyear) catLabel_humanReadable  = category;
 	if (paper_) catLabel_humanReadable  = category;
 	catLabel_humanReadable.ReplaceAll("_"," ");
-	catLabel_humanReadable.ReplaceAll("DoubleHTag"," CAT");
+	catLabel_humanReadable.ReplaceAll("VBFDoubleHTag","VBF CAT");
+	catLabel_humanReadable.ReplaceAll("DoubleHTag","ggF CAT");
 	TLatex *lat2 = new TLatex(0.93,0.88,catLabel_humanReadable);
 	lat2->SetTextAlign(33);
 	lat2->SetNDC(1);
