@@ -1123,6 +1123,8 @@ if options.do_HHbbgg_systematics:
   flashggSysts['JER'] = 'JER' 
   flashggSysts['PUJIDShift'] = 'PUJIDShift'
   flashggSysts['MvaShift'] = 'phoIdMva'   #photonID
+  flashggSysts['prefireProbability'] = 'prefireProbability' 
+  flashggSysts['JetHEM'] = 'JetHEM'  
  
 
 
@@ -1477,6 +1479,11 @@ def getFlashggLine(proc,cat,syst):
            else : 
               weight_down.setVal(w_nominal*(w_down/(w_central/w_btagReshape)))
               weight_up.setVal(w_nominal*(w_up/(w_central/w_btagReshape)))
+        if "prefireProbability" in syst :
+              w_d = 1.+abs(weight_down.getVal()-weight_down.getVal())/2.
+              w_u = 1.+abs(weight_down.getVal()-weight_down.getVal())/2.
+              weight_down.setVal(w_d)
+              weight_up.setVal(w_u)
 
       data_up.add(r.RooArgSet(mass,weight_up),weight_up.getVal())
       data_down.add(r.RooArgSet(mass,weight_down),weight_down.getVal())
