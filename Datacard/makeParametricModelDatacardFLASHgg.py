@@ -1874,12 +1874,12 @@ if ((options.justThisSyst== "batch_split") or options.justThisSyst==""):
   #nuisance param systematics
   #printNuisParams()
   #printMultiPdf()
-  #printBRSyst()
+  printBRSyst()
   #printTrigSyst() # now a weight in the main roodataset!
   #printSimpleTTHSysts()
- # if options.do_HHbbgg_systematics : 
- #    printFlashggSysts()
- #    printTheorySystHHbbgg()
+  if options.do_HHbbgg_systematics : 
+     printFlashggSysts()
+     printTheorySystHHbbgg()
 
 #if (len(tthCats) > 0 ):  printTTHSysts()
 #printTheorySysts()
