@@ -1488,11 +1488,6 @@ def getFlashggLine(proc,cat,syst):
            else : 
               weight_down.setVal(w_nominal*(w_down/(w_central/w_btagReshape)))
               weight_up.setVal(w_nominal*(w_up/(w_central/w_btagReshape)))
-        if "prefireProbability" in syst :
-              w_d = 1.+abs(weight_up.getVal()-weight_down.getVal())/2.
-              w_u = 1.+abs(weight_up.getVal()-weight_down.getVal())/2.
-              weight_down.setVal(w_d)
-              weight_up.setVal(w_u)
 
       data_up.add(r.RooArgSet(mass,weight_up),weight_up.getVal())
       data_down.add(r.RooArgSet(mass,weight_down),weight_down.getVal())
@@ -1516,6 +1511,8 @@ def getFlashggLine(proc,cat,syst):
     exit(1)
   if systVals[0]==1 and systVals[1]==1:
       line = '- '
+  elif "prefireProbability" in syst :
+      line = '%5.3f '%(1+abs(systVals[0]-systVals[1])/2.)
   else:
       line = '%5.3f/%5.3f '%(systVals[0],systVals[1])
   return line
