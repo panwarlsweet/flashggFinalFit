@@ -775,7 +775,7 @@ lumi_systematics = [
 		{'name':'lumi_13TeV_Beam_Current_Calibration','title':'lumi_13TeV_Beam_Current_Calibration','type':'constant','prior':'lnN','correlateAcrossYears':-1,'value':{'2016':'-','2017':'1.003','2018':'1.002'}},
 		{'name':'lumi_13TeV_Ghosts_And_Satellites','title':'lumi_13TeV_Ghosts_And_Satellites','type':'constant','prior':'lnN','correlateAcrossYears':-1,'value':{'2016':'1.004','2017':'1.001','2018':'-'}}]
 
-dipoleOn_systematics = {'DoubleHTag_10': '1./0.045', 'DoubleHTag_11': '1./0.055', 'VBFDoubleHTag_0': '0.915/1.', 'DoubleHTag_2': '1./0.040', 'DoubleHTag_3': '1./0.060', 'DoubleHTag_0': '1./0.055', 'DoubleHTag_1': '1./0.020', 'DoubleHTag_6': '1./0.010', 'DoubleHTag_7': '1./0.050', 'DoubleHTag_4': '1./0.045', 'DoubleHTag_5': '1./0.035', 'DoubleHTag_8': '1./0.025', 'DoubleHTag_9': '1./0.010', 'VBFDoubleHTag_1': '0.95/1.'}
+dipoleOn_systematics = {'DoubleHTag_10': '1./1.045', 'DoubleHTag_11': '1./1.055', 'VBFDoubleHTag_0': '0.915/1.', 'DoubleHTag_2': '1./1.040', 'DoubleHTag_3': '1./1.060', 'DoubleHTag_0': '1./1.055', 'DoubleHTag_1': '1./1.020', 'DoubleHTag_6': '1./1.010', 'DoubleHTag_7': '1./1.050', 'DoubleHTag_4': '1./1.045', 'DoubleHTag_5': '1./1.035', 'DoubleHTag_8': '1./1.025', 'DoubleHTag_9': '1./1.010', 'VBFDoubleHTag_1': '0.95/1.'}
 
 ##Printing Functions
 def printBRSyst():
@@ -1423,6 +1423,15 @@ def getFlashggLine(proc,cat,syst):
   dataDOWN =  inWS.data("%s_13TeV_%d_%s_%sDown01sigma"%(flashggProc[proc],options.mass,cat,syst)) # will exist if teh systematic is an asymetric uncertainty not strore as event weights
   dataUP =  inWS.data("%s_13TeV_%d_%s_%sUp01sigma"%(flashggProc[proc],options.mass,cat,syst))# will exist if teh systematic is an asymetric uncertainty not strore as event weights
   dataNOMINAL =  inWS.data("%s_13TeV_%d_%s"%(flashggProc[proc],options.mass,cat)) #Nominal RooDataSet,. May contain required weights if UP/DOWN/SYMMETRIC roodatahists do not exist (ie systematic stored as event weigths)
+
+  if ('2016' in proc or '2017' in proc) and ('HEM' in syst):
+     line = '- '
+     return line
+
+  if ('2018' in proc) and ('prefireProbability' in syst):
+     line = '- '
+     return line
+
   print 'trying to access : ',"%s_13TeV_%d_%s"%(flashggProc[proc],options.mass,cat)
   if (dataSYMMETRIC==None):
     if( (dataUP==None) or  (dataDOWN==None)) :
@@ -1480,8 +1489,8 @@ def getFlashggLine(proc,cat,syst):
               weight_down.setVal(w_nominal*(w_down/(w_central/w_btagReshape)))
               weight_up.setVal(w_nominal*(w_up/(w_central/w_btagReshape)))
         if "prefireProbability" in syst :
-              w_d = 1.+abs(weight_down.getVal()-weight_down.getVal())/2.
-              w_u = 1.+abs(weight_down.getVal()-weight_down.getVal())/2.
+              w_d = 1.+abs(weight_up.getVal()-weight_down.getVal())/2.
+              w_u = 1.+abs(weight_up.getVal()-weight_down.getVal())/2.
               weight_down.setVal(w_d)
               weight_up.setVal(w_u)
 
