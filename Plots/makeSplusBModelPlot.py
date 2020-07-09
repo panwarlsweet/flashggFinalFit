@@ -13,7 +13,8 @@ import math
 import json
 from collections import OrderedDict
 # Scripts for plotting
-from plottingTools import getEffSigma, makeSplusBPlot
+from plottingTools import getEffSigma, makeSplusBPlot,makeSplusBplusHPlot
+import copy
 
 print " ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ HGG MODEL PLOTTER RUN II ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ "
 def leave():
@@ -51,6 +52,7 @@ def get_options():
   parser.add_option("--translatePOIs", dest="translatePOIs", default=None, help="JSON to store poi translations")
   parser.add_option("--problematicCats", dest="problematicCats", default='', help='Problematic analysis categories to skip when processing all')
   parser.add_option("--doHHMjjFix", dest="doHHMjjFix", default=False, action="store_true", help="Do fix for HH analysis where some cats have different Mjj var")
+  parser.add_option("--doHHplots", dest="doHHplots", default=False, action="store_true", help="HH plots with single H plotted separately")
   return parser.parse_args()
 (opt,args) = get_options()
 
@@ -59,6 +61,7 @@ if opt.inputWSFile is not None:
   print " --> Opening workspace: %s"%opt.inputWSFile
   f = ROOT.TFile(opt.inputWSFile)
   w = f.Get("w")
+  w_copy = copy.deepcopy(w)
   # If required loadSnapshot
   if opt.loadSnapshot is not None: 
     print "    * Loading snapshot: %s"%opt.loadSnapshot
@@ -84,6 +87,13 @@ xvar_arglist, xvar_argset = ROOT.RooArgList(xvar), ROOT.RooArgSet(xvar)
 wxvar_arglist, wxvar_argset = ROOT.RooArgList(xvar,weight), ROOT.RooArgSet(xvar,weight)
 chan = w.cat("CMS_channel")
 
+#if opt.doHHplots is not None: 
+#    w.var("tth_contribution").setVal(0.)
+#    w.var("ggh_contribution").setVal(0.)
+#    w.var("vh_contribution").setVal(0.)
+#    w.var("qqh_contribution").setVal(0.)
+
+
 # Define HH fix variable
 catsfix = ['DoubleHTag_10_13TeV','DoubleHTag_11_13TeV']
 if opt.doHHMjjFix:
@@ -105,6 +115,13 @@ if opt.doHHMjjFix:
 
 # Extract the total SB/B models
 sb_model, b_model = w.pdf("model_s"), w.pdf("model_b")
+if opt.mass is not None: w_copy.var("MH").setVal(float(opt.mass))
+if opt.doHHplots is not None: 
+    w_copy.var("tth_contribution").setVal(0.)
+    w_copy.var("ggh_contribution").setVal(0.)
+    w_copy.var("vh_contribution").setVal(0.)
+    w_copy.var("qqh_contribution").setVal(0.)
+sb_model_copy, b_model_copy = w_copy.pdf("model_s"), w_copy.pdf("model_b")
 
 # Extract dataset for opt.cats
 d_obs = w.data("data_obs")
@@ -312,6 +329,14 @@ for cidx in range(len(cats)):
   h_bpdf = {'pdfNBins':bpdf.createHistogram("h_b_pdfNBins_%s"%c,_xvar,ROOT.RooFit.Binning(opt.pdfNBins,xvar.getMin(),xvar.getMax())),
              'nBins':bpdf.createHistogram("h_b_nBins_%s"%c,_xvar,ROOT.RooFit.Binning(opt.nBins,xvar.getMin(),xvar.getMax()))
             }
+###########
+  print "    * creating pdf histograms for B only"
+  bpdf_nonres = b_model_copy.getPdf(c)
+  h_bnonrespdf = {'pdfNBins':bpdf_nonres.createHistogram("h_b_nonres_pdfNBins_%s"%c,_xvar,ROOT.RooFit.Binning(opt.pdfNBins,xvar.getMin(),xvar.getMax())),
+             'nBins':bpdf_nonres.createHistogram("h_b_nonres_nBins_%s"%c,_xvar,ROOT.RooFit.Binning(opt.nBins,xvar.getMin(),xvar.getMax()))
+            }
+############
+
   # Calculate yields
   SB, B = sbpdf.expectedEvents(_xvar_argset), bpdf.expectedEvents(_xvar_argset)
   S = SB-B
@@ -336,7 +361,8 @@ for cidx in range(len(cats)):
   xvar_range = int(xvar.getBinning().highBound()-xvar.getBinning().lowBound())
   if opt.nBins != xvar_range:
     print "    * scaling pdf histograms to match binning of data"
-    for h_ipdf in [h_sbpdf,h_bpdf,h_spdf]:
+    #for h_ipdf in [h_sbpdf,h_bpdf,h_spdf]:
+    for h_ipdf in [h_sbpdf,h_bpdf,h_spdf,h_bnonres_pdf]:
       for h in h_ipdf.itervalues(): h.Scale(float(xvar_range)/opt.nBins)
 
   # Create weighted pdf histograms
@@ -344,13 +370,17 @@ for cidx in range(len(cats)):
     print "     * creating S/S+B weighted pdf histograms"
     h_wsbpdf = {'pdfNBins':h_sbpdf['pdfNBins'].Clone(),'nBins':h_sbpdf['nBins'].Clone()}
     h_wbpdf = {'pdfNBins':h_bpdf['pdfNBins'].Clone(),'nBins':h_bpdf['nBins'].Clone()}
+    h_wbnonrespdf = {'pdfNBins':h_bnonrespdf['pdfNBins'].Clone(),'nBins':h_bnonrespdf['nBins'].Clone()}
     h_wspdf = {'pdfNBins':h_spdf['pdfNBins'].Clone(),'nBins':h_spdf['nBins'].Clone()}
-    for h_ipdf in [h_wsbpdf,h_wbpdf,h_wspdf]:
+    #for h_ipdf in [h_wsbpdf,h_wbpdf,h_wspdf]:
+    for h_ipdf in [h_wsbpdf,h_wbpdf,h_wspdf,h_wbnonrespdf]:
       for h in h_ipdf.itervalues(): h.Scale(catsWeights[c])
   
   # Create ratio histograms (+weighted)
   print "    * creating ratio histograms"
-  h_bpdf_ratio = h_bpdf['pdfNBins']-h_bpdf['pdfNBins']
+  #h_bpdf_ratio = h_bpdf['pdfNBins']-h_bpdf['pdfNBins']
+  h_bpdf_ratio = h_bpdf['pdfNBins']-h_bnonrespdf['pdfNBins']
+  h_bnonrespdf_ratio = h_bnonrespdf['pdfNBins']-h_bnonrespdf['pdfNBins']
   h_spdf_ratio = h_spdf['pdfNBins'].Clone()
   h_data_ratio = h_data.Clone()
   h_data_ratio.Reset()
@@ -362,7 +392,9 @@ for cidx in range(len(cats)):
     h_data_ratio.SetBinContent(ibin,bval-bkgval)
     h_data_ratio.SetBinError(ibin,berr)
   if opt.doCatWeights:
-    h_wbpdf_ratio = h_wbpdf['pdfNBins']-h_wbpdf['pdfNBins']
+    #h_wbpdf_ratio = h_wbpdf['pdfNBins']-h_wbpdf['pdfNBins']
+    h_wbpdf_ratio = h_wbpdf['pdfNBins']-h_wbnonrespdf['pdfNBins']
+    h_wbnonrespdf_ratio = h_wbpdf['pdfNBins']-h_wbpdf['pdfNBins']
     h_wspdf_ratio = h_wspdf['pdfNBins'].Clone()
     h_wdata_ratio = h_wdata.Clone()
     h_wdata_ratio.Reset()
@@ -383,7 +415,9 @@ for cidx in range(len(cats)):
 	h_data_ratio_sum = h_data_ratio.Clone()
 	h_sbpdf_sum = {'pdfNBins':h_sbpdf['pdfNBins'].Clone(),'nBins':h_sbpdf['nBins'].Clone()}
 	h_bpdf_sum = {'pdfNBins':h_bpdf['pdfNBins'].Clone(),'nBins':h_bpdf['nBins'].Clone()}
+	h_bnonrespdf_sum = {'pdfNBins':h_bnonrespdf['pdfNBins'].Clone(),'nBins':h_bnonrespdf['nBins'].Clone()}
 	h_bpdf_ratio_sum = h_bpdf_ratio.Clone()
+	h_bnonrespdf_ratio_sum = h_bnonrespdf_ratio.Clone()
 	h_spdf_sum = {'pdfNBins':h_spdf['pdfNBins'].Clone(),'nBins':h_spdf['nBins'].Clone()}
 	h_spdf_ratio_sum = h_spdf_ratio.Clone()
         if opt.doCatWeights:
@@ -392,6 +426,8 @@ for cidx in range(len(cats)):
 	  h_wsbpdf_sum = {'pdfNBins':h_wsbpdf['pdfNBins'].Clone(),'nBins':h_wsbpdf['nBins'].Clone()}
 	  h_wbpdf_sum = {'pdfNBins':h_wbpdf['pdfNBins'].Clone(),'nBins':h_wbpdf['nBins'].Clone()}
 	  h_wbpdf_ratio_sum = h_wbpdf_ratio.Clone()
+	  h_wbnonrespdf_sum = {'pdfNBins':h_wbnonrespdf['pdfNBins'].Clone(),'nBins':h_wbnonrespdf['nBins'].Clone()}
+	  h_wbnonrespdf_ratio_sum = h_wbnonrespdf_ratio.Clone()
 	  h_wspdf_sum = {'pdfNBins':h_wspdf['pdfNBins'].Clone(),'nBins':h_wspdf['nBins'].Clone()}
 	  h_wspdf_ratio_sum = h_wspdf_ratio.Clone()
       else:
@@ -399,7 +435,9 @@ for cidx in range(len(cats)):
 	h_data_ratio_sum += h_data_ratio.Clone()
 	for b,h in h_sbpdf.iteritems(): h_sbpdf_sum[b] += h.Clone()
 	for b,h in h_bpdf.iteritems(): h_bpdf_sum[b] += h.Clone()
+	for b,h in h_bnonrespdf.iteritems(): h_bnonrespdf_sum[b] += h.Clone()
 	h_bpdf_ratio_sum += h_bpdf_ratio.Clone()
+	h_bnonrespdf_ratio_sum += h_bnonrespdf_ratio.Clone()
 	for b,h in h_spdf.iteritems(): h_spdf_sum[b] += h.Clone()
 	h_spdf_ratio_sum += h_spdf_ratio.Clone()
         if opt.doCatWeights:
@@ -407,7 +445,9 @@ for cidx in range(len(cats)):
 	  h_wdata_ratio_sum += h_wdata_ratio.Clone()
 	  for b,h in h_wsbpdf.iteritems(): h_wsbpdf_sum[b] += h.Clone()
 	  for b,h in h_wbpdf.iteritems(): h_wbpdf_sum[b] += h.Clone()
+	  for b,h in h_wbnonrespdf.iteritems(): h_wbnonrespdf_sum[b] += h.Clone()
 	  h_wbpdf_ratio_sum += h_wbpdf_ratio.Clone()
+	  h_wbnonrespdf_ratio_sum += h_wbnonrespdf_ratio.Clone()
 	  for b,h in h_wspdf.iteritems(): h_wspdf_sum[b] += h.Clone()
 	  h_wspdf_ratio_sum += h_wspdf_ratio.Clone()
 
@@ -415,15 +455,21 @@ for cidx in range(len(cats)):
   if not opt.skipIndividualCatPlots:
     print "    * making plot"
     if not os.path.isdir("./SplusBModels%s"%(opt.ext)): os.system("mkdir ./SplusBModels%s"%(opt.ext))
-    if opt.doBands: makeSplusBPlot(w,h_data,h_sbpdf,h_bpdf,h_spdf,h_data_ratio,h_bpdf_ratio,h_spdf_ratio,c,opt,df_bands,_reduceRange)
-    else: makeSplusBPlot(w,h_data,h_sbpdf,h_bpdf,h_spdf,h_data_ratio,h_bpdf_ratio,h_spdf_ratio,c,opt,None,_reduceRange)
+    if opt.doHHplots :
+       if opt.doBands: makeSplusBplusHPlot(w,h_data,h_sbpdf,h_bnonrespdf,h_spdf,h_data_ratio,h_bnonrespdf_ratio,h_spdf_ratio,c,opt,h_bpdf,h_bpdf_ratio,df_bands,_reduceRange)
+       else: makeSplusBplusHPlot(w,h_data,h_sbpdf,h_bnonrespdf,h_spdf,h_data_ratio,h_bnonrespdf_ratio,h_spdf_ratio,c,opt,h_bpdf,h_bpdf_ratio,None,_reduceRange)
+    else : 
+       if opt.doBands: makeSplusBPlot(w,h_data,h_sbpdf,h_bpdf,h_spdf,h_data_ratio,h_bpdf_ratio,h_spdf_ratio,c,opt,df_bands,_reduceRange)
+       else: makeSplusBPlot(w,h_data,h_sbpdf,h_bpdf,h_spdf,h_data_ratio,h_bpdf_ratio,h_spdf_ratio,c,opt,None,_reduceRange)
 
   # Delete histograms
   h_data.Delete()
   h_data_ratio.Delete()
   for h in h_sbpdf.itervalues(): h.Delete()
   for h in h_bpdf.itervalues(): h.Delete()
+  for h in h_bnonrespdf.itervalues(): h.Delete()
   h_bpdf_ratio.Delete()
+  h_bnonrespdf_ratio.Delete()
   for h in h_spdf.itervalues(): h.Delete()
   h_spdf_ratio.Delete()
   if opt.doCatWeights:
@@ -431,7 +477,9 @@ for cidx in range(len(cats)):
     h_wdata_ratio.Delete()
     for h in h_wsbpdf.itervalues(): h.Delete()
     for h in h_wbpdf.itervalues(): h.Delete()
+    for h in h_wbnonrespdf.itervalues(): h.Delete()
     h_wbpdf_ratio.Delete()
+    h_wbnonrespdf_ratio.Delete()
     for h in h_wspdf.itervalues(): h.Delete()
     h_wspdf_ratio.Delete()
   print "    * finished processing\n"
@@ -443,9 +491,17 @@ if( len(opt.cats.split(",")) > 1 )|( opt.cats == 'all' ):
   if opt.doSumCategories:
     if not os.path.isdir("./SplusBModels%s"%(opt.ext)): os.system("mkdir ./SplusBModels%s"%(opt.ext))
     print " --> Making plot for sum of categories"
-    if opt.doBands: makeSplusBPlot(w,h_data_sum,h_sbpdf_sum,h_bpdf_sum,h_spdf_sum,h_data_ratio_sum,h_bpdf_ratio_sum,h_spdf_ratio_sum,'all',opt, df_bands,_reduceRange)
-    else: makeSplusBPlot(w,h_data_sum,h_sbpdf_sum,h_bpdf_sum,h_spdf_sum,h_data_ratio_sum,h_bpdf_ratio_sum,h_spdf_ratio_sum,'all',opt,None,_reduceRange)
+    if opt.doHHplots :
+        if opt.doBands: makeSplusBplusHPlot(w,h_data_sum,h_sbpdf_sum,h_bnonrespdf_sum,h_spdf_sum,h_data_ratio_sum,h_bnonrespdf_ratio_sum,h_spdf_ratio_sum,'all',opt,h_bpdf_sum,h_bpdf_ratio_sum, df_bands,_reduceRange)
+        else: makeSplusBplusHPlot(w,h_data_sum,h_sbpdf_sum,h_bnonrespdf_sum,h_spdf_sum,h_data_ratio_sum,h_bnonrespdf_ratio_sum,h_spdf_ratio_sum,'all',opt,h_bpdf_sum,h_bpdf_ratio_sum,None,_reduceRange)
+    else :
+        if opt.doBands: makeSplusBPlot(w,h_data_sum,h_sbpdf_sum,h_bpdf_sum,h_spdf_sum,h_data_ratio_sum,h_bpdf_ratio_sum,h_spdf_ratio_sum,'all',opt, df_bands,_reduceRange)
+        else: makeSplusBPlot(w,h_data_sum,h_sbpdf_sum,h_bpdf_sum,h_spdf_sum,h_data_ratio_sum,h_bpdf_ratio_sum,h_spdf_ratio_sum,'all',opt,None,_reduceRange)
     if opt.doCatWeights:
       print " --> Making weighted plot for sum of categories"
-      if opt.doBands: makeSplusBPlot(w,h_wdata_sum,h_wsbpdf_sum,h_wbpdf_sum,h_wspdf_sum,h_wdata_ratio_sum,h_wbpdf_ratio_sum,h_wspdf_ratio_sum,'wall',opt, df_bands, _reduceRange)
-      else: makeSplusBPlot(w,h_wdata_sum,h_wsbpdf_sum,h_wbpdf_sum,h_wspdf_sum,h_wdata_ratio_sum,h_wbpdf_ratio_sum,h_wspdf_ratio_sum,'wall',opt, None, _reduceRange)
+      if opt.doHHplots :
+         if opt.doBands: makeSplusBplusHPlot(w,h_wdata_sum,h_wsbpdf_sum,h_wbnonrespdf_sum,h_wspdf_sum,h_wdata_ratio_sum,h_wbnonrespdf_ratio_sum,h_wspdf_ratio_sum,'wall',opt,h_wbpdf_sum, h_wbpdf_ratio_sum, df_bands, _reduceRange)
+         else: makeSplusBplusHPlot(w,h_wdata_sum,h_wsbpdf_sum,h_wbnonrespdf_sum,h_wspdf_sum,h_wdata_ratio_sum,h_wbnonrespdf_ratio_sum,h_wspdf_ratio_sum,'wall',opt,h_wbpdf_sum, h_wbpdf_ratio_sum, df_bands, None, _reduceRange)
+      else :
+         if opt.doBands: makeSplusBPlot(w,h_wdata_sum,h_wsbpdf_sum,h_wbpdf_sum,h_wspdf_sum,h_wdata_ratio_sum,h_wbpdf_ratio_sum,h_wspdf_ratio_sum,'wall',opt, df_bands, _reduceRange)
+         else: makeSplusBPlot(w,h_wdata_sum,h_wsbpdf_sum,h_wbpdf_sum,h_wspdf_sum,h_wdata_ratio_sum,h_wbpdf_ratio_sum,h_wspdf_ratio_sum,'wall',opt, None, _reduceRange)
