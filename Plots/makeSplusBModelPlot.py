@@ -61,7 +61,6 @@ if opt.inputWSFile is not None:
   print " --> Opening workspace: %s"%opt.inputWSFile
   f = ROOT.TFile(opt.inputWSFile)
   w = f.Get("w")
-  w_copy = copy.deepcopy(w)
   # If required loadSnapshot
   if opt.loadSnapshot is not None: 
     print "    * Loading snapshot: %s"%opt.loadSnapshot
@@ -74,6 +73,7 @@ if opt.inputWSFile is not None:
       k, v = kv.split(":")[0], kv.split(":")[1]
       w.var(k).setVal(float(v))
 
+w_copy = copy.deepcopy(w)
 # Define blinding region
 blindingRegion = [float(opt.blindingRegion.split(",")[0]),float(opt.blindingRegion.split(",")[1])]
 # Define xvariable and categories
@@ -362,7 +362,7 @@ for cidx in range(len(cats)):
   if opt.nBins != xvar_range:
     print "    * scaling pdf histograms to match binning of data"
     #for h_ipdf in [h_sbpdf,h_bpdf,h_spdf]:
-    for h_ipdf in [h_sbpdf,h_bpdf,h_spdf,h_bnonres_pdf]:
+    for h_ipdf in [h_sbpdf,h_bpdf,h_spdf,h_bnonrespdf]:
       for h in h_ipdf.itervalues(): h.Scale(float(xvar_range)/opt.nBins)
 
   # Create weighted pdf histograms
