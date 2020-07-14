@@ -135,9 +135,10 @@ parser.add_option("--newGghScheme",default=False,action="store_true",help="Use n
 parser.add_option("--doSTXS",default=False,action="store_true",help="Use STXS Stage 0 processes" )
 parser.add_option("--signalProc",default='hh_SM_generated_2016,hh_SM_generated_2017,hh_SM_generated_2018',help="What to consider signal processes" )
 parser.add_option("--do_HHbbgg_systematics",default=0,type='int',help="Do systematics" )
-parser.add_option("--hhReweightDir",default='/work/nchernya/DiHiggs/inputs/25_10_2019/trees/kl_kt/',help="hh reweighting directory with all txt files" )
+parser.add_option("--hhReweightDir",default='/scratch/nchernya/HHbbgg/10_07_2020/systematics/BSM/',help="hh reweighting directory with all txt files" )
 parser.add_option("--hhReweightSM",default='',help="hh base SM card to start from" )
-parser.add_option("--do_kl_scan",default=False,action="store_true",help="do kl scan?" )
+parser.add_option("--do_coupling_scan",default=False,action="store_true",help="do coupling scan?" )
+parser.add_option("--which_coupling_scan",default='c2',type='string',help="which coupling scan" )
 parser.add_option("--do_benchmarks_scan",default=False,action="store_true",help="do BSM benchmarks scan?" )
 parser.add_option("--do_kl_likelihood",default=False,action="store_true",help="prepare datacard for kl likelihood" )
 parser.add_option("--kl_fit_params",default='/work/nchernya/DiHiggs/CMSSW_7_4_7/src/flashggFinalFit/Plots/FinalResults/plots/yeilds_ratio_kl_xsec_24_01_2020_fitparams.json',help="rateParam as a function of kl parametrization" )
@@ -856,30 +857,30 @@ def N3LOxsec_ggH():
     
 
 
-def printReweightingKlKt(years='2016,2017,2018'.split(',')):
-  print '[INFO] kl kt reweighting...'
+def printReweightingCoupling(years='2016,2017,2018'.split(','),coupling='c2'):
+  print '[INFO] coupling reweighting...'
   with open(options.hhReweightDir+"config.json","r") as rew_json:
     rew_dict = json.load(rew_json)
-  for ikl in range(0,rew_dict['Nkl']):
-    kl = rew_dict['klmin'] + ikl*rew_dict['klstep']
+  for ikl in range(0,rew_dict['N%s'%coupling]):
+    kl = rew_dict['%smin'%coupling] + ikl*rew_dict['%sstep'%coupling]
     kl_str = ("{:.6f}".format(kl)).replace('.','d').replace('-','m') 
     for ikt in range(0,rew_dict['Nkt']):
       kt = rew_dict['ktmin'] + ikt*rew_dict['ktstep']
       kt_str = ("{:.6f}".format(kt)).replace('.','d').replace('-','m') 
 
-      hhcard_name = options.hhReweightSM.replace('.txt','_kl_%s_kt_%s.txt'%(kl_str,kt_str))
+      hhcard_name = options.hhReweightSM.replace('.txt','_%s_%s_kt_%s.txt'%(coupling,kl_str,kt_str))
       os.system('cp %s %s'%(options.hhReweightSM,hhcard_name))  
       outNew = open(hhcard_name,'a')
       for year in years:
         rew_values = [] #for 12 cats
-        with open(options.hhReweightDir+"reweighting_%s_kl_%s_kt_%s.txt"%(year,kl_str,kt_str),"r") as rew_values_file:
+        with open(options.hhReweightDir+"reweighting_%s_%s_%s_kt_%s.txt"%(year,coupling,kl_str,kt_str),"r") as rew_values_file:
           for line in rew_values_file.readlines():
             rew_values.append(float(line.strip()))
         for cat_num,c in enumerate(options.cats):
           for p in options.procs:
             if '%s:%s'%(p,c) in options.toSkip: continue
             if (year in p) and (p in signalProc) :
-             rateParamName = 'kl_hh_%dTeV_%s_%s'%(sqrts,c,year)
+             rateParamName = '%s_hh_%dTeV_%s_%s'%(coupling,sqrts,c,year)
              outNew.write('%s  rateParam  '%(rateParamName))
              outNew.write('%s_13TeV '%(c))
              outNew.write('%s '%(p))
@@ -1529,8 +1530,10 @@ def printFlashggSysts(years='2016,2017,2018'.split(',')):
       allSystList.append(name)
       if (not options.justThisSyst=="") :
           if (not options.justThisSyst==name): continue
+      if 'prefireProbability' in paramSyst : outFile.write('%-35s   lnN   '%(name))
       for year in years:
-        outFile.write('%s_%-35s   lnN   '%(name,year))
+        if not 'prefireProbability' in paramSyst : outFile.write('%s_%-35s   lnN   '%(name,year))
+        #outFile.write('%s_%-35s   lnN   '%(name,year))
         for c in options.cats:
           for p in options.procs:
             if '%s:%s'%(p,c) in options.toSkip: continue
@@ -1541,8 +1544,12 @@ def printFlashggSysts(years='2016,2017,2018'.split(',')):
               outFile.write('- ')
             else:
               outFile.write(getFlashggLine(p,c,flashggSyst))
-        outFile.write('\n')
-        outFile.write('\n')
+        if not 'prefireProbability' in paramSyst : 
+          outFile.write('\n')
+          outFile.write('\n')
+      if 'prefireProbability' in paramSyst : 
+         outFile.write('\n')
+         outFile.write('\n')
 ###############################################################################
 
 ###############################################################################
@@ -1849,8 +1856,8 @@ if ((options.justThisSyst== "batch_split") or options.justThisSyst==""):
      exit()
 ####################################Reweighting benchamrks  done##################
 ####################################Reweighting kl kt start##################
-  if options.do_kl_scan :
-     printReweightingKlKt(years='2016,2017,2018'.split(','))
+  if options.do_coupling_scan :
+     printReweightingCoupling(years='2016,2017,2018'.split(','),coupling=options.which_coupling_scan)
      exit()
 ####################################Reweighting kl kt  done##################
 ####################################kl likelihood start ##################
