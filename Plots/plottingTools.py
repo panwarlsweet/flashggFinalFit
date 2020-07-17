@@ -271,7 +271,7 @@ def makeSplusBPlot(workspace,hD,hSB,hB,hS,hDr,hBr,hSr,cat,options,dB=None,reduce
 
 
 
-def makeSplusBplusHPlot(workspace,hD,hSB,hB,hS,hDr,hBr,hSr,cat,options,hH,hHr,dB=None,reduceRange=None):
+def makeSplusBplusHPlot(workspace,hD,hSB,hB,hS,hDr,hDr_errors,hBr,hSr,cat,options,hH,hHr,dB=None,reduceRange=None):
   translateCats = {} if options.translateCats is None else LoadTranslations(options.translateCats)
   translatePOIs = {} if options.translatePOIs is None else LoadTranslations(options.translatePOIs)
   blindingRegion = [float(options.blindingRegion.split(",")[0]),float(options.blindingRegion.split(",")[1])]
@@ -298,8 +298,9 @@ def makeSplusBplusHPlot(workspace,hD,hSB,hB,hS,hDr,hBr,hSr,cat,options,hH,hHr,dB
   pad1.cd()
   h_axes = hD.Clone()
   h_axes.Reset()
-  if options.doBands: h_axes.SetMaximum((hD.GetMaximum()+hD.GetBinError(hD.GetMaximumBin()))*1.4)
-  else: h_axes.SetMaximum((hD.GetMaximum()+hD.GetBinError(hD.GetMaximumBin()))*1.3)
+  h_axes.SetLineColor(0)
+  if options.doBands: h_axes.SetMaximum(max(4.6,(hD.GetMaximum()+hD.GetBinErrorUp(hD.GetMaximumBin()))*1.3)) #4.6 because of Poisson errors on empty bins
+  else: h_axes.SetMaximum((hD.GetMaximum()+hD.GetBinErrorUp(hD.GetMaximumBin()))*1.3)
   h_axes.SetMinimum(0.)
   h_axes.SetTitle("")
   h_axes.GetXaxis().SetTitle("")
@@ -330,13 +331,13 @@ def makeSplusBplusHPlot(workspace,hD,hSB,hB,hS,hDr,hBr,hSr,cat,options,hH,hHr,dB
       gr_1sig_r.SetPointError(gr_i,xerr,xerr,properties['median']-properties['down1sigma'],properties['up1sigma']-properties['median'])
       gr_2sig_r.SetPointError(gr_i,xerr,xerr,properties['median']-properties['down2sigma'],properties['up2sigma']-properties['median'])
       gr_i += 1
-    gr_1sig.SetFillColor(ROOT.kGreen)
+    gr_1sig.SetFillColor(ROOT.kGreen+1)
     gr_1sig.SetFillStyle(1001)
-    gr_2sig.SetFillColor(ROOT.kYellow)
+    gr_2sig.SetFillColor(ROOT.kOrange)
     gr_2sig.SetFillStyle(1001)
-    gr_1sig_r.SetFillColor(ROOT.kGreen)
+    gr_1sig_r.SetFillColor(ROOT.kGreen+1)
     gr_1sig_r.SetFillStyle(1001)
-    gr_2sig_r.SetFillColor(ROOT.kYellow)
+    gr_2sig_r.SetFillColor(ROOT.kOrange)
     gr_2sig_r.SetFillStyle(1001)
     gr_2sig.Draw("LE3SAME")
     gr_1sig.Draw("LE3SAME")
@@ -384,7 +385,7 @@ def makeSplusBplusHPlot(workspace,hD,hSB,hB,hS,hDr,hBr,hSr,cat,options,hH,hHr,dB
   hD.SetMarkerStyle(20)
   hD.SetMarkerColor(1)
   hD.SetLineColor(1)
-  hD.Draw("Same PE")
+  hD.Draw("Same PE01")
   # Add TLatex to plot
   lat0 = ROOT.TLatex()
   lat0.SetTextFont(42)
@@ -415,8 +416,13 @@ def makeSplusBplusHPlot(workspace,hD,hSB,hB,hS,hDr,hBr,hSr,cat,options,hH,hHr,dB
   pad2.cd()
   h_axes_ratio = hDr.Clone()
   h_axes_ratio.Reset()
-  h_axes_ratio.SetMaximum(max((hDr.GetMaximum()+hDr.GetBinError(hDr.GetMaximumBin()))*1.5,hSr.GetMaximum()*1.2))
-  h_axes_ratio.SetMinimum((hDr.GetMinimum()-hDr.GetBinError(hDr.GetMinimumBin()))*1.2)
+  h_axes_ratio.SetLineColor(0)
+  max_bin_num = hDr.GetMaximumBin()
+  min_bin_num = hDr.GetMinimumBin()
+  h_axes_ratio.SetMaximum(max(hDr.GetMaximum()+hDr_errors.GetErrorYhigh(max_bin_num-1)*1.1,hSr.GetMaximum()*1.4))
+  ratio_max = h_axes_ratio.GetMaximum()
+ # h_axes_ratio.SetMinimum((hDr.GetMinimum()-hDr_errors.GetErrorYlow(min_bin_num-1)*1.4))
+  h_axes_ratio.SetMinimum(-1.*ratio_max)
   h_axes_ratio.SetTitle("")
   h_axes_ratio.GetXaxis().SetTitleSize(0.05*padSizeRatio)
   h_axes_ratio.GetXaxis().SetLabelSize(0.035*padSizeRatio)
@@ -456,14 +462,19 @@ def makeSplusBplusHPlot(workspace,hD,hSB,hB,hS,hDr,hBr,hSr,cat,options,hH,hHr,dB
   hDr.SetMarkerStyle(20)
   hDr.SetMarkerColor(1)
   hDr.SetLineColor(1)
-  hDr.Draw("Same PE")
+#  hDr.Draw("Same P")
+  hDr_errors.SetMarkerStyle(20)
+  hDr_errors.SetMarkerColor(1)
+  hDr_errors.SetLineColor(1)
+  hDr_errors.Draw("same PEZ")
   # Add TLatex to ratio plot
   lat1 = ROOT.TLatex()
   lat1.SetTextFont(42)
   lat1.SetTextAlign(33)
   lat1.SetNDC(1)
   lat1.SetTextSize(0.045*padSizeRatio)
-  lat1.DrawLatex(0.87,0.93,"B component subtracted")
+  #lat1.DrawLatex(0.87,0.93,"B component subtracted")
+  lat1.DrawLatex(0.87,0.4,"B component subtracted")
 
   # Save canvas
   canv.Update()
