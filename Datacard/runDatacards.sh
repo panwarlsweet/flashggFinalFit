@@ -230,12 +230,12 @@ do
    CATS="DoubleHTag_0,DoubleHTag_1,DoubleHTag_2,DoubleHTag_3,DoubleHTag_4,DoubleHTag_5,DoubleHTag_6,DoubleHTag_7,DoubleHTag_8,DoubleHTag_9,DoubleHTag_10,DoubleHTag_11,VBFDoubleHTag_0"
    #CATS="VBFDoubleHTag_0"
    #outname="outputs/cms_HHbbgg2D_DoubleEG_cats70GeV_ftest_datacard_nodeSM_${DATE}_nlo_comb3.txt" 
-   outname="outputs/cms_HHbbgg2D_DoubleEG_cats70GeV_ftest_datacard_nodeSM_${DATE}_${YEAR}_ggHH_qqHH_comb3.txt" 
+   outname="outputs/cms_HHbbgg2D_DoubleEG_cats70GeV_ftest_datacard_nodeSM_${DATE}_${YEAR}_ggHH_qqHH_comb3_test.txt" 
    #outname="outputs/cms_HHbbgg2D_DoubleEG_cats70GeV_ftest_datacard_nodeSM_${DATE}_${YEAR}_qqHH_comb3.txt" 
 
    if [ $DO_SYSTEMATIC -gt 0 ] 
    then
-   	outname="outputs/cms_HHbbgg2D_DoubleEG_cats70GeV_ftest_datacard_nodeSM_${DATE}_nlo_comb3_systematics.txt" 
+   	outname="outputs/cms_HHbbgg2D_DoubleEG_cats70GeV_ftest_datacard_nodeSM_${DATE}_nlo_comb3_systematics_test2.txt" 
    fi
    #SYSINPUTFILE="/scratch/nchernya/HHbbgg/18_02_2020/workspaces_systematics/output_singleh.root,/scratch/nchernya/HHbbgg/18_02_2020/workspaces_systematics/output_ggHH_nlo_systematics.root" # if no systematics, then whatever file is ok
    SYSINPUTFILE="/scratch/nchernya/HHbbgg/18_02_2020/workspaces_systematics/output_singleh.root" # if no systematics, then whatever file is ok
@@ -244,7 +244,7 @@ do
 
    SIGNALFILE="inputs/CMS-HGG_sigfit_MggMjj_${YEAR}_${DATE}${TAG}.root"
 
-  ./makeParametricModelDatacardFLASHgg.py -i $SYSINPUTFILE -s $SIGNALFILE  --signalProc $nodename -d $DATAFILE -p $PROCS,$nodename -c $CATS --photonCatScales ../Signal/dat/photonCatSyst.dat --photonCatSmears ../Signal/dat/photonCatSyst.dat --isMultiPdf  -o ${outname} --intLumi2016 $INTLUMI2016 --intLumi2017 $INTLUMI2017 --intLumi2018 $INTLUMI2018 --do_HHbbgg_systematics $DO_SYSTEMATIC --do2D --btagReshapeFalse $btagReshapeFalse
+  #./makeParametricModelDatacardFLASHgg.py -i $SYSINPUTFILE -s $SIGNALFILE  --signalProc $nodename -d $DATAFILE -p $PROCS,$nodename -c $CATS --photonCatScales ../Signal/dat/photonCatSyst.dat --photonCatSmears ../Signal/dat/photonCatSyst.dat --isMultiPdf  -o ${outname} --intLumi2016 $INTLUMI2016 --intLumi2017 $INTLUMI2017 --intLumi2018 $INTLUMI2018 --do_HHbbgg_systematics $DO_SYSTEMATIC --do2D --btagReshapeFalse $btagReshapeFalse
 ################################################### Rename Mjj to Mjj_90GeV  for DoubleHTag_10,DoubleHTag_11 #############
    FILELOCATION='../Plots/FinalResults/'
    DATAFILE2=${DATAFILE//70GeV/90GeV}
@@ -253,4 +253,16 @@ do
   # python /work/nchernya/DiHiggs/rfwsutils/wsRename.py ${FILELOCATION}$SIGNALFILE2 ${FILELOCATION}${SIGNALFILE2//.root/_MjjRenamed.root}   Mjj Mjj_90GeV
 ##########################################################################################################################
 done
+  
 
+klkt_dir="/scratch/nchernya/HHbbgg/10_07_2020/systematics/BSM/"
+SMcard="outputs/cms_HHbbgg2D_DoubleEG_cats70GeV_ftest_datacard_11_07_2020_incl_LO_2016_2017_2018_cleaned_vbfbkg.txt"
+ggHH_lo_c2="--hhReweightDir $klkt_dir --hhReweightSM $SMcard --do_coupling_scan --which_coupling_scan c2"
+ggHH_lo_bsm="--hhReweightDir $klkt_dir --hhReweightSM $SMcard --do_benchmarks_scan"
+
+nodename="hh_node_SM_2016,hh_node_SM_2017,hh_node_SM_2018"
+
+./makeParametricModelDatacardFLASHgg.py -i $SYSINPUTFILE -s $SIGNALFILE  --signalProc $nodename -d $DATAFILE -p $PROCS,$nodename -c $CATS --photonCatScales ../Signal/dat/photonCatSyst.dat --photonCatSmears ../Signal/dat/photonCatSyst.dat --isMultiPdf  -o ${outname} --intLumi2016 $INTLUMI2016 --intLumi2017 $INTLUMI2017 --intLumi2018 $INTLUMI2018 --do_HHbbgg_systematics $DO_SYSTEMATIC --do2D --btagReshapeFalse $btagReshapeFalse $ggHH_lo_c2
+
+# $ggHH_lo_c2
+#bsm

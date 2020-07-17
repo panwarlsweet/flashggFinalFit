@@ -41,6 +41,25 @@ def getVals(fname):
 			vals = -1
 	return vals
 
+def functionGF(kl, kt, c2, cg, c2g):
+	# unused this can be extended to 5D coefficients; currently c2, cg, c2g are unused
+	# return ( A1*pow(kt,4) + A3*pow(kt,2)*pow(kl,2) + A7*kl*pow(kt,3) );
+	## 13 TeV
+	A = [2.09078, 10.1517, 0.282307, 0.101205, 1.33191, -8.51168, -1.37309, 2.82636, 1.45767, -4.91761, -0.675197, 1.86189, 0.321422, -0.836276, -0.568156]
+
+	def pow (base, exp):
+		return base**exp
+	
+	val = A[0]*pow(kt,4) + A[1]*pow(c2,2) + (A[2]*pow(kt,2) + A[3]*pow(cg,2))*pow(kl,2) + A[4]*pow(c2g,2) + ( A[5]*c2 + A[6]*kt*kl )*pow(kt,2) + (A[7]*kt*kl + A[8]*cg*kl )*c2 + A[9]*c2*c2g + (A[10]*cg*kl + A[11]*c2g)*pow(kt,2)+ (A[12]*kl*cg + A[13]*c2g )*kt*kl + A[14]*cg*c2g*kl
+	return val
+
+def functionGF_kl_wrap (x,par):
+	return par[0]*functionGF(x[0], 1., 0, 0, 0)
+
+def functionGF_c2_wrap (x,par):
+	return par[0]*functionGF(1., 1., x[0], 0, 0)
+
+
 
 
 def eval_nnlo_xsec_ggF(kl):
@@ -63,15 +82,16 @@ def nnlo_xsec_ggF_kl_wrap(x,par):
 ################################################################################################
 ###########OPTIONS
 parser = OptionParser()
+parser.add_option("--gridConfig",default='/work/nchernya/DiHiggs/CMSSW_7_4_7/src/flashggFinalFit/MetaData_HHbbgg/c2_grids/c2_grid_fine.json',help="grid for coupling scan" )
 #parser.add_option("--gridConfig",default='/work/nchernya/DiHiggs/CMSSW_7_4_7/src/flashggFinalFit/Plots/FinalResults/c2v_grids/c2v_grid_finish.json',help="grid for coupling scan" )
-#parser.add_option("--gridCrossSection",default='/work/nchernya/DiHiggs/CMSSW_7_4_7/src/flashggFinalFit/Plots/FinalResults/c2v_grids/vbfhhc2vline_finish.txt',help="theory prediction for coupling  scan for vbfhh" )
-#parser.add_option("--vbfhhTheoryPrediction",default='/work/nchernya/DiHiggs/CMSSW_7_4_7/src/flashggFinalFit/Plots/FinalResults/c2v_grids/vbfhhc2vline_prediction.txt',help="theory prediction for coupling scan for vbfhh" )
-parser.add_option("--gridConfig",default='/work/nchernya/DiHiggs/CMSSW_7_4_7/src/flashggFinalFit/MetaData_HHbbgg/cv_grids/cv_grid_finish.json',help="grid for coupling scan" )
-parser.add_option("--gridCrossSection",default='/work/nchernya/DiHiggs/CMSSW_7_4_7/src/flashggFinalFit/MetaData_HHbbgg/cv_grids/vbfhhcvline_finish.txt',help="theory prediction for coupling  scan for vbfhh" )
-parser.add_option("--vbfhhTheoryPrediction",default='/work/nchernya/DiHiggs/CMSSW_7_4_7/src/flashggFinalFit/MetaData_HHbbgg/cv_grids/vbfhhcvline_prediction.txt',help="theory prediction for coupling scan for vbfhh" )
-#parser.add_option("--gridConfig",default='/work/nchernya/DiHiggs/CMSSW_7_4_7/src/flashggFinalFit/Plots/FinalResults/kl_grids/kl_grid.json',help="grid for coupling scan" )
-#parser.add_option("--gridCrossSection",default='/work/nchernya/DiHiggs/CMSSW_7_4_7/src/flashggFinalFit/Plots/FinalResults/kl_grids/kl_grid_vbfhh.txt',help="theory prediction for couping scan for vbfhh" )
-#parser.add_option("--vbfhhTheoryPrediction",default='/work/nchernya/DiHiggs/CMSSW_7_4_7/src/flashggFinalFit/Plots/FinalResults/kl_grids/kl_grid_vbfhh_prediction.txt',help="theory prediction for coupling scan for vbfhh" )
+parser.add_option("--gridCrossSection",default='/work/nchernya/DiHiggs/CMSSW_7_4_7/src/flashggFinalFit/Plots/FinalResults/c2v_grids/vbfhhc2vline_finish.txt',help="theory prediction for coupling  scan for vbfhh" )
+parser.add_option("--theoryPrediction",default='/work/nchernya/DiHiggs/CMSSW_7_4_7/src/flashggFinalFit/Plots/FinalResults/c2v_grids/vbfhhc2vline_prediction.txt',help="theory prediction for coupling scan for vbfhh" )
+#parser.add_option("--gridConfig",default='/work/nchernya/DiHiggs/CMSSW_7_4_7/src/flashggFinalFit/MetaData_HHbbgg/cv_grids/cv_grid_finish.json',help="grid for coupling scan" )
+#parser.add_option("--gridCrossSection",default='/work/nchernya/DiHiggs/CMSSW_7_4_7/src/flashggFinalFit/MetaData_HHbbgg/cv_grids/vbfhhcvline_finish.txt',help="theory prediction for coupling  scan for vbfhh" )
+#parser.add_option("--theoryPrediction",default='/work/nchernya/DiHiggs/CMSSW_7_4_7/src/flashggFinalFit/MetaData_HHbbgg/cv_grids/vbfhhcvline_prediction.txt',help="theory prediction for coupling scan for vbfhh" )
+#parser.add_option("--gridConfig",default='/work/nchernya/DiHiggs/CMSSW_7_4_7/src/flashggFinalFit/MetaData_HHbbgg/kl_grids/kl_grid.json',help="grid for coupling scan" )
+#parser.add_option("--gridCrossSection",default='/work/nchernya/DiHiggs/CMSSW_7_4_7/src/flashggFinalFit/MetaData_HHbbgg/kl_grids//kl_grid_vbfhh.txt',help="theory prediction for couping scan for vbfhh" )
+#parser.add_option("--theoryPrediction",default='/work/nchernya/DiHiggs/CMSSW_7_4_7/src/flashggFinalFit/Plots/FinalResults/kl_grids/kl_grid_vbfhh_prediction.txt',help="theory prediction for coupling scan for vbfhh" )
 parser.add_option("--coupling",default='c2v',help="coupling to use for a limit : c2v,cv,kl" )
 parser.add_option("--whatToFloat",default='r',help="what to float" )
 parser.add_option("--indir", help="Input directory ")
@@ -83,7 +103,7 @@ parser.add_option("--nlo", action="store_true",help="NLO samples (need to normal
 ###########
 ###CREATE TAGS
 
-datalumi = "136.8 fb^{-1} (13 TeV)"
+datalumi = "137 fb^{-1} (13 TeV)"
 #datalumi = "59.4 fb^{-1} (13 TeV)"
 
 
@@ -93,7 +113,7 @@ c1.SetBottomMargin (0.15)
 c1.SetRightMargin (0.05)
 c1.SetLeftMargin (0.15)
 c1.SetGridx()
-c1.SetGridy()
+c1.SetGridy(4)
 
 mg = ROOT.TMultiGraph()
 
@@ -130,8 +150,11 @@ with open(options.gridConfig,"r") as rew_json:
 for icoup in range(0,rew_dict['N%s'%coupling]):
 		coup = rew_dict['%smin'%coupling] + icoup*rew_dict["%sstep"%coupling]	
 		coup_str = ("{:.6f}".format(coup)).replace('.','d').replace('-','m') 
-		if coupling=='c2v' or coupling=='cv' : fname = options.indir + '/' + 'higgsCombine_%s_%s_%s.AsymptoticLimits.mH125.root'%(coupling,coup_str,options.outtag)
-		if coupling =='kl' : fname = options.indir + '/' + 'higgsCombine_%s_%s_kt_1d000000_%s.AsymptoticLimits.mH125.root'%(coupling,coup_str,options.outtag)
+	#	if options.nlo : fname = options.indir + '/' + 'higgsCombine_%s_%s_%s_%s_all.AsymptoticLimits.mH125.root'%(coupling,coup_str,options.outtag,options.whatToFloat)
+#		else : fname = options.indir + '/' + 'higgsCombine_%s_%s_%s.AsymptoticLimits.mH125.root'%(coupling,coup_str,options.outtag)
+		fname = options.indir + '/' + 'higgsCombine_%s_%s_%s_%s_all.AsymptoticLimits.mH125.root'%(coupling,coup_str,options.outtag,options.whatToFloat)
+		#if coupling=='c2v' or coupling=='cv' : fname = options.indir + '/' + 'higgsCombine_%s_%s_%s.AsymptoticLimits.mH125.root'%(coupling,coup_str,options.outtag)
+		#if coupling =='kl' : fname = options.indir + '/' + 'higgsCombine_%s_%s_kt_1d000000_%s.AsymptoticLimits.mH125.root'%(coupling,coup_str,options.outtag)
 		vals  = getVals(fname)
 		if vals==-1 : continue
 		if options.nlo :  
@@ -257,7 +280,8 @@ fakePlot3.SetFillColor(ROOT.kRed)
 fakePlot3.SetFillStyle(3001)
 fakePlot3.SetLineColor(ROOT.kRed)
 fakePlot3.SetLineWidth(3)
-legend.AddEntry(fakePlot3, "Theoretical prediction", "lf")
+#legend.AddEntry(fakePlot3, "Theoretical prediction", "lf")
+legend.AddEntry(fakePlot3, "Theoretical prediction", "l")
 
 
 ##### text
@@ -280,7 +304,7 @@ pt2.SetTextFont(42)
 pt2.SetFillStyle(0)
 pt2.AddText(datalumi)
 
-//pt4 = ROOT.TPaveText(0.4819196+0.036,0.7780357+0.015+0.02,0.9008929+0.036,0.8675595+0.015,"brNDC")
+#pt4 = ROOT.TPaveText(0.4819196+0.036,0.7780357+0.015+0.02,0.9008929+0.036,0.8675595+0.015,"brNDC")
 pt4 = ROOT.TPaveText(0.4819196+0.036,0.7780357+0.015+0.02,0.9008929+0.036,0.896,"brNDC")
 pt4.SetTextAlign(12)
 pt4.SetFillColor(ROOT.kWhite)
@@ -340,63 +364,57 @@ if coupling=='c2v':
 if coupling=='cv':
 	xmin=-4
 	xmax=4
+if coupling=='c2':
+	xmin=-2.5
+	xmax=2.5
 
-graph = ROOT.TGraph(options.vbfhhTheoryPrediction)
-ci = ROOT.TColor.GetColor("#ff0000")
-graph.SetLineColor(ci)
-graph.SetLineWidth(2)
-for k in range (0,graph.GetN()): 
-	if options.whatToFloat=='r' : 
-		if coupling=='kl' : theory_value  = eval_nnlo_xsec_ggF(graph.GetX()[k])*BR_hhbbgg + graph.GetY()[k]*1000.*BR_hhbbgg*qqHH_NNLO_kfactor
-		elif coupling=='c2v' or coupling=='cv' :theory_value  = eval_nnlo_xsec_ggF(1.)*BR_hhbbgg + graph.GetY()[k]*1000.*BR_hhbbgg*qqHH_NNLO_kfactor
-		graph.GetY()[k] = theory_value
-		if (graph.GetX()[k]>=coup_min) and (graph.GetX()[k]<=coup_max) : theory_line.append(theory_value) 
-	elif options.whatToFloat=='r_qqhh' : 
-		if coupling=='kl' : theory_value  =  graph.GetY()[k]*1000.*BR_hhbbgg*qqHH_NNLO_kfactor
-		elif coupling=='c2v' or coupling=='cv'  :theory_value  = graph.GetY()[k]*1000.*BR_hhbbgg*qqHH_NNLO_kfactor 
-		graph.GetY()[k] = theory_value
-		if (graph.GetX()[k]>=coup_min) and (graph.GetX()[k]<=coup_max) : theory_line.append(theory_value) 
-	elif options.whatToFloat=='r_gghh' : 
-		if coupling=='kl' : theory_value  =  eval_nnlo_xsec_ggF(graph.GetX()[k])*BR_hhbbgg
-		elif coupling=='c2v'  or coupling=='cv' :theory_value  =  eval_nnlo_xsec_ggF(1.)*BR_hhbbgg
-		graph.GetY()[k] = theory_value
-		if (graph.GetX()[k]>=coup_min) and (graph.GetX()[k]<=coup_max) : theory_line.append(theory_value) 
-	if (graph.GetX()[k]>=coup_min) and (graph.GetX()[k]<=coup_max) : xval_line.append(graph.GetX()[k])
-
-
-## myFunc =  ROOT.TF1("myFunc","(2.09*[0]*[0]*[0]*[0] + 0.28*[0]*[0]*x*[0]*x*[0] -1.37*[0]*[0]*[0]*x*[0])*2.44185/[1]",xmin,xmax);
-#myFunc = ROOT.TF1 ("myFunc", functionGF_kl_wrap, xmin, xmax, 1)
-#if options.nlo : 
-#	myFunc = ROOT.TF1 ("myFunc", nnlo_xsec_ggF_kl_wrap, xmin, xmax, 1)
-#	y_theo_scale = BR_hhbbgg# already scaled to cross section
-#myFunc.SetParameter(0, y_theo_scale) ### norm scale
-#graph = ROOT.TGraph(myFunc);
-#ci = ROOT.TColor.GetColor("#ff0000");
-#graph.SetLineColor(ci);
-#graph.SetLineWidth(2);
-## graph.Draw("l");
-#divider = 1000.
-#nP = int((kl_max-kl_min)*divider)
-#Graph_syst_Scale =  ROOT.TGraphAsymmErrors(nP)
-#for i in range(nP) : 
-#	x = kl_min+(i*1.)/divider
-#	Graph_syst_Scale_x=(kl_min+(i*1.)/divider)
-#	if options.nlo : Graph_syst_Scale_y=nnlo_xsec_ggF_kl_wrap([x], [y_theo_scale])
-#	else :Graph_syst_Scale_y=functionGF_kl_wrap([x], [y_theo_scale])
-#	theory_line.append(Graph_syst_Scale_y)
-#	xval_line.append(x)
-#	Graph_syst_Scale_x_err=(0)
-#	if options.nlo :  
-#		Graph_syst_Scale_y_errup    = nnlo_xsec_ggF_kl_wrap([x], [y_theo_scale])*0.045
-#		Graph_syst_Scale_y_errdown  = nnlo_xsec_ggF_kl_wrap([x], [y_theo_scale])*0.064
-#	else :  
-#		Graph_syst_Scale_y_errup    = functionGF_kl_wrap([x], [y_theo_scale])*0.045
-#		Graph_syst_Scale_y_errdown  = functionGF_kl_wrap([x], [y_theo_scale])*0.064
-#	Graph_syst_Scale.SetPoint(i,Graph_syst_Scale_x,Graph_syst_Scale_y)
-#	Graph_syst_Scale.SetPointError(i,Graph_syst_Scale_x_err,Graph_syst_Scale_x_err,Graph_syst_Scale_y_errup,Graph_syst_Scale_y_errdown)
-#Graph_syst_Scale.SetLineColor(ROOT.kRed)
-#Graph_syst_Scale.SetFillColor(ROOT.kRed)
-#Graph_syst_Scale.SetFillStyle(3001)
+if options.nlo : 
+	graph = ROOT.TGraph(options.theoryPrediction)
+	ci = ROOT.TColor.GetColor("#ff0000")
+	graph.SetLineColor(ci)
+	graph.SetLineWidth(2)
+	for k in range (0,graph.GetN()): 
+		if options.whatToFloat=='r' : 
+			if coupling=='kl' : theory_value  = eval_nnlo_xsec_ggF(graph.GetX()[k])*BR_hhbbgg + graph.GetY()[k]*1000.*BR_hhbbgg*qqHH_NNLO_kfactor
+			elif coupling=='c2v' or coupling=='cv' :theory_value  = eval_nnlo_xsec_ggF(1.)*BR_hhbbgg + graph.GetY()[k]*1000.*BR_hhbbgg*qqHH_NNLO_kfactor
+			graph.GetY()[k] = theory_value
+			if (graph.GetX()[k]>=coup_min) and (graph.GetX()[k]<=coup_max) : theory_line.append(theory_value) 
+		elif options.whatToFloat=='r_qqhh' : 
+			if coupling=='kl' : theory_value  =  graph.GetY()[k]*1000.*BR_hhbbgg*qqHH_NNLO_kfactor
+			elif coupling=='c2v' or coupling=='cv'  :theory_value  = graph.GetY()[k]*1000.*BR_hhbbgg*qqHH_NNLO_kfactor 
+			graph.GetY()[k] = theory_value
+			if (graph.GetX()[k]>=coup_min) and (graph.GetX()[k]<=coup_max) : theory_line.append(theory_value) 
+		elif options.whatToFloat=='r_gghh' : 
+			if coupling=='kl' : theory_value  =  eval_nnlo_xsec_ggF(graph.GetX()[k])*BR_hhbbgg
+			elif coupling=='c2v'  or coupling=='cv' :theory_value  =  eval_nnlo_xsec_ggF(1.)*BR_hhbbgg
+			graph.GetY()[k] = theory_value
+			if (graph.GetX()[k]>=coup_min) and (graph.GetX()[k]<=coup_max) : theory_line.append(theory_value) 
+		if (graph.GetX()[k]>=coup_min) and (graph.GetX()[k]<=coup_max) : xval_line.append(graph.GetX()[k])
+else : 
+	myFunc = ROOT.TF1 ("myFunc", functionGF_c2_wrap, xmin, xmax, 1) 
+	myFunc.SetParameter(0, y_theo_scale) ### norm scale
+	graph = ROOT.TGraph(myFunc);
+	ci = ROOT.TColor.GetColor("#ff0000");
+	graph.SetLineColor(ci);
+	graph.SetLineWidth(2);
+	# graph.Draw("l");
+	divider = 1000.
+	nP = int((coup_max-coup_min)*divider)
+	Graph_syst_Scale =  ROOT.TGraphAsymmErrors(nP)
+	for i in range(nP) : 
+		x = coup_min+(i*1.)/divider
+		Graph_syst_Scale_x=(coup_min+(i*1.)/divider)
+		Graph_syst_Scale_y=functionGF_c2_wrap([x], [y_theo_scale])
+		theory_line.append(Graph_syst_Scale_y)
+		xval_line.append(x)
+		Graph_syst_Scale_x_err=(0)
+		Graph_syst_Scale_y_errup    = functionGF_kl_wrap([x], [y_theo_scale])*0.045
+		Graph_syst_Scale_y_errdown  = functionGF_kl_wrap([x], [y_theo_scale])*0.064
+		Graph_syst_Scale.SetPoint(i,Graph_syst_Scale_x,Graph_syst_Scale_y)
+		Graph_syst_Scale.SetPointError(i,Graph_syst_Scale_x_err,Graph_syst_Scale_x_err,Graph_syst_Scale_y_errup,Graph_syst_Scale_y_errdown)
+	Graph_syst_Scale.SetLineColor(ROOT.kRed)
+	Graph_syst_Scale.SetFillColor(ROOT.kRed)
+	Graph_syst_Scale.SetFillStyle(3001)
 
 exp_line = exp_inter(xval_line)
 obs_line = obs_inter(xval_line)
@@ -411,13 +429,15 @@ if options.unblind:
 	print np.array(xval_line)[idx], np.array(theory_line)[idx],np.array(obs_line)[idx]
 
 
-
-
 hframe = ROOT.TH1F('hframe', '', 100, xmin, xmax)
 if options.whatToFloat=='r' or options.whatToFloat=='r_gghh'  :
 	hframe.SetMinimum(0.0)
 	hframe.SetMaximum(2.5)
 	if coupling == 'kl' : hframe.SetMaximum(3.0)
+	if coupling == 'c2' : 	
+		hframe.SetMaximum(2.0)
+		hframe.GetYaxis().SetNdivisions(506)
+		hframe.GetXaxis().SetNdivisions(506)
 if options.whatToFloat=='r_qqhh' :
 	ROOT.gPad.SetLogy()
 	hframe.SetMinimum(0.0005)
@@ -438,6 +458,7 @@ elif options.whatToFloat=='r_gghh' : hframe.GetYaxis().SetTitle("95% CL on #sigm
 if coupling=='kl' : hframe.GetXaxis().SetTitle("#kappa_{#lambda}=#lambda_{HHH}/#lambda_{SM}")
 if coupling=='c2v' : hframe.GetXaxis().SetTitle("c_{2V}")
 if coupling=='cv' : hframe.GetXaxis().SetTitle("c_{V}")
+if coupling=='c2' : hframe.GetXaxis().SetTitle("c_{2}")
 
 hframe.SetStats(0)
 ROOT.gPad.SetTicky()

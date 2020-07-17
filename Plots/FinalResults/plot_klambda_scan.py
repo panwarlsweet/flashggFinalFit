@@ -79,6 +79,8 @@ def functionGF(kl, kt, c2, cg, c2g):
 def functionGF_kl_wrap (x,par):
 	return par[0]*functionGF(x[0], 1., 0, 0, 0)
 
+def functionGF_c2_wrap (x,par):
+	return par[0]*functionGF(1., 1., x[0], 0, 0)
 
 def eval_nnlo_xsec_ggF(kl):
    SF = 1.115  #1.115 is sigma_NNLO+FTapprox / sigma_NLO for SM = 31.05/27.84
@@ -388,7 +390,7 @@ xmax=31.4
 yt=1
 BR = 1
 # myFunc =  ROOT.TF1("myFunc","(2.09*[0]*[0]*[0]*[0] + 0.28*[0]*[0]*x*[0]*x*[0] -1.37*[0]*[0]*[0]*x*[0])*2.44185/[1]",xmin,xmax);
-myFunc = ROOT.TF1 ("myFunc", functionGF_kl_wrap, xmin, xmax, 1)
+myFunc = ROOT.TF1 ("myFunc", functionGF_kl_wrap, xmin, xmax, 1) 
 if options.nlo : 
 	myFunc = ROOT.TF1 ("myFunc", nnlo_xsec_ggF_kl_wrap, xmin, xmax, 1)
 	y_theo_scale = BR_hhbbgg# already scaled to cross section

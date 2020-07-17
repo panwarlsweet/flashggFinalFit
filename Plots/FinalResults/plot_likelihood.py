@@ -19,7 +19,7 @@ def extra_texts(coupl_text=''):
 
     yoffset = -0.046
 
-    lumibox = ROOT.TLatex  (0.9, 0.964+yoffset, "136.8 fb^{-1} (13 TeV)")
+    lumibox = ROOT.TLatex  (0.9, 0.964+yoffset, "137 fb^{-1} (13 TeV)")
     lumibox.SetNDC()
     lumibox.SetTextAlign(31)
     lumibox.SetTextSize(extratextsize)
@@ -179,8 +179,8 @@ frame.GetYaxis().SetTitleOffset(1.25)
 frame.Draw()
 
 for gr in graphs :
-  if not dolegend : gr.Draw('PLsame')
-  else : gr.Draw('Lsame')
+  if not dolegend : gr.Draw('PCsame')
+  else : gr.Draw('Csame')
   ROOT.gDirectory.Append(gr)
 
 ### lines
@@ -191,12 +191,12 @@ sigma2_line = np.array([sigmas[1]*sigmas[1]]*5000)
 if 'kl' in coupling : xval_line = np.linspace(-5,11,5000) 
 if 'c2v' in coupling : xval_line = np.linspace(-3,4,5000) 
 if 'cv' in coupling : xval_line = np.linspace(-2,2,5000) 
-#if len(exp_list)>0 : 
-#  exp_line = exp_inter(xval_line)
-#  idx_sigma1 = np.argwhere(np.diff(np.sign(exp_line-sigma1_line ))).flatten()
-#  idx_sigma2 = np.argwhere(np.diff(np.sign(exp_line-sigma2_line ))).flatten()
-#  print '68% : ', np.array(xval_line)[idx_sigma1], np.array(sigma1_line)[idx_sigma1],np.array(exp_line)[idx_sigma1]
-#  print '95% : ', np.array(xval_line)[idx_sigma2], np.array(sigma2_line)[idx_sigma2],np.array(exp_line)[idx_sigma2]
+if len(exp_list)>0 : 
+  exp_line = exp_inter(xval_line)
+  idx_sigma1 = np.argwhere(np.diff(np.sign(exp_line-sigma1_line ))).flatten()
+  idx_sigma2 = np.argwhere(np.diff(np.sign(exp_line-sigma2_line ))).flatten()
+  print '68% : ', np.array(xval_line)[idx_sigma1], np.array(sigma1_line)[idx_sigma1],np.array(exp_line)[idx_sigma1]
+  print '95% : ', np.array(xval_line)[idx_sigma2], np.array(sigma2_line)[idx_sigma2],np.array(exp_line)[idx_sigma2]
 
 lines = []
 for s in sigmas:
@@ -218,7 +218,7 @@ for isigma,s in enumerate(sigmas):
 for l in labels: l.Draw()
 
 if 'kl' in coupling : exp_text = 'Expected (#kappa_{#lambda} = 1)' 
-if 'c2v' in coupling : exp_text = 'Expected (c_{2V} = 1.1)' 
+if 'c2v' in coupling : exp_text = 'Expected (c_{2V} = 1)' 
 if 'cv' in coupling : exp_text = 'Expected (c_{V} = 1)' 
 et = extra_texts(exp_text)
 for t in et[0:len(et)-1]: t.Draw()

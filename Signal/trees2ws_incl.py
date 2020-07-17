@@ -47,6 +47,7 @@ def getSystLabelsWeights(isMET = False):
         jetsystlabels.append("JEC%s01sigma" % direction)
         jetsystlabels.append("JER%s01sigma" % direction)
         jetsystlabels.append("PUJIDShift%s01sigma" % direction)
+        jetsystlabels.append("JetHEM%s01sigma" % direction)  #2018 only
      #   metsystlabels.append("metJecUncertainty%s01sigma" % direction)
      #   metsystlabels.append("metJerUncertainty%s01sigma" % direction)
      #   metsystlabels.append("metPhoUncertainty%s01sigma" % direction)
@@ -62,7 +63,8 @@ def getSystLabelsWeights(isMET = False):
     if isMET:
         systlabels += metsystlabels
 
-    systweights = [ "PreselSF", "electronVetoSF", "TriggerWeight", "FracRVWeight",  "MuonIDWeight", "MuonIsoWeight", "ElectronIDWeight", "ElectronRecoWeight", "JetBTagReshapeWeight"] #, "JetBTagReshapeWeight"]
+   # systweights = [ "PreselSF", "electronVetoSF", "TriggerWeight", "FracRVWeight",  "MuonIDWeight", "MuonIsoWeight", "ElectronIDWeight", "ElectronRecoWeight", "JetBTagReshapeWeight","prefireProbability"] #, "JetBTagReshapeWeight"]
+    systweights = [ "PreselSF", "electronVetoSF", "TriggerWeight", "FracRVWeight",  "MuonIDWeight", "MuonIsoWeight", "ElectronIDWeight", "ElectronRecoWeight", "JetBTagReshapeWeight"] #, "JetBTagReshapeWeight"]  #without prefire
     #systweights = ["JetBTagReshapeWeight","PreselSF", "electronVetoSF", "TriggerWeight","LooseMvaSF"] 
     return systlabels,systweights
 
@@ -218,8 +220,8 @@ def get_options():
 
     parser = OptionParser()
     ###########################For final result before unblinding with VBF add lepton Veto #####################
-    parser.add_option("--inp-files",type='string',dest='inp_files',default='qqh,tth,vh,ggh')  
-    #parser.add_option("--inp-files",type='string',dest='inp_files',default='hh')  
+   # parser.add_option("--inp-files",type='string',dest='inp_files',default='qqh,tth,vh,ggh')  
+    parser.add_option("--inp-files",type='string',dest='inp_files',default='hh')  
     #parser.add_option("--inp-files",type='string',dest='inp_files',default='qqHH_CV_1_C2V_1_kl_1,qqHH_CV_1_C2V_2_kl_1,qqHH_CV_1_C2V_1_kl_2,qqHH_CV_1_C2V_1_kl_0,qqHH_CV_0p5_C2V_1_kl_1,qqHH_CV_1p5_C2V_1_kl_1')  
     #parser.add_option("--inp-files",type='string',dest='inp_files',default='hh_nlo_cHHH0,hh_nlo_cHHH1,hh_nlo_cHHH2p45,hh_nlo_cHHH5,qqHH_CV_1_C2V_1_kl_1,qqHH_CV_1_C2V_2_kl_1,qqHH_CV_1_C2V_1_kl_2,qqHH_CV_1_C2V_1_kl_0,qqHH_CV_0p5_C2V_1_kl_1,qqHH_CV_1p5_C2V_1_kl_1')  
     #parser.add_option("--inp-files",type='string',dest='inp_files',default='hh_nlo_cHHH0,hh_nlo_cHHH1,hh_nlo_cHHH2p45,hh_nlo_cHHH5')  
@@ -230,8 +232,8 @@ def get_options():
     #parser.add_option("--out-dir",type='string',dest="out_dir",default='/work/nchernya/DiHiggs/inputs/18_02_2020/nlo_updated/')
     #parser.add_option("--inp-dir",type='string',dest="inp_dir",default='/scratch/nchernya/HHbbgg/18_02_2020/trees_systematics/nlo/')
     #parser.add_option("--out-dir",type='string',dest="out_dir",default='/scratch/nchernya/HHbbgg/18_02_2020/workspaces_systematics/')
-    parser.add_option("--inp-dir",type='string',dest="inp_dir",default='/work/nchernya/DiHiggs/inputs/16_06_2020/trees/')
-    parser.add_option("--out-dir",type='string',dest="out_dir",default='/work/nchernya/DiHiggs/inputs/16_06_2020/')
+    parser.add_option("--inp-dir",type='string',dest="inp_dir",default='/scratch/nchernya/HHbbgg/10_07_2020/systematics/')
+    parser.add_option("--out-dir",type='string',dest="out_dir",default='/scratch/nchernya/HHbbgg/10_07_2020/')
     #parser.add_option("--cats",type='string',dest="cats",default='DoubleHTag_0,DoubleHTag_1,DoubleHTag_2,DoubleHTag_3,DoubleHTag_4,DoubleHTag_5,DoubleHTag_6,DoubleHTag_7,DoubleHTag_8,DoubleHTag_9,DoubleHTag_10,DoubleHTag_11')
     parser.add_option("--cats",type='string',dest="cats",default='DoubleHTag_0,DoubleHTag_1,DoubleHTag_2,DoubleHTag_3,DoubleHTag_4,DoubleHTag_5,DoubleHTag_6,DoubleHTag_7,DoubleHTag_8,DoubleHTag_9,DoubleHTag_10,DoubleHTag_11,VBFDoubleHTag_0,VBFDoubleHTag_1')
     #parser.add_option("--MVAcats",type='string',dest="MVAcats",default='0.44,0.67,0.79,1')
@@ -377,7 +379,7 @@ for num,f in enumerate(input_files):
          print nlo_renormalization,sum(data["weight"]) 
          if not opt.add_benchmarks : systematics_datasets += add_dataset_to_workspace( data, ws, newname,systematics_labels,btag_norm = btag_renorm,nlo_renormalization=nlo_renormalization,save_every_nth_event=save_every_nth_event) #systemaitcs[1] : this should be done for nominal only, to add weights
          else :
-             save_every_nth_event=1 
+             save_every_nth_event=2 
              systematics_datasets += add_dataset_to_workspace( data, ws, newname,systematics_labels,btag_norm = btag_renorm,nlo_renormalization=nlo_renormalization,save_every_nth_event=save_every_nth_event, add_benchmarks=opt.add_benchmarks,benchmark_num=benchmark_num,benchmark_norm = calculate_benchmark_normalization(normalizations,year,benchmark_num))
          #print newname, " ::: Entries =", ws.data(newname).numEntries(), ", SumEntries =", ws.data(newname).sumEntries()
 

@@ -20,23 +20,30 @@ using namespace std;
 //c++ -lm -o runHH runHHReweighter.cpp HHReweight5D.cpp `root-config --glibs --cflags`
 int main ()
 {
-	 int Nkl=51;
-	 float klstep = 0.5;
+//	 int Nkl=51;
+//	 float klstep = 0.5;
     int Nkt=1;
 	 float ktstep = 0.;
-	 float klmin=-10;
-	 float klmax=15;
+//	 float klmin=-10;
+//	 float klmax=15;
 	 float ktmin=1;
 	 float ktmax=1;
+//////////////////for c2!
+	 int Nkl=201;
+	 float klstep = 0.02;
+	 float klmin=-2;
+	 float klmax=2;
 
 	 TString s;
 	 TString year = "2016";
     TString inMapFile   = TString::Format("HHreweight_%s_15112019.root",year.Data()) ;
 	 TString addname = "_13TeV_125_13TeV_";
 	 TString processName = "hh";
-    TString inputDir = "/work/nchernya/DiHiggs/inputs/18_02_2020/categorizedTrees/";
-    TString outDir = "kl_kt_finebinning_test/";
-	 TString filename = s.Format("output_%s_%s_treesCats.root",processName.Data(),year.Data()); 
+    //TString inputDir = "/work/nchernya/DiHiggs/inputs/18_02_2020/categorizedTrees/";
+    TString inputDir = "/scratch/nchernya/HHbbgg/10_07_2020/systematics/";
+    //TString outDir = "kl_kt_finebinning/";
+    TString outDir = "BSM/";
+	 TString filename = s.Format("output_%s_%s.root",processName.Data(),year.Data()); 
 
     string coeffFile  = "coefficientsByBin_extended_3M_costHHSim_19-4.txt";
     TString inHistoName = "allHHNodeMap2D";
@@ -53,15 +60,17 @@ int main ()
     std::vector<double> vect_c2g{0.0, 0.6, -0.8,  0.0,-1.0,-0.2,-0.2, 1.0,  0.6, 0.0, -1.0, 0.0,  0., 0., 1.};
 
 
-	 TString cats[13] = {}; 
-	 TString cats_names[13] = {}; 
-	 const int NCATS=12;
-	 const int NGENCATS=13;
-    const int Nnodes = 15;
-	 for (int i=0;i<NCATS;i++){
+	 TString cats[15] = {}; 
+	 TString cats_names[15] = {}; 
+	 const int NCATS=14;//12
+	 const int NGENCATS=15;//13
+    const int Nnodes = 15; 
+	// for (int i=0;i<NCATS;i++){
+	 for (int i=0;i<12;i++){
 		cats[i] = s.Format("DoubleHTag_%d",i);
-		cats_names[i] = s.Format("DoubleHTag_%d",i);
 	 }
+    cats[12] = "VBFDoubleHTag_0";
+    cats[13] = "VBFDoubleHTag_1";
 	 cats[NGENCATS-1] = "NoTag_0";
 
 	 float  mhh, cosTheta, weight, benchmark_reweight_SM;
@@ -77,6 +86,7 @@ int main ()
 	 for (int cat=0;cat<NGENCATS;cat++){
     	TTree *ch_gen = (TTree*)dirGen2->Get(s.Format("%s%s%s%s",processName.Data(),year.Data(),addname.Data(),cats[cat].Data()));
       ch_gen->SetBranchAddress("benchmark_reweight_SM", &benchmark_reweight_SM);
+
 	   ch_gen->SetBranchAddress("weight", &weight);	
 		ch_gen->SetBranchAddress("absCosThetaStar_CS", &cosTheta);
       ch_gen->SetBranchAddress("mhh", &mhh);
@@ -90,12 +100,14 @@ int main ()
 			}
 		
 			for(int ikl=0; ikl<Nkl; ++ikl){
-				float kl = klmin + ikl*klstep;
+				//float kl = klmin + ikl*klstep;
+				float c2 = klmin + ikl*klstep;
 				for(int ikt=0; ikt<Nkt; ++ikt){
 	  				float kt = ktmin + ikt*ktstep; 
-					sum_gen_w[ikl+Nkl*ikt] += weight*hhreweighter->getWeight(kl, kt, 0., 0., 0., mhh, cosTheta);
-               if (kl==9.5) hMhh_kl_1->Fill(mhh,weight*hhreweighter->getWeight(kl, kt, 0., 0., 0., mhh, cosTheta)); // for a test only	
-               if (kl==-3.) hMhh_kl_2->Fill(mhh,weight*hhreweighter->getWeight(kl, kt, 0., 0., 0., mhh, cosTheta)); // for a test only	
+					//sum_gen_w[ikl+Nkl*ikt] += weight*hhreweighter->getWeight(kl, kt, 0., 0., 0., mhh, cosTheta);
+					sum_gen_w[ikl+Nkl*ikt] += weight*hhreweighter->getWeight(1, kt, c2, 0., 0., mhh, cosTheta);  /// in fact for c2
+            //   if (kl==9.5) hMhh_kl_1->Fill(mhh,weight*hhreweighter->getWeight(kl, kt, 0., 0., 0., mhh, cosTheta)); // for a test only	
+             //  if (kl==-3.) hMhh_kl_2->Fill(mhh,weight*hhreweighter->getWeight(kl, kt, 0., 0., 0., mhh, cosTheta)); // for a test only	
 				}
 			}		
       }
@@ -122,10 +134,12 @@ int main ()
 					sum_w_cats_nodes[inode][cat] += weight*hhreweighter->getWeight(vect_kl[inode], vect_kt[inode], vect_c2[inode], vect_cg[inode], vect_c2g[inode], mhh, cosTheta);
 			}
 			for(int ikl=0; ikl<Nkl; ++ikl){
-				float kl = klmin + ikl*klstep;
+				//float kl = klmin + ikl*klstep;
+				float c2 = klmin + ikl*klstep;
 				for(int ikt=0; ikt<Nkt; ++ikt){
 	  				float kt = ktmin + ikt*ktstep; 
-    	 			sum_w_cats[ikl+Nkl*ikt][cat] += weight*hhreweighter->getWeight(kl, kt, 0., 0., 0., mhh, cosTheta);			
+    	 			//sum_w_cats[ikl+Nkl*ikt][cat] += weight*hhreweighter->getWeight(kl, kt, 0., 0., 0., mhh, cosTheta);			
+    	 			sum_w_cats[ikl+Nkl*ikt][cat] += weight*hhreweighter->getWeight(1, kt, c2, 0., 0., mhh, cosTheta);			
 				}
 			}		
     	}
@@ -154,7 +168,8 @@ int main ()
 			std::replace(output_kt.begin(), output_kt.end(), '.', 'd');
 			std::replace(output_kt.begin(), output_kt.end(), '-', 'm');
 			std::replace(output_kt.begin(), output_kt.end(), '+', 'p');
-			string out_txt = (string)inputDir + (string)outDir +"/reweighting_"+(string)year+"_kl_"+output_kl+"_kt_"+output_kt+".txt";
+			//string out_txt = (string)inputDir + (string)outDir +"/reweighting_"+(string)year+"_kl_"+output_kl+"_kt_"+output_kt+".txt";
+			string out_txt = (string)inputDir + (string)outDir +"/reweighting_"+(string)year+"_c2_"+output_kl+"_kt_"+output_kt+".txt";
 			out.open(out_txt);
 
 	 		for (int cat=0;cat<NCATS;cat++){
