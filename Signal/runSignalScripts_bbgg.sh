@@ -1,28 +1,26 @@
 doFTEST=0
-doFIT=0
-doPACKAGER=1
+doFIT=1
+doPACKAGER=0
 doPLOTS=0
 doCALCPHOSYST=0 #Not needed, only for shape syst, checked to be negligible
-MASS=''
+MASS='125'
 
-#YEAR="2016"
+YEAR=$1
 #YEAR="2017"
-YEAR="2018"
+#YEAR="2018"
 
 
-#DATE="24_01_2020"
-#DATE="22_04_2020"
-#DATE="27_03_2020"
-#EXT="singleHiggs"$YEAR
-#EXT="hhNLO"$YEAR
-#EXT="qqHH"$YEAR
+DATE=$2
+#DATE="24_08_2020_2"
 
-#EXT="nodes"$YEAR
-#EXT="vbfhh"$YEAR
+EXT=$3$4"_"$YEAR
+#EXT="SingleH_"$YEAR
+
+
 PHOTONSYSTFILE=dat/photonCatSyst.dat # without systematics
 #PHOTONSYSTFILE=dat/photonCatSyst_${EXT}.dat
 
-INDIR="/work/nchernya/DiHiggs/inputs/${DATE}/"
+INDIR="/eos/user/l/lata/Resonant_bbgg/flattrees_L2Regression_resonant_PR1217_PR1220_16Jul2020/WED/Run2_ws_trees_PR1217_1220/WED/${YEAR}/RD300/"
 OUTDIR="output/out_fit_${DATE}_${EXT}"
 if [ $doFTEST -gt 0 ]; then
    OUTDIR="output/out_${DATE}_${EXT}"
@@ -30,20 +28,17 @@ if [ $doFTEST -gt 0 ]; then
  #  doFIT=0
 fi
 CONFIGDAT="output/out_${DATE}_${EXT}/dat/newConfig_${EXT}.dat"
-#runLocal='--runLocal'
-runLocal=''
+runLocal='--runLocal'
+#runLocal=''
 
 #COndor
-#BATCH=HTCONDOR
-#DEFAULTQUEUE=espresso  #espresso : 20min.  microcentury - 1h, longlunch-2h, workday - 8h, tomorrow -1d
+BATCH=HTCONDOR
+DEFAULTQUEUE=espresso  #espresso : 20min.  microcentury - 1h, longlunch-2h, workday - 8h, tomorrow -1d
 
-BATCH=T3CH
-DEFAULTQUEUE="short.q " #for slurm not used  #-l h_vmem=6g"  #increase memory for systematics -l h_vmem=6g
-#CATS="DoubleHTag_0,DoubleHTag_1,DoubleHTag_2,DoubleHTag_3,DoubleHTag_4,DoubleHTag_5,DoubleHTag_6,DoubleHTag_7,DoubleHTag_8,DoubleHTag_9,DoubleHTag_10,DoubleHTag_11"
-#CATS="DoubleHTag_0,DoubleHTag_1,DoubleHTag_2,DoubleHTag_3,DoubleHTag_4,DoubleHTag_5,DoubleHTag_6,DoubleHTag_7,DoubleHTag_8,DoubleHTag_9,DoubleHTag_10,DoubleHTag_11,VBFDoubleHTag_0"
+CATS="DoubleHTag_0,DoubleHTag_1,DoubleHTag_2"
+#,DoubleHTag_3,DoubleHTag_4,DoubleHTag_5,DoubleHTag_6,DoubleHTag_7,DoubleHTag_8,DoubleHTag_9,DoubleHTag_10,DoubleHTag_11"
 
-REFTAG="DoubleHTag_0"
-INTLUMI=136.8
+INTLUMI=$5
 
 ###########Not needed, only for shape syst, checked to be negligible
 SCALES="HighR9EE,LowR9EE,HighR9EB,LowR9EB"
@@ -52,32 +47,21 @@ SCALESCORR="MaterialCentralBarrel,MaterialOuterBarrel,MaterialForward"
 SCALESGLOBAL="NonLinearity,Geant4,LightYield,Absolute"
 
 
-#############SINGLE HIGGS ############
-#PROCS="ggh_${YEAR},tth_${YEAR},qqh_${YEAR},vh_${YEAR}"
+########## Radion HH ###########
+REFTAG="DoubleHTag_0"
+REFPROC="Radionhh300_${YEAR}"
+PROCS="Radionhh300_${YEAR}"
+INFILES="output_GluGluToRadionToHHTo2B2G_M-300_narrow_13TeV-madgraph"
+
+###### for Single H###########
 #REFPROC="tth_${YEAR}"
-#INFILES="output_ggh_${YEAR},output_tth_${YEAR},output_qqh_${YEAR},output_vh_${YEAR}"
-#REFTAG="DoubleHTag_9"
-#############HH NLO ############
-#REFPROC="ggHH_kl_0_kt_1_${YEAR}"
-#PROCS="ggHH_kl_0_kt_1_${YEAR},ggHH_kl_1_kt_1_${YEAR},ggHH_kl_2p45_kt_1_${YEAR},ggHH_kl_5_kt_1_${YEAR}"
-#INFILES="output_ggHH_kl_0_kt_1_${YEAR},output_ggHH_kl_1_kt_1_${YEAR},output_ggHH_kl_2p45_kt_1_${YEAR},output_ggHH_kl_5_kt_1_${YEAR}"
-############# qqHH NLO ############
-REFPROC="qqHH_CV_1_C2V_2_kl_1_${YEAR}"
-REFTAG="VBFDoubleHTag_0"
-PROCS="qqHH_CV_1_C2V_1_kl_1_${YEAR},qqHH_CV_1_C2V_2_kl_1_${YEAR},qqHH_CV_1_C2V_1_kl_2_${YEAR},qqHH_CV_1_C2V_1_kl_0_${YEAR},qqHH_CV_0p5_C2V_1_kl_1_${YEAR},qqHH_CV_1p5_C2V_1_kl_1_${YEAR}"
-INFILES="output_qqHH_CV_1_C2V_1_kl_1_${YEAR},output_qqHH_CV_1_C2V_2_kl_1_${YEAR},output_qqHH_CV_1_C2V_1_kl_2_${YEAR},output_qqHH_CV_1_C2V_1_kl_0_${YEAR},output_qqHH_CV_0p5_C2V_1_kl_1_${YEAR},output_qqHH_CV_1p5_C2V_1_kl_1_${YEAR}"
-################################
+#REFTAG="DoubleHTag_0"
+##below is for 2018 only ####
+#REFPROC="vh_${YEAR}"                                                                         
+#REFTAG="DoubleHTag_1"  
+#PROCS="qqh_${YEAR},vh_${YEAR},tth_${YEAR},ggh_${YEAR},bbh_4FS_yb2_${YEAR},bbh_4FS_ybyt_${YEAR}"
 
-
-
-#############NODES ############
-#REFPROC="hh_node_SM_$YEAR"
-#PROCS="hh_node_SM_$YEAR"
-#INFILES="output_hh_node_SM_$YEAR"
-################################
-#REFPROC="vbfhh_$YEAR"
-#PROCS="vbfhh_$YEAR"
-#INFILES="output_vbfhh_$YEAR"
+#INFILES="output_VBFHToGG_M-125_13TeV_powheg_pythia8,output_VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8,output_ttHToGG_M125_13TeV_powheg_pythia8,output_GluGluHToGG_M-125_13TeV_powheg_pythia8,output_bbHToGG_M-125_4FS_yb2_13TeV_amcatnlo,output_bbHToGG_M-125_4FS_ybyt_13TeV_amcatnlo"
 
 
 ####################################################
@@ -120,7 +104,7 @@ if [ $doFTEST -gt 0 ]; then
     PEND=`ls -l $OUTDIR/fTestJobs/sub*| grep -v "\.run" | grep -v "\.done" | grep -v "\.fail" | grep -v "\.err" |grep -v "\.log"  |wc -l`
     TOTAL=`ls -l $OUTDIR/fTestJobs/sub*| grep "\.sh"  |wc -l`
     echo "PEND $PEND"
-    while (( $PEND > 0 )) ; do
+    while (( $PEND > 1 )) ; do
       PEND=`ls -l $OUTDIR/fTestJobs/sub* | grep -v "\.run" | grep -v "\.done" | grep -v "\.fail" | grep -v "\.err" | grep -v "\.log" |wc -l`
       RUN=`ls -l $OUTDIR/fTestJobs/sub* | grep "\.run" |wc -l`
       FAIL=`ls -l $OUTDIR/fTestJobs/sub* | grep "\.fail" |wc -l`
@@ -185,29 +169,26 @@ if [ $YEAR == "2018" ]; then
 	LUMI=137.
 fi
 ###########paper_plots
-CATS="DoubleHTag_0" 
-PROC_SM="hh_node_SM_$YEAR"
-PROCS="hh_node_SM_$YEAR"
-DATE="18_02_2020" #paper plots
-EXT="nodes"$YEAR
+CATS="DoubleHTag_0,DoubleHTag_1,DoubleHTag_2" 
+
 OUTDIR="output/out_fit_${DATE}_${EXT}"
+PROC="Radionhh_300_${YEAR}"
 ############
 
 ###########VBF plots
 #CATS="VBFDoubleHTag_0,VBFDoubleHTag_1" 
-#PROCS="qqHH_CV_1_C2V_1_kl_1_${YEAR},qqHH_CV_1_C2V_0_kl_1_${YEAR}"
+#PROCS="qqHH_CV_1_C2V_1_kl_1_${YEAR},qqHH_CV_1_C2V_1_kl_0_${YEAR}"
 #DATE="12_06_2020" 
 #EXT="vbfhh"$YEAR
 #OUTDIR="output/out_fit_${DATE}_${EXT}"
 ############
 
-
 if [ $doPACKAGER -gt 0 ]; then
 	echo 'in the packager'
 	for PROC_SM in $(echo $PROCS | sed "s/,/ /g")
 	do
-		ls $PWD/$OUTDIR/CMS-HGG_sigfit_${EXT}_${PROC_SM}_*DoubleHTag_*.root > $OUTDIR/${PROC_SM}.txt
-		inputfile="$OUTDIR/${PROC_SM}.txt"
+		ls $PWD/$OUTDIR/CMS-HGG_sigfit_${EXT}${Date}_*DoubleHTag_*.root > $OUTDIR/${EXT}.txt
+		inputfile="$OUTDIR/${EXT}.txt"
 		counter=0
 		while read p ; do
 		  if (($counter==0)); then
@@ -218,12 +199,12 @@ if [ $doPACKAGER -gt 0 ]; then
 		  ((counter=$counter+1))
 		done < $inputfile 
 		echo "SIGFILES $SIGFILES"
-	   ./bin/PackageOutput  --skipMasses 120,130 -i $SIGFILES --procs $PROC_SM -l $LUMI -p $OUTDIR/sigfit -W wsig_13TeV -f $CATS -L 120 -H 130 -o $OUTDIR/CMS-HGG_sigfit_${EXT}_${PROC_SM}_packager.root > package.out
-	   ./bin/makeParametricSignalModelPlots -i  ${OUTDIR}/CMS-HGG_sigfit_${EXT}_${PROC_SM}_packager.root -o $OUTDIR/signalModel -p $PROC_SM -f $CATS 
+	   ./bin/PackageOutput  --skipMasses 120,130 -i $SIGFILES --procs $EXT -l $LUMI -p $OUTDIR/sigfit -W wsig_13TeV -f $CATS -L 120 -H 130 -o $OUTDIR/CMS-HGG_sigfit_${EXT}_${DATE}_packager.root > package.out
+	   ./bin/makeParametricSignalModelPlots -i  ${OUTDIR}/CMS-HGG_sigfit_${EXT}_${DATE}_packager.root -o $OUTDIR/signalModel -p $EXT -f $CATS 
 	done
 fi
 
 if [ $doPLOTS -gt 0 ]; then
-	./bin/makeParametricSignalModelPlots -i  ${OUTDIR}/CMS-HGG_sigfit_${EXT}_${PROC_SM}_packager.root -o $OUTDIR/signalModel -p $PROC_SM -f $CATS 
+	./bin/makeParametricSignalModelPlots -i  ${OUTDIR}/CMS-HGG_sigfit_${EXT}_${PROC}_packager.root -o $OUTDIR/signalModel -p $PROC -f $CATS 
 fi
 

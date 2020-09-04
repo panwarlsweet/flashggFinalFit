@@ -183,7 +183,8 @@ for node in whichNodes:
      combProc[proc] = proc
      allNodes.append(proc)
      allProcs.append(proc)
-for p in 'ggHH_kl_0_kt_1,ggHH_kl_1_kt_1,ggHH_kl_2p45_kt_1,ggHH_kl_5_kt_1,qqHH_CV_1_C2V_1_kl_1,qqHH_CV_1_C2V_2_kl_1,qqHH_CV_1_C2V_1_kl_2,qqHH_CV_1_C2V_1_kl_0,qqHH_CV_0p5_C2V_1_kl_1,qqHH_CV_1p5_C2V_1_kl_1'.split(','):
+#for p in 'ggHH_kl_0_kt_1,ggHH_kl_1_kt_1,ggHH_kl_2p45_kt_1,ggHH_kl_5_kt_1,qqHH_CV_1_C2V_1_kl_1,qqHH_CV_1_C2V_2_kl_1,qqHH_CV_1_C2V_1_kl_2,qqHH_CV_1_C2V_1_kl_0,qqHH_CV_0p5_C2V_1_kl_1,qqHH_CV_1p5_C2V_1_kl_1'.split(','):
+for p in 'Radionhh300,Radionhh350'.split(','):
    for y in ['2016','2017','2018']:
      combProc[p+'_'+y] = p+'_'+y
      allNodes.append(p+'_'+y)
@@ -288,9 +289,9 @@ else: options.globalScalesCorr = options.globalScalesCorr.split(',')
 ###############################################################################
 ## OPEN WORKSPACE AND EXTRACT INFO # ##########################################
 sqrts=13
-print 'filename', options.infilename
-inWS = WSTFileWrapper(options.infilename,"tagsDumper/cms_hgg_%sTeV"%sqrts)
-#inWS = inFile.Get('wsig_13TeV')
+print 'filename', options.infilename#
+inWS = WSTFileWrapper(options.infilename,"wsig_%sTeV"%sqrts)
+#inWS = infilename.Get('wsig_13TeV')
 #if (inWS==None) : inWS = inFile.Get('tagsDumper/cms_hgg_%sTeV'%sqrts)
 #intL = inWS.var('IntLumi').getVal() #FIXME
 #intL = 2600

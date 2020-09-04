@@ -1,16 +1,16 @@
-#YEAR="2016"
+YEAR="2016"
 #YEAR="2017"
-YEAR="2018"
+#YEAR="2018"
 mergeYears=1  #used for all procs
 mergeCats=0 #used for single Higgs and 12 DoubleHTag cats only, not for VBF
 PAPER=1
 
 
-DATE="12_06_2020"
+DATE="2_09_2020"
 
 #EXT="singleHiggs"$YEAR
 #EXT="hhNLO"$YEAR
-EXT="qqHH"$YEAR
+EXT="ResHH"$YEAR
 
 INDIR="/work/nchernya/DiHiggs/inputs/${DATE}/"
 OUTDIR="output/mjj/out_mjj_${DATE}_${EXT}_paper/"

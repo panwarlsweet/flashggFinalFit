@@ -29,8 +29,8 @@ for file in `ls ./$DIR/fTestJobs/sub*.sh.log`; do
     tail -n$((l-1-9)) $file.tex-1l > $file.tex-core
     cat $file.tex-core >> all.tex
     echo " \newpage " >> all.tex 
-    rm $file.tex-1l 
-    rm $file.tex-core
+    rm -f $file.tex-1l 
+    rm -f $file.tex-core
 
 done
 
@@ -39,8 +39,8 @@ echo " \end{document}		    " >> all.tex
 pdflatex all.tex
 mv all.pdf $DIR.pdf
 
-rm all.tex
-rm all.aux
-rm all.log
-rm sub*.log.pdf
+rm -f all.tex
+rm -f all.aux
+rm -f all.log
+rm -f sub*.log.pdf
 
