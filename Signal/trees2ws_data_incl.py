@@ -212,4 +212,3 @@ for num,f in enumerate(input_files):
    getattr(ws, 'import')(data222)
    ws.Write()
    f_out.Close()
-
