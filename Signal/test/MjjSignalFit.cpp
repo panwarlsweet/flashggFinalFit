@@ -245,7 +245,11 @@ void RooDraw(TCanvas *can, TH1F *h, RooPlot* frame,RooDataHist* hist, RooAbsPdf*
 	double offset =0.05;
 	TString newtitle = iproc;
 	if (iproc.find("vbfhh") != std::string::npos) newtitle = "VBF HH SM : H#rightarrow bb H#rightarrow#gamma#gamma"; 
-	else if (iproc.find("hh") != std::string::npos) newtitle = "ggF HH SM : H#rightarrow bb H#rightarrow#gamma#gamma"; 
+	//	else if (iproc.find("hh") != std::string::npos) newtitle = "ggF HH SM : H#rightarrow bb H#rightarrow#gamma#gamma";
+	else if (iproc.find("Radionhh") != std::string::npos) newtitle = "(Spin-0) X#rightarrow HH#rightarrow #gamma#gammab#bar{b}";
+	else if (iproc.find("BulkGravitonhh") != std::string::npos) newtitle = "(Spin-2) X#rightarrow HH#rightarrow #gamma#gammab#bar{b}";
+	else if (iproc.find("NMSSMhh") != std::string::npos) newtitle = "(Spin-0) X#rightarrow HY#rightarrow #gamma#gammab#bar{b}";
+ 
 	if (paper_) if (iproc.find("hh_node_SM") != std::string::npos) newtitle = "ggF HH#rightarrow#gamma#gammab#bar{b}"; 
 	if (paper_) if (iproc.find("qqHH") != std::string::npos) newtitle = "VBF HH#rightarrow#gamma#gammab#bar{b}"; 
 	TLatex *lat1 = new TLatex(.129+0.03+offset,0.85,newtitle);
@@ -343,7 +347,7 @@ int main(int argc, char *argv[]){
 
 	unsigned int iproc_num = 0;
 	for (auto &iproc:procs_) {
-		string signalfile = indir_+"output_"+iproc+"_"+year_+".root";
+		string signalfile = indir_+iproc+"_"+year_+".root";
 		if (!(infilesStr_.empty())){  //If inputfiles are provided by a user
 			signalfile = indir_+infiles_[iproc_num];
 		}

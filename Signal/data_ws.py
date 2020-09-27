@@ -108,7 +108,10 @@ cats = opt.cats.split(',')
 MVAcats = opt.MVAcats.split(',')
 #MXcuts = opt.MXcats.split(',')
 nMVA =len(MVAcats)-1 
+#nMX = int(12/(len(MVAcats)-1))
 cat_def = {}
+
+#input_files = inp_files.split(',')
 
 target_names = []
 sig = opt.sig
@@ -126,23 +129,9 @@ MX_cut2=[263,275,286,309,327,360,413,463,514,565,615,680,725,825,925,1025]
 for i in range(len(masses)):
  print("i...=",i,"\t","mass==",masses[i])
  for year in years:
-  if year == "2016":
-    bTagNF = 1
-    lumi = 35.9
-    ttH="ttHToGG_M125_13TeV_powheg_pythia8"
-  elif year == "2017":
-    bTagNF = 2
-    ttH="ttHToGG_M125_13TeV_powheg_pythia8"
-    lumi = 41.5
-    
-  elif year == "2018":
-    bTagNF = 3
-    lumi = 59.4
-    ttH="ttHJetToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8"
 
-  inp_files="GluGluHToGG_M-125_13TeV_powheg_pythia8,VBFHToGG_M-125_13TeV_powheg_pythia8,VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8,"+ttH+",bbHToGG_M-125_4FS_yb2_13TeV_amcatnlo,bbHToGG_M-125_4FS_ybyt_13TeV_amcatnlo,GluGluTo"+opt.sig+"ToHHTo2B2G_M-"+str(masses[i])+"_narrow_13TeV-madgraph"
-  input_files = inp_files.split(',')
-  print(input_files)
+  #input_files = inp_files.split(',')
+  #print(input_files)
   if masses[i] >= 260 and masses[i] < 400: 
     mass_range ="low"
     ttHScore=0.26
@@ -178,7 +167,9 @@ for i in range(len(masses)):
     elif sig=="BulkGraviton":
       cat='0.186,0.305,0.610,1.0'
       MVAcats=cat.split(',')
-
+  input_files=["Data_"+sig+"_"+mass_range+"mass"]
+  print(input_files)
+  target_names = ["Data"]
   for mva_num in range(0,nMVA):
     cat_num = mva_num
     cat_name = "DoubleHTag_%d"%(cat_num)
@@ -186,110 +177,39 @@ for i in range(len(masses)):
     cat_def[cat_name]["MVA"] = [float(MVAcats[nMVA - mva_num]),float(MVAcats[nMVA - (mva_num+1)])]
 
   for num,f in enumerate(input_files):
-
-    if f.find("Radion") != -1 or f.find("BulkGraviton") != -1 or f.find("NMSSM") != -1:
-      target_names.append(sig+"hh")#+str(masses[i]))
-    elif f.find("VBFH") != -1:
-      target_names.append("qqh") 
-    elif f.find("VH") != -1:
-      target_names.append("vh")
-    elif f.find("GluGluH") != -1:
-      target_names.append("ggh")
-    elif f.find("4FS_ybyt") != -1:
-      target_names.append("bbhybyt")
-    elif f.find("4FS_yb2") != -1:
-      target_names.append("bbhyb2")
-    elif f.find("ttH") != -1:
-      target_names.append("tth")
-      
-    input_files[num] = 'output_' + f +".root" #comment out for ivan
+          
+    input_files[num] =  f +".root" #comment out for ivan
   
     btag_SF = 1.0
 
   for num,f in enumerate(input_files):
-    
-      if f.find("Radion") != -1 or f.find("BulkGraviton") != -1 or f.find("NMSSM") != -1:
-        for s in SignalNodes:
-          if s[0] == sig+str(masses[i]):
-            btag_SF = s[bTagNF]
-      else:
-        for s in SMHiggsNodes:
-          if s[0] == target_names[num]:
-            btag_SF = s[bTagNF]
-
-      print 'doing file ',f, 'with bTag_SF = ', btag_SF
-      tfile = ROOT.TFile(opt.inp_dir+"flattening_"+mass_range+"mass_"+sig + year + "_L2-regression/analysistrees/" + f)
-      tfilename = opt.inp_dir+"flattening_"+mass_range+"mass_"+sig + year + "_L2-regression/analysistrees/" +f
-#      print tfile,"\t", tfilename
-      #define roo fit workspace
-      datasets=[]
-      ws = ROOT.RooWorkspace("cms_hgg_13TeV", "cms_hgg_13TeV")
-      #Assemble roorealvariable set
-      add_mc_vars_to_workspace( ws,opt.MjjLow,'' )  # do not add them for the main systematics file
-      for cat in cats : 
+    print 'doing file ',f, 'with bTag_SF = ', btag_SF
+    print 'applying categorisation from...',mass_range, "..=",MVAcats
+    tfile = ROOT.TFile(opt.inp_dir+ f)
+    tfilename = opt.inp_dir+f
+    datasets=[]
+    ws = ROOT.RooWorkspace("cms_hgg_13TeV", "cms_hgg_13TeV")
+    #Assemble roorealvariable set
+    add_mc_vars_to_workspace( ws,opt.MjjLow,'' )  # do not add them for the main systematics file
+    for cat in cats : 
         print 'doing cat ',cat
-        name = 'bbggtrees_13TeV'+'_'+cat
-        initial_name = 'bbggtrees_13TeV_DoubleHTag_0'
+        name = 'Data_13TeV'+'_'+cat
+        initial_name = 'Data_13TeV_DoubleHTag_0'
 
         if opt.doCategorization :
           selection = "(MX <= %.2f and MX > %.2f) and (xmlMVAtransf <= %.2f and xmlMVAtransf > %.2f) and (ttHScore >= %.2f) and (Mjj >= 70. and Mjj <= 190.)" %(float(MX_cut2[i]),float(MX_cut1[i]),cat_def[cat]["MVA"][0],cat_def[cat]["MVA"][1],ttHScore)
 
-          print 'doing selection ', selection, 'to make categorised ws from following tree'
+          print 'doing selection from tree below for categorisation ', selection
           print tfilename, treeDirName+initial_name
           data = rpd.read_root(tfilename,'%s'%(treeDirName+initial_name)).query(selection)
-          print 'created ws..', name
+          print "created workspace", name
           datasets += add_dataset_to_workspace( data, ws, name, btag_SF,'') #systemaitcs[1] : this should be done for nominal only, to add weights
-      if target_names[num].find("Radion") != -1 or target_names[num].find("BulkGraviton") != -1:
-        target_names[num]=sig+"hh"+str(masses[i])
-      f_out = ROOT.TFile.Open("%s/%s_%s.root"%(opt.out_dir+sig+"/"+str(masses[i]),target_names[num],year),"RECREATE")
-      #print("test......",masses[i]," ",target_names[num])
-      dir_ws = f_out.mkdir("tagsDumper")
-      dir_ws.cd()
-      ## renaming all the datasets
-      data0=ROOT.RooDataSet()
-      data0=ws.data("bbggtrees_13TeV_DoubleHTag_0")
-      data0.SetNameTitle(target_names[num]+'_'+year+'_13TeV_125_DoubleHTag_0',target_names[num]+'_'+year+'_13TeV_125_DoubleHTag_0')
-      #data0.Print("V")
+   
+    f_out = ROOT.TFile.Open("%s/DoubleEG.root"%(opt.out_dir+sig+"/"+str(masses[i])),"RECREATE")
+    print("created Data ws for ......",sig+str(masses[i]))
+    dir_ws = f_out.mkdir("tagsDumper")
+    dir_ws.cd()
+    ws.Print()
       
-      data00=ROOT.RooDataSet()
-      data00=data0.Clone(target_names[num]+'_'+year+'_13TeV_120_DoubleHTag_0')
-     # data00.Print("V")
-      
-      data000=ROOT.RooDataSet()
-      data000=data0.Clone(target_names[num]+'_'+year+'_13TeV_130_DoubleHTag_0')
-     # data000.Print("V")
-      
-      data1=ROOT.RooDataSet()
-      data1=ws.data("bbggtrees_13TeV_DoubleHTag_1")
-      data1.SetNameTitle(target_names[num]+'_'+year+'_13TeV_125_DoubleHTag_1',target_names[num]+'_'+year+'_13TeV_125_DoubleHTag_1')
-      #data1.Print("V")
-      
-      data11=ROOT.RooDataSet()
-      data11=data1.Clone(target_names[num]+'_'+year+'_13TeV_120_DoubleHTag_1')
-      #data11.Print("V")
-      
-      data111=ROOT.RooDataSet()
-      data111=data1.Clone(target_names[num]+'_'+year+'_13TeV_130_DoubleHTag_1')
-      #data111.Print("V")
-      
-      data2=ROOT.RooDataSet()
-      data2=ws.data("bbggtrees_13TeV_DoubleHTag_2")
-      data2.SetNameTitle(target_names[num]+'_'+year+'_13TeV_125_DoubleHTag_2',target_names[num]+'_'+year+'_13TeV_125_DoubleHTag_2')
-      #data2.Print("V")
-      
-      data22=ROOT.RooDataSet()
-      data22=data2.Clone(target_names[num]+'_'+year+'_13TeV_120_DoubleHTag_2')
-      #data22.Print("V")
-      
-      data222=ROOT.RooDataSet()
-      data222=data1.Clone(target_names[num]+'_'+year+'_13TeV_130_DoubleHTag_2')
-      #data222.Print("V")
-      
-      getattr(ws, 'import')(data00)
-      getattr(ws, 'import')(data11)
-      getattr(ws, 'import')(data22)
-      getattr(ws, 'import')(data000)
-      getattr(ws, 'import')(data111)
-      getattr(ws, 'import')(data222)
-      ws.Write()
-      f_out.Close()
+    ws.Write()
+    f_out.Close()

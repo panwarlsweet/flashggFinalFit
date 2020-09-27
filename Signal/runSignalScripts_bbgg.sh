@@ -14,22 +14,21 @@ DATE=$2
 #DATE="24_08_2020_2"
 
 EXT=$3$4"_"$YEAR
-#EXT="SingleH_"$YEAR
-
+#EXT="SingleH_"$3$4"_"$YEAR
 
 PHOTONSYSTFILE=dat/photonCatSyst.dat # without systematics
 #PHOTONSYSTFILE=dat/photonCatSyst_${EXT}.dat
 
-INDIR="/eos/user/l/lata/Resonant_bbgg/flattrees_L2Regression_resonant_PR1217_PR1220_16Jul2020/WED/Run2_ws_trees_PR1217_1220/WED/${YEAR}/RD300/"
+INDIR="/eos/user/l/lata/Resonant_bbgg/flattrees_L2Regression_resonant_PR1217_PR1220_17Sep2020/WED/Run2_ws_trees_p2/"$3"/"$4"/"
 OUTDIR="output/out_fit_${DATE}_${EXT}"
+runLocal=''
 if [ $doFTEST -gt 0 ]; then
    OUTDIR="output/out_${DATE}_${EXT}"
+   runLocal='--runLocal'
    #MASS=_125
  #  doFIT=0
 fi
 CONFIGDAT="output/out_${DATE}_${EXT}/dat/newConfig_${EXT}.dat"
-runLocal='--runLocal'
-#runLocal=''
 
 #COndor
 BATCH=HTCONDOR
@@ -38,7 +37,17 @@ DEFAULTQUEUE=espresso  #espresso : 20min.  microcentury - 1h, longlunch-2h, work
 CATS="DoubleHTag_0,DoubleHTag_1,DoubleHTag_2"
 #,DoubleHTag_3,DoubleHTag_4,DoubleHTag_5,DoubleHTag_6,DoubleHTag_7,DoubleHTag_8,DoubleHTag_9,DoubleHTag_10,DoubleHTag_11"
 
-INTLUMI=$5
+#INTLUMI=35.9
+
+if [ $YEAR == "2016" ]; then
+        INTLUMI=35.9
+fi
+if [ $YEAR == "2017" ]; then
+        INTLUMI=41.5
+fi
+if [ $YEAR == "2018" ]; then
+        INTLUMI=59.4
+fi
 
 ###########Not needed, only for shape syst, checked to be negligible
 SCALES="HighR9EE,LowR9EE,HighR9EB,LowR9EB"
@@ -46,21 +55,17 @@ SMEARS="HighR9EERho,LowR9EERho,HighR9EEPhi,LowR9EEPhi,HighR9EBPhi,LowR9EBPhi,Hig
 SCALESCORR="MaterialCentralBarrel,MaterialOuterBarrel,MaterialForward"
 SCALESGLOBAL="NonLinearity,Geant4,LightYield,Absolute"
 
-
 ########## Radion HH ###########
-REFTAG="DoubleHTag_0"
-REFPROC="Radionhh300_${YEAR}"
-PROCS="Radionhh300_${YEAR}"
-INFILES="output_GluGluToRadionToHHTo2B2G_M-300_narrow_13TeV-madgraph"
+REFTAG="DoubleHTag_1"
+REFPROC=$3"hh"$4"_${YEAR}"
+PROCS=$3"hh"$4"_${YEAR}"
+INFILES=$3"hh"$4"_${YEAR}"
 
-###### for Single H###########
-#REFPROC="tth_${YEAR}"
-#REFTAG="DoubleHTag_0"
-##below is for 2018 only ####
-#REFPROC="vh_${YEAR}"                                                                         
-#REFTAG="DoubleHTag_1"  
-#PROCS="qqh_${YEAR},vh_${YEAR},tth_${YEAR},ggh_${YEAR},bbh_4FS_yb2_${YEAR},bbh_4FS_ybyt_${YEAR}"
-
+####### for Single H###########
+#REFPROC=$5"_${YEAR}"
+#REFTAG="DoubleHTag_"$6
+#PROCS="qqh_${YEAR},vh_${YEAR},tth_${YEAR},ggh_${YEAR},bbhyb2_${YEAR},bbhybyt_${YEAR}"
+#INFILES="qqh_${YEAR},vh_${YEAR},tth_${YEAR},ggh_${YEAR},bbhyb2_${YEAR},bbhybyt_${YEAR}"
 #INFILES="output_VBFHToGG_M-125_13TeV_powheg_pythia8,output_VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8,output_ttHToGG_M125_13TeV_powheg_pythia8,output_GluGluHToGG_M-125_13TeV_powheg_pythia8,output_bbHToGG_M-125_4FS_yb2_13TeV_amcatnlo,output_bbHToGG_M-125_4FS_ybyt_13TeV_amcatnlo"
 
 
@@ -123,7 +128,7 @@ if [ $doFTEST -gt 0 ]; then
     mkdir -p $OUTDIR/dat
     cat $OUTDIR/fTestJobs/outputs/* > dat/newConfig_${EXT}_temp.dat
     sort -u dat/newConfig_${EXT}_temp.dat  > dat/tmp_newConfig_${EXT}_temp.dat 
-    mv dat/tmp_newConfig_${EXT}_temp.dat dat/newConfig_${EXT}_temp.dat
+    mv -f dat/tmp_newConfig_${EXT}_temp.dat dat/newConfig_${EXT}_temp.dat
     cp dat/newConfig_${EXT}_temp.dat $OUTDIR/dat/copy_newConfig_${EXT}_temp.dat
     rm -rf $OUTDIR/sigfTest
     mv $OUTDIR/fTest $OUTDIR/sigfTest
@@ -165,14 +170,14 @@ fi
 
 
 
-if [ $YEAR == "2018" ]; then
-	LUMI=137.
-fi
+#if [ $YEAR == "2018" ]; then
+#	LUMI=137.
+#fi
 ###########paper_plots
 CATS="DoubleHTag_0,DoubleHTag_1,DoubleHTag_2" 
 
 OUTDIR="output/out_fit_${DATE}_${EXT}"
-PROC="Radionhh_300_${YEAR}"
+PROC=$3"hh"$4"_${YEAR}"
 ############
 
 ###########VBF plots

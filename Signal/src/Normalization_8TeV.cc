@@ -189,9 +189,9 @@ TGraph * Normalization_8TeV::GetSigmaGraph(TString process)
 		XSectionMap = &XSectionMap_testTHQ;
 	} else if ( process.Contains("testTHW") ) {
 		XSectionMap = &XSectionMap_testTHW;
-	} else if ( process.Contains("4FS_ybyt") ) {
+	} else if ( process.Contains("bbhybyt") ) {
 		XSectionMap = &XSectionMap_bbH_ybyt;
-	} else if ( process.Contains("4FS_yb2") ) {
+	} else if ( process.Contains("bbhyb2") ) {
 		XSectionMap = &XSectionMap_bbH_yb2;
 	} else if ( process.Contains("HHTo2B2G") || process.Contains("hh") || process.Contains("ggHH") || process.Contains("qqHH") ) {
 		XSectionMap = &XSectionMap_HHbbgg;
@@ -277,9 +277,9 @@ double Normalization_8TeV::GetXsection(double mass, TString HistName) {
 		XSectionMap = &XSectionMap_testTHQ;
 	} else if (HistName.Contains("testTHW")) {
 		XSectionMap = &XSectionMap_testTHW;
-	} else if ( HistName.Contains("4FS_ybyt") ) {
+	} else if ( HistName.Contains("bbhybyt") ) {
 		XSectionMap = &XSectionMap_bbH_ybyt;
-	} else if ( HistName.Contains("4FS_yb2") ) {
+	} else if ( HistName.Contains("bbhyb2") ) {
 		XSectionMap = &XSectionMap_bbH_yb2;
 	} else if (HistName.Contains("HHTo2B2G") || HistName.Contains("hh") || HistName.Contains("ggHH") || HistName.Contains("qqHH")  ) {
 		XSectionMap = &XSectionMap_HHbbgg;

@@ -684,7 +684,7 @@ void plotAllPdfs(RooRealVar *mgg, RooAbsData *data, RooMultiPdf *mpdf, RooCatego
 	canv->Modified();
 	canv->Update();
 	canv->Print(Form("%s.pdf",name.c_str()));
-//	canv->Print(Form("%s.png",name.c_str()));
+	canv->Print(Form("%s.png",name.c_str()));
 	canv->Print(Form("%s.jpg",name.c_str()));
 	canv->Print(Form("%s.C",name.c_str()));
 	delete canv;
@@ -759,19 +759,19 @@ int main(int argc, char* argv[]){
 		("sqrts,S", po::value<int>(&sqrts)->default_value(8),																"Which centre of mass is this data from?")
 		("isFlashgg",  po::value<int>(&isFlashgg_)->default_value(1),  								    	        "Use Flashgg output ")
 		("flashggCats,f", po::value<string>(&flashggCatsStr_)->default_value("UntaggedTag_0,UntaggedTag_1,UntaggedTag_2,UntaggedTag_3,VBFTag_0,VBFTag_1,VBFTag_2,TTHHadronicTag,TTHLeptonicTag,VHHadronicTag,VHTightTag,VHLooseTag,VHEtTag"),       "Flashgg category names to consider")
-		("signalName", po::value<string>(&signalNameStr_)->default_value("hh_node_SM_2016,hh_node_SM_2017,hh_node_SM_2018"),       "Signal Name")
+		("signalName", po::value<string>(&signalNameStr_)->default_value("Radionhh260_2016,Radionhh260_2017,Radionhh260_2018"),       "Signal Name")
 		("variableName", po::value<string>(&variableName_)->default_value("CMS_hgg_mass"),       "Variable name CMS_hgg_mass or Mjj")
-		("singleHiggsNames", po::value<string>(&singleHiggsNamesStr_)->default_value("tth_2016,ggh_2016,qqh_2016,vh_2016,tth_2017,ggh_2017,qqh_2017,vh_2017,tth_2018,ggh_2018,qqh_2018,vh_2018"),       "Signal Name")
+		("singleHiggsNames", po::value<string>(&singleHiggsNamesStr_)->default_value("tth_2016,ggh_2016,qqh_2016,vh_2016,bbhyb2_2016,bbhybyt_2016,tth_2017,ggh_2017,qqh_2017,vh_2017,bbhyb2_2017,bbhybyt_2017,tth_2018,ggh_2018,qqh_2018,vh_2018,bbhyb2_2018,bbhybyt_2018"),       "Signal Name")
 		("verbose,v", 																																			"Verbose");
 	;
 	po::variables_map vm;
 	po::store(po::parse_command_line(argc,argv,desc),vm);
 	po::notify(vm);
 	if (vm.count("help")) { cout << desc << endl; exit(1); }
-	if (vm.count("doBands")) doBands=true;
+	if (vm.count("doBands")) doBands=false;
 	if (vm.count("isMultiPdf")) isMultiPdf=true;
-	if (vm.count("makeCrossCheckProfPlots")) makeCrossCheckProfPlots=true;
-	if (vm.count("unblind")) unblind=true;
+	if (vm.count("makeCrossCheckProfPlots")) makeCrossCheckProfPlots=false;
+	if (vm.count("unblind")) unblind=false;
 	if (vm.count("useBinnedData")) useBinnedData=true;
 	if (vm.count("sigFileName")) doSignal=true;
 	if (vm.count("verbose")) verbose_=true;
@@ -1052,7 +1052,7 @@ int main(int argc, char* argv[]){
 	//		if (!w_sig) w_sig = (RooWorkspace*)sigFile->Get("wsig_8TeV");
 	//		if (!w_sig) w_sig = (RooWorkspace*)sigFile->Get("wsig_13TeV");
 			if (!w_sig) {
-	    WSTFileWrapper *w_sig = new WSTFileWrapper(sigFileName,"cms_hgg_workspace");
+			  WSTFileWrapper *w_sig = new WSTFileWrapper(sigFileName,"cms_hgg_workspace");
       //w_sig = (RooWorkspace*)sigFile->Get("cms_hgg_workspace");
       if (w_sig) SignalType=1;
       }

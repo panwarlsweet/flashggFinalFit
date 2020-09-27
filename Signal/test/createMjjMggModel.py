@@ -70,7 +70,7 @@ for num,f in enumerate(input_procs):
    # print 'mgg : ',ws_mgg.function(pdf_mgg+"_norm").getVal(),', mjj : ',ws_mjj.function(pdf_mjj+"_norm").getVal(), ", imported product : ",ws_mgg.function(prod_pdf+"_norm").getVal() #just to check that the normalization is the same for Mgg and Mjj, it is of course.
     
  
-f_out = ROOT.TFile.Open(opt.out_dir+"CMS-HGG_sigfit_MggMjj_2016_2017_2018_%s.root"%opt.date,"RECREATE")
+f_out = ROOT.TFile.Open(opt.out_dir+"CMS-HGG_sigfit_MggMjj_2016_2017_2018_%s_%s.root"%(opt.date,input_procs[0]),"RECREATE")
 #f_out = ROOT.TFile.Open(opt.out_dir+"CMS-HGG_sigfit_MggMjj_2018_%s.root"%opt.date,"RECREATE")
 ws_mgg.Write()
 f_out.Close()

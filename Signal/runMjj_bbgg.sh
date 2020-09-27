@@ -1,52 +1,36 @@
-YEAR="2016"
+YEAR=$3
 #YEAR="2017"
 #YEAR="2018"
-mergeYears=1  #used for all procs
+mergeYears=0  #used for all procs
 mergeCats=0 #used for single Higgs and 12 DoubleHTag cats only, not for VBF
-PAPER=1
+PAPER=0
 
 
-DATE="2_09_2020"
+DATE="25_09_2020"
 
 #EXT="singleHiggs"$YEAR
-#EXT="hhNLO"$YEAR
-EXT="ResHH"$YEAR
 
-INDIR="/work/nchernya/DiHiggs/inputs/${DATE}/"
-OUTDIR="output/mjj/out_mjj_${DATE}_${EXT}_paper/"
-PLOTDIR="plots/mjj/mjj_fits_${DATE}_${EXT}_paper/"
-#TEMPLATE="fits_config/models_2D_higgs_mjj70_16_02_2020_vbf.rs"
-#TEMPLATE="fits_config/models_2D_higgs_mjj70_16_02_2020_nlo_0.rs"
-#TEMPLATE="fits_config/models_2D_higgs_mjj70_16_02_2020_qqHH.rs"  #working rather well for all qqHH and ggHH
-TEMPLATE="fits_config/models_2D_higgs_mjj70_16_02_2020_qqHH_adjust.rs"  #working rather well for all qqHH and ggHH
+#EXT=$1"hh"$2"_"$YEAR
+
+INDIR="/eos/user/l/lata/Resonant_bbgg/flattrees_L2Regression_resonant_PR1217_PR1220_17Sep2020/WED/Run2_ws_trees_p2/"$1"/"$2"/"
+OUTDIR="/afs/cern.ch/work/l/lata/2Denvelop/CMSSW_7_4_7/src/flashggFinalFit/Signal/output/out_fit_"${DATE}"_"$1$2"_"$YEAR"/"
+PLOTDIR="plot_dir_"$1$2"/"
+TEMPLATE="fits_config/models_2D_higgs_mjj70_16_02_2020.rs"  #working rather well for all qqHH and ggHH
 
 
-#CATS="DoubleHTag_0,DoubleHTag_1,DoubleHTag_2,DoubleHTag_3,DoubleHTag_4,DoubleHTag_5,DoubleHTag_6,DoubleHTag_7,DoubleHTag_8,DoubleHTag_9,DoubleHTag_10,DoubleHTag_11,VBFDoubleHTag_0"
-#CATS="DoubleHTag_0,DoubleHTag_1,DoubleHTag_2,DoubleHTag_3,DoubleHTag_4,DoubleHTag_5,DoubleHTag_6,DoubleHTag_7,DoubleHTag_8,DoubleHTag_9,DoubleHTag_10,DoubleHTag_11,VBFDoubleHTag_0,VBFDoubleHTag_1"
-#CATS="DoubleHTag_0,DoubleHTag_1,DoubleHTag_2,DoubleHTag_3,DoubleHTag_4,DoubleHTag_5,DoubleHTag_6,DoubleHTag_7,DoubleHTag_8,DoubleHTag_9,DoubleHTag_10,DoubleHTag_11"
-#CATS="DoubleHTag_0,DoubleHTag_4,DoubleHTag_8,DoubleHTag_11"
-#CATS="DoubleHTag_8,DoubleHTag_11"
-#CATS="VBFDoubleHTag_0,VBFDoubleHTag_1"
-CATS="VBFDoubleHTag_0"
+CATS="DoubleHTag_0,DoubleHTag_1,DoubleHTag_2"
+
 
 #############SINGLE HIGGS ############
-#PROCS="ggh,tth,qqh,vh"
-#############HH NLO ############
-#PROCS="ggHH_kl_0_kt_1,ggHH_kl_1_kt_1,ggHH_kl_2p45_kt_1,ggHH_kl_5_kt_1"
-############# qqHH NLO ############
-#PROCS="qqHH_CV_1_C2V_1_kl_1,qqHH_CV_1_C2V_2_kl_1,qqHH_CV_1_C2V_1_kl_2,qqHH_CV_1_C2V_1_kl_0,qqHH_CV_0p5_C2V_1_kl_1,qqHH_CV_1p5_C2V_1_kl_1"
-#PROCS="qqHH_CV_1_C2V_1_kl_1,qqHH_CV_1_C2V_2_kl_1,qqHH_CV_1_C2V_1_kl_2,qqHH_CV_1_C2V_1_kl_0,qqHH_CV_0p5_C2V_1_kl_1,qqHH_CV_1p5_C2V_1_kl_1,qqHH_CV_1_C2V_0_kl_1"
-#PROCS="qqHH_CV_1_C2V_1_kl_1,qqHH_CV_1_C2V_0_kl_1"
-#PROCS="qqHH_CV_1_C2V_0_kl_1,qqHH_CV_1_C2V_1_kl_1,qqHH_CV_1_C2V_1_kl_0,qqHH_CV_1_C2V_1_kl_2"
-#PROCS="ggHH_kl_2p45_kt_1"
-PROCS="qqHH_CV_1_C2V_1_kl_1"
+PROCS="ggh,tth,qqh,vh,bbhyb2,bbhybyt,"$1"hh"$2
+#PROCS=$1"hh"$2
 ################################
 
 set -x
 for PROC in $(echo $PROCS | sed "s/,/ /g")
 	do
    
-		INFILEWITHYEARS=${INDIR}'output_'${PROC}'_2016.root,'${INDIR}'output_'${PROC}'_2017.root,'${INDIR}'output_'${PROC}'_2018.root'  #example if you are using merged years
+		INFILEWITHYEARS=${INDIR}${PROC}'_2016.root,'${INDIR}${PROC}'_2017.root,'${INDIR}${PROC}'_2018.root'  #example if you are using merged years
 		if [ $mergeCats == 1 ]; then
 			if [[ $PROC == *"ggh"* ]] || [[ $PROC == *"vh"* ]] || [[ $PROC == *"tth"* ]]  || [[ $PROC == *"qqh"* ]]  ; then
 				if [ $mergeYears == 1 ]; then
@@ -59,9 +43,9 @@ for PROC in $(echo $PROCS | sed "s/,/ /g")
 			fi	
 		else
 			if [ $mergeYears == 1 ]; then
-				./bin/MjjSignalFit -t ${TEMPLATE} -d ${INDIR}  -p ${PLOTDIR} -o ${OUTDIR} --procs ${PROC}   -y ${YEAR} --mergeYears 2016,2017,2018 --infileWithAllYears ${INFILEWITHYEARS} -f ${CATS} --paper ${PAPER}
+				./bin/MjjSignalFit -t ${TEMPLATE} -d ${INDIR}  -p ${PLOTDIR} -o ${OUTDIR} --procs ${PROC}   -y ${YEAR} --mergeYears 2016,2017,2018 --infileWithAllYears ${INFILEWITHYEARS} -f ${CATS} --paper ${PAPER} -s ${PROC}
 			else
-				./bin/MjjSignalFit -t ${TEMPLATE} -d ${INDIR}  -p ${PLOTDIR} -o ${OUTDIR} --procs ${PROC}   -y ${YEAR} -f ${CATS}  --paper ${PAPER}
+				./bin/MjjSignalFit -t ${TEMPLATE} -d ${INDIR}  -p ${PLOTDIR} -o ${OUTDIR} --procs ${PROC}   -y ${YEAR} -f ${CATS}  --paper ${PAPER} -s ${PROC}
 			fi
 		fi	
 done
