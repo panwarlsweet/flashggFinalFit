@@ -4,20 +4,20 @@
 
 When running flashgg workspaces with systematics, too much memory is taken and jobs do not finish. For this reason we create flashgg trees (dumpTrees = True , dumpWorkspaces = False) and then convert them to the workspaces. If you alreeady have workspaces (dumpWorkspaces = True), then you can move on to the next step (running f-test and fit). 
 
-In flashgg one can specify the name of the output trees. Since different years of data taking are treated differently, we need to rename the workspaces to have a year in the name. My convention names is the following : Radionhh{Mass}_2016/2017/2018 for signal (for BilkGraviton and NMSSM replace Radion) and vh2016(vh2017, vh2018), qqh(2016/2017/2018), ggh(..), tth(..), bbhyb2,bbhybyt for single higgs. Most likely you will not have the same convention in the begining, it is not a problem but you have to make sure you adjust a bit the expected names in the scripts  (will be described further).
+In flashgg one can specify the name of the output trees. Since different years of data taking are treated differently, we need to rename the workspaces to have a year in the name. My convention names are the following : Radionhh{Mass}_2016/2017/2018 for signal (for BulkGraviton and NMSSM replace Radion) and vh2016(vh2017, vh2018), qqh(2016/2017/2018), ggh(..), tth(..), bbhyb2(..), bbhybyt(..) for single higgs. Most likely you will not have the same convention in the begining, it is not a problem but you have to make sure you adjust a bit the expected names in the scripts  (will be described further).
 
-I have updated non-res ws creating script in such a way that it will run for trees of all three years, automatically pick bTagNF from bTagSF.py file and produce ws in my eos area accoording to mass point folder (which will have MC rooworkspace files with year label)
+I have updated non-res ws creating script in such a way that it will run for trees of all three years, automatically pick bTag normalisation factor from bTagSF.py file and produce ws in my eos area accoording to mass point folder (which will have MC rooworkspace files with year label and run2 data worspace root file.)
 To create workspaces from MC trees : 
 ```
 cd flashggFinalFit/Signal/
 python trees2ws_data_incl.py --inp-dir /eos/user/l/lata/Resonant_bbgg/flattrees_L2Regression_resonant_PR1217_PR1220_17Sep2020/WED/ --out-dir /eos/user/l/lata/Resonant_bbgg/flattrees_L2Regression_resonant_PR1217_PR1220_17Sep2020/WED/Run2_ws_trees_p2/ --signal Radion --doCategorization
 ```
-note in inp-dir, I put all flashgg trees and in output dir I have mass wise signal named folder. You can change it in the script according to your convienience.
+note in inp-dir, I put all flashgg trees (in a year label folder, 2016, 2017 and 2018) and in output dir I have mass wise signal named folder. You can change it in the script according to your convienience.
 For Data use this command:
 ```
 python data_ws.py --inp-dir /eos/user/l/lata/Resonant_bbgg/flattrees_L2Regression_resonant_PR1217_PR1220_17Sep2020/WED/Run2_Data_trees_for_ws/ --out-dir /eos/user/l/lata/Resonant_bbgg/flattrees_L2Regression_resonant_PR1217_PR1220_17Sep2020/WED/Run2_ws_trees_p2/ --signal Radion --doCategorization
 ```
-where input directory has data root files merged for all three years according to signal and mass range. For ex. Radion low mass I have Data_Radion_lowmass.root (combining Run2 data)
+where input directory has data root files merged for all three years according to signal and mass range. For ex. Radion low mass I have Data_Radion_lowmass.root (combined Run2 data)
 
 You have to specify the location of the trees, the output directory, the names of the input files, etc in the . options : 
 https://github.com/panwarlsweet/flashggFinalFit/blob/setup_ResHH/Signal/trees2ws_data_incl.py#L88-L100
@@ -26,33 +26,34 @@ Note that Mjj option will vary for NMSSM signal only where we have various Y mas
 
 The script takes the trees with name "bbggtrees_13TeV_DoubleHTag_0" for MC and "Data_13TeV_DoubleHTag_0" for Data.
 
-If you wish to create workspaces from the trees that are not yet categorized (doCategorization=False in flashgg), then you can use this script to create workspaces. 
+This script is to create workspaces from the trees that are not yet categorized (doCategorization=False in flashgg) only. For resonant analysis, we don't categorize at tree level.
 
-Categorization should be specified here according to mass range and signal.:
+Categorization should be specified here according to mass range and signal (categorisation is not year dependent).:
 https://github.com/panwarlsweet/flashggFinalFit/blob/setup_ResHH/Signal/trees2ws_data_incl.py#L126-L180
 ttHKiller cut is hardcoded (0.26) for MX <550 GeV. Above 550 GeV masses SingleH backgrounds are neglected due to negligible contribution so no ttHKiller cut.
 
 MX window cut are hardcoded here https://github.com/panwarlsweet/flashggFinalFit/blob/setup_ResHH/Signal/trees2ws_data_incl.py#L122-L123
+NOTE: I prefer hard coded numbers to run for all three years and all masses together to make workflow faster. If you don't prefer that then use parse option to change the script and run everything by giving input as command argument.
 
 ### Now you have the workspaces ready, we can move on to the signal model. ###
 
 First we run *signalFtest* to determine the number of gausians needed to describe signal 
 (for more info see general README in Signal directory). Beware that this script is not perfect and one has to look at the plots produced.
-So I have setup it like, one needs to set doFTEST=1 (other option 0) and give year, date, signal, mass point as input while running the script. 
+So I have setup it like, one needs to set doFTEST=1 (set other options 0) and give year, date, signal, mass point as input while running the script. 
 ```
 source runSignalScripts_bbgg.sh 2016 $Date Radion 300
 ```
-Once ftest is done, look at output/out_$Data_$Signal$Mass_$Year.pdf file and check all the fits. If all fits are good then we can directly go for fitting part. But if now than choose a fit to  make reftag abd refproc in the runSignalScripts_bbgg.sh and in the output/out_$Data_$Signal$Mass_$Year/dat/newConfit...dat file change number from -1 so that it could pick the fit of reftag and ref category.
+Once ftest is done, look at output/out_$Data_$Signal$Mass_$Year.pdf file and check all the fits. If all fits are good then we can directly go for fitting part. But if no, then choose a fit to  make reftag and refproc in the runSignalScripts_bbgg.sh and in the output/out_$Data_$Signal$Mass_$Year/dat/newConfit...dat file change number from -1 so that it could pick the fit of reftag and ref category. We need to check number only for RV (right vertex). For WV it will always -1.
 
 We need to perform this ftest separately for Signal and Single H processes. I prefre to do it locally since it is pretty fast.
 
-Now when FTest part is one and we have corrected all .dat file according to reference fit whereever fit is not good, our next job is to perform fit by setting the doFIT=1 and doFTest=0.
+Now when FTest part is one and we have corrected all ".dat" file according to reference fit whereever fit is not good, our next job is to perform fit by setting the doFIT=1 and doFTest=0.
 
-Do this fitting step very carefully, mostly be care full by adding ref proc and tag for each step. For single H process, I have updated sh script such that it takes ref process as 5th argue ment and reftag as 6th one. So I will run
+Do this fitting step very carefully, mostly be care full by adding ref proc and tag for each step. For single H process, I have updated runSignalScripts_bbgg.sh script such that it takes ref process as 5th arguement and reftag as 6th one. So I will run
 ```
 source runSignalScripts_bbgg.sh 2016 $Date Radion 300 ttH 2
 ```
-it takes ttH process with DoubleHTag_2 catgeory as reference fit for all other single H fits, where Ftest fails.
+it takes ttH process with DoubleHTag_2 catgeory as reference fit for all other single H fits, where Ftest fails and fit is not good.
 
 You do not have to use it, you can run each step one by one if you wish. I submit jobs for each process and each category, but you can run it locally by changing "--runLocal" option.
 
@@ -72,14 +73,15 @@ https://github.com/chernyavskaya/flashggFinalFit/blob/fullRunII_Oct2019/Signal/r
 
 It might happen that the fit fails and then the merge will fail as well. In this case, identify for which category and process it failed, check the number of gaussians from the f-test in the config, look at the plots for this category created during the f-test, and most likley you will see that it chose the wrong number of gaussians. Adjust the number of gaussian in the config, and rerun the fit.
 
-Now if everything went well, you fill have the final workspaces(signal and single higgs) to be used for the final fit. 
+Now if everything went well, you fill have the final Mgg workspaces(signal and single higgs) to be used for the final fit. 
 
 
 ### Running Signal and Single Higgs bkg models for Mjj: 
 ```
-source runMjj_bbgg.sh Radion 300 2017
+source runMjj_bbgg.sh $Signal $Mass $Year
+ex. source runMjj_bbgg.sh Radion 300 2017
 ```
-Theabove script performs Mjj fits for signal and singleH in one go.  
+The above script performs Mjj fits for signal and singleH in one go.  
 (according to year and masspoint and signal wise)
 
 All the available options are summarized in the OptionParser : 
