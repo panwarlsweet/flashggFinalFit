@@ -41,7 +41,8 @@ First we run *signalFtest* to determine the number of gausians needed to describ
 (for more info see general README in Signal directory). Beware that this script is not perfect and one has to look at the plots produced.
 So I have setup it like, one needs to set doFTEST=1 (set other options 0) and give year, date, signal, mass point as input while running the script. 
 ```
-source runSignalScripts_bbgg.sh 2016 $Date Radion 300
+source runSignalScripts_bbgg.sh $Year $Date $Signal $Mass
+source runSignalScripts_bbgg.sh 2016 25_09_2020 Radion 300
 ```
 Once ftest is done, look at output/out_$Data_$Signal$Mass_$Year.pdf file and check all the fits. If all fits are good then we can directly go for fitting part. But if no, then choose a fit to  make reftag and refproc in the runSignalScripts_bbgg.sh and in the output/out_$Data_$Signal$Mass_$Year/dat/newConfit...dat file change number from -1 so that it could pick the fit of reftag and ref category. We need to check number only for RV (right vertex). For WV it will always -1.
 
@@ -51,7 +52,8 @@ Now when FTest part is one and we have corrected all ".dat" file according to re
 
 Do this fitting step very carefully, mostly be care full by adding ref proc and tag for each step. For single H process, I have updated runSignalScripts_bbgg.sh script such that it takes ref process as 5th arguement and reftag as 6th one. So I will run
 ```
-source runSignalScripts_bbgg.sh 2016 $Date Radion 300 ttH 2
+source runSignalScripts_bbgg.sh $Year $Date $Signal $Mass $refproc $reftag
+source runSignalScripts_bbgg.sh 2016 25_09_2020 Radion 300 ttH 2
 ```
 it takes ttH process with DoubleHTag_2 catgeory as reference fit for all other single H fits, where Ftest fails and fit is not good.
 
@@ -107,5 +109,6 @@ Now we need to merge Mgg workspaces and Mjj in one final workspace file :
 ```
 source createMjjMggModel.sh $Signal ## Radion or BulkGraviton 
 ```
+You need to adjust path of input files and paths for above script.
 
 Done! Now you can prepare the datacards.
