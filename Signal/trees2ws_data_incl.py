@@ -148,11 +148,11 @@ for i in range(len(masses)):
     ttHScore=0.26
 
     if sig=="Radion":
-      cat='0.232,0.436,0.697,1.0'
+      cat='0.228,0.429,0.681,1.0 '
       MVAcats=cat.split(',')
 
     elif sig=="BulkGraviton":
-      cat='0.235,0.441,0.7,1.0'
+      cat='0.236,0.443,0.699,1.0'
       MVAcats=cat.split(',')
 
   elif masses[i] >= 400 and masses[i] < 700: 
@@ -162,21 +162,21 @@ for i in range(len(masses)):
       ttHScore=0.26
 
     if sig=="Radion":
-      cat='0.268,0.447,0.753,1.0'
+      cat='0.269,0.454,0.739,1.0'
       MVAcats=cat.split(',')
 
     elif sig=="BulkGraviton":
-      cat='0.231,0.384,0.697,1.0'
+      cat='0.183,0.377,0.662,1.0'
       MVAcats=cat.split(',')
 
   else:
     mass_range ="high"
     ttHScore=0.0
     if sig=="Radion":
-      cat='0.186,0.318,0.480,1.0'
+      cat='0.139,0.256,0.467,1.0'
       MVAcats=cat.split(',')
     elif sig=="BulkGraviton":
-      cat='0.186,0.305,0.610,1.0'
+      cat='0.169,0.292,0.60,1.0'
       MVAcats=cat.split(',')
 
   for mva_num in range(0,nMVA):
