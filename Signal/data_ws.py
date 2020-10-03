@@ -127,49 +127,47 @@ MX_cut2=[263,275,286,309,327,360,413,463,514,565,615,680,725,825,925,1025]
 
 
 for i in range(len(masses)):
- print("i...=",i,"\t","mass==",masses[i])
- for year in years:
-
-  #input_files = inp_files.split(',')
-  #print(input_files)
+  print("i...=",i,"\t","mass==",masses[i])
   if masses[i] >= 260 and masses[i] < 400: 
     mass_range ="low"
     ttHScore=0.26
 
     if sig=="Radion":
-      cat='0.232,0.436,0.697,1.0'
+      cat='0.228,0.429,0.681,1.0 '
       MVAcats=cat.split(',')
 
     elif sig=="BulkGraviton":
-      cat='0.235,0.441,0.7,1.0'
+      cat='0.236,0.443,0.699,1.0'
       MVAcats=cat.split(',')
 
   elif masses[i] >= 400 and masses[i] < 700: 
     mass_range ="mid"
-    ttHScore=0.0
-    if masses[i] <= 550:
-      ttHScore=0.26
+    ttHScore=0.26
+    if masses[i] > 550:
+      ttHScore=0.0
 
     if sig=="Radion":
-      cat='0.268,0.447,0.753,1.0'
+      cat='0.269,0.454,0.739,1.0'
       MVAcats=cat.split(',')
 
     elif sig=="BulkGraviton":
-      cat='0.231,0.384,0.697,1.0'
+      cat='0.183,0.377,0.662,1.0'
       MVAcats=cat.split(',')
 
   else:
     mass_range ="high"
     ttHScore=0.0
     if sig=="Radion":
-      cat='0.186,0.318,0.480,1.0'
+      cat='0.139,0.256,0.467,1.0'
       MVAcats=cat.split(',')
     elif sig=="BulkGraviton":
-      cat='0.186,0.305,0.610,1.0'
+      cat='0.169,0.292,0.60,1.0'
       MVAcats=cat.split(',')
+
   input_files=["Data_"+sig+"_"+mass_range+"mass"]
   print(input_files)
   target_names = ["Data"]
+
   for mva_num in range(0,nMVA):
     cat_num = mva_num
     cat_name = "DoubleHTag_%d"%(cat_num)
