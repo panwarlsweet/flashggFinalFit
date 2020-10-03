@@ -157,9 +157,8 @@ for i in range(len(masses)):
 
   elif masses[i] >= 400 and masses[i] < 700: 
     mass_range ="mid"
-    ttHScore=0.0
-    if masses[i] <= 550:
-      ttHScore=0.26
+    if masses[i] > 550:
+      ttHScore=0.0
 
     if sig=="Radion":
       cat='0.269,0.454,0.739,1.0'
