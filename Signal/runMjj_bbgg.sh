@@ -6,7 +6,7 @@ mergeCats=0 #used for single Higgs and 12 DoubleHTag cats only, not for VBF
 PAPER=0
 
 
-DATE="25_09_2020"
+DATE="03_10_2020"
 
 #EXT="singleHiggs"$YEAR
 

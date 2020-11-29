@@ -1,4 +1,4 @@
-DATE=25_09_2020
+DATE=03_10_2020
 #2_04_2020_2
 
 YEAR=2016_2017_2018
@@ -23,7 +23,7 @@ input2D=output_${name2D}_${YEAR}_${DATE}.root
 #./bin/fTest2D -i /work/nchernya/DiHiggs/inputs/${DATE}/Data_90GeV_Mgg_blind/${input2D} --saveMultiPdf  CMS-HGG_multipdf2D_${name2D}_${outtag}_HHbbgg_${YEAR}_${DATE}.root --isData 1 -f DoubleHTag_10,DoubleHTag_11 --isFlashgg 1  -c 1 -D ${outputdir} -d ${outputdir}/res.dat 
 
 #Masses="260,270,280,300,320,350"
-Masses="400,450,500,550,600,650,700,800,900,1000"
+Masses="260,270,280,300,320,350,400,450,500,550,600,650,700,800,900,1000"
 Signal=$1  ### give signal name as an arguement                                                
 set -x
 for mass in $(echo $Masses | sed "s/,/ /g")

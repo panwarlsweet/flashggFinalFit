@@ -1,6 +1,6 @@
 YEAR="2016_2017_2018"
 #YEAR="2018"
-DATE="25_09_2020"
+DATE="03_10_2020"
 DO_SYSTEMATIC=0
 btagReshapeFalse=1  #btagReshapeWeight was propagated with False in the flashgg trees
 signal=$1
@@ -13,7 +13,7 @@ PROCS="tth_2016,ggh_2016,qqh_2016,vh_2016,bbhyb2_2016,bbhybyt_2016,tth_2017,ggh_
 CATS="DoubleHTag_0,DoubleHTag_1,DoubleHTag_2"
 
 #Masses="260,270,280,300,320,350"                                                            
-Masses="400,450,500,550,600,650,700,800,900,1000"                                 
+Masses="260,270,280,300,320,350,400,450,500,550,600,650,700,800,900,1000"                                 
 set -x
 for mass in $(echo $Masses | sed "s/,/ /g")
     do

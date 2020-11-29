@@ -147,7 +147,7 @@ def getLimit(model,masses,tag,scale=1):
   for mass in masses:
     i = masses.index(mass)
     xsec = 1.
-    date="25_09_2020" ######update this
+    date="03_10_2020" ######update this
     year="2016_2017_2018" ######update this 
     f = ROOT.TFile.Open("final_workspaces/final_datacards/limits/higgsCombineResHHbbgg_datacard_%s%s_%s_%s.AsymptoticLimits.mH125.root" % (model, mass, date, year), "READ")
     limit = f.Get("limit")

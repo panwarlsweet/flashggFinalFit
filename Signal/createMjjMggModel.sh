@@ -1,5 +1,5 @@
 YEAR="2016_2017_2018"
-DATE="25_09_2020" ## change here
+DATE="03_10_2020" ## change here
 
 INDIR="/afs/cern.ch/work/l/lata/2Denvelop/CMSSW_7_4_7/src/flashggFinalFit/Signal/output/MggMjjworkspaces/"
 OUTDIR="/afs/cern.ch/work/l/lata/2Denvelop/CMSSW_7_4_7/src/flashggFinalFit/Signal/output/MggMjjworkspaces/"
@@ -10,7 +10,7 @@ CATS="DoubleHTag_0,DoubleHTag_1,DoubleHTag_2"
 
 #Masses="260,270,280,300,320,350"
 
-Masses="400,450,500,550,600,650,700,800,900,1000"
+Masses="260,270,280,300,320,350,400,450,500,550,600,650,700,800,900,1000"
 Signal=$1  ### give signal name as an arguement
 set -x
 for mass in $(echo $Masses | sed "s/,/ /g")
