@@ -10,7 +10,7 @@ from root_numpy import tree2array
 from optparse import OptionParser
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-def add_mc_vars_to_workspace(ws=None,mjjLow=70, systematics_labels=[],add_benchmarks = False):
+def add_mc_vars_to_workspace(ws=None, mjj=125, mjjLow=70, mjjHigh=190, systematics_labels=[],add_benchmarks = False):
   IntLumi = ROOT.RooRealVar("IntLumi","IntLumi",1000)
   IntLumi.setConstant(True)
   getattr(ws, 'import')(IntLumi)
@@ -26,7 +26,7 @@ def add_mc_vars_to_workspace(ws=None,mjjLow=70, systematics_labels=[],add_benchm
   CMS_hgg_mass.setBins(100)
   getattr(ws, 'import')(CMS_hgg_mass)
 
-  Mjj = ROOT.RooRealVar("Mjj","Mjj",125,mjjLow,190)
+  Mjj = ROOT.RooRealVar("Mjj","Mjj",mjj,mjjLow,mjjHigh)
   Mjj.setConstant(False)
   Mjj.setBins(100)
   #if mjjLow==90 : Mjj.setBins(25)
@@ -61,7 +61,7 @@ def add_dataset_to_workspace(data=None,ws=None,name=None,btag_norm=1.0,systemati
   #define roodataset to add to workspace
   roodataset = ROOT.RooDataSet (name, name, arg_set, "weight" )
   #Restore normalization from the btag reshaping weights#                                        
-  data['weight'] *= btag_norm
+  data['weight'] *= btag_norm 
   #Fill the dataset with values
   for index,row in data.iterrows():
     for var in variables:
@@ -89,6 +89,7 @@ def get_options():
     parser.add_option("--out-dir",type='string',dest="out_dir",default='/work/nchernya/DiHiggs/inputs/22_04_2020/')
     parser.add_option("--outtag",type='string',dest="outtag",default='')
     parser.add_option("--MjjLow",type='float',dest="MjjLow",default='70')
+    parser.add_option("--MjjHigh",type='float',dest="MjjHigh",default='190')
     parser.add_option("--cats",type='string',dest="cats",default='DoubleHTag_0,DoubleHTag_1,DoubleHTag_2')
     parser.add_option("--MVAcats",type='string',dest="MVAcats",default='0.37,0.62,0.78,1')
  #   parser.add_option("--MXcats",type='string',dest="MXcats",default='291,309')  #2d
@@ -97,7 +98,7 @@ def get_options():
     parser.add_option("--signal",type='string',dest="sig",default="Radion")
  #   parser.add_option("--mass",type='string',dest="mass",default="300")
   #  parser.add_option("--year",type='string',dest="year",default="2016")
-    parser.add_option("--Mjj",type='string',dest="Mjj",default="125")
+    parser.add_option("--Mjj",type='int',dest="Mjj",default="125")
     return parser.parse_args()
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  
 
@@ -120,49 +121,56 @@ sig = opt.sig
 Mjj = opt.Mjj
 
 years=["2016","2017","2018"]
-masses =[260,270,280,300,320,350,400,450,500,550,600,650,700,800,900,1000]
-#masses=[260]
-MX_cut1=[255,265,275,291,305,337,374,418,464,510,555,615,655,745,835,925]
-MX_cut2=[263,275,286,309,327,360,413,463,514,565,615,680,725,825,925,1025]
+if sig=="Radion" or sig == "BulkGraviton":
+  ### for WED ######
+  masses =[260,270,280,300,320,350,400,450,500,550,600,650,700,800,900,1000]
+  #masses=[260]
+  MX_cut1=[255,265,275,291,305,337,374,418,464,510,555,615,655,745,835,925]
+  MX_cut2=[263,275,286,309,327,360,413,463,514,565,615,680,725,825,925,1025]
 
+### for NMSSM #####
+if sig == "NMSSM":
+  masses =[300,400,500,600,700,800,900,1000]
+  MX_cut1=[291,374,464,555,655,745,835,925]
+  MX_cut2=[309,413,514,615,725,825,925,1025]
 
 for i in range(len(masses)):
   print("i...=",i,"\t","mass==",masses[i])
-  if masses[i] >= 260 and masses[i] < 400: 
+  ttHScore=0.26
+  if(Mjj >= 200 or masses[i] >= 550):
+    ttHScore=0.0
+
+  ## setting up Mjj window ####
+  MjjLow=opt.MjjLow
+  MjjHigh=opt.MjjHigh
+  if(Mjj >= 200 && Mjj <= 500):
+    MjjLow = 150
+    MjjHigh = 560
+  elif(Mjj > 500)
+    MjjLow = 300
+    MjjHigh = 1000
+                                                                                            
+  ## setting up categories ###
+  if masses[i] >= 260 and masses[i] <= 400: 
     mass_range ="low"
-    ttHScore=0.26
-
-    if sig=="Radion":
-      cat='0.228,0.429,0.681,1.0 '
-      MVAcats=cat.split(',')
-
-    elif sig=="BulkGraviton":
-      cat='0.236,0.443,0.699,1.0'
-      MVAcats=cat.split(',')
-
-  elif masses[i] >= 400 and masses[i] < 700: 
+    cat='0.236,0.443,0.699,1.0'
+                                                                                        
+  elif masses[i] > 400 and masses[i] <= 700: 
     mass_range ="mid"
-    ttHScore=0.26
-    if masses[i] > 550:
-      ttHScore=0.0
-
-    if sig=="Radion":
-      cat='0.269,0.454,0.739,1.0'
-      MVAcats=cat.split(',')
-
-    elif sig=="BulkGraviton":
-      cat='0.183,0.377,0.662,1.0'
-      MVAcats=cat.split(',')
+    cat='0.236,0.443,0.699,1.0'
+    if(Mjj > 250 && Mjj <= 500):
+      cat='0.236,0.443,0.699,1.0'
 
   else:
     mass_range ="high"
-    ttHScore=0.0
-    if sig=="Radion":
-      cat='0.139,0.256,0.467,1.0'
-      MVAcats=cat.split(',')
-    elif sig=="BulkGraviton":
-      cat='0.169,0.292,0.60,1.0'
-      MVAcats=cat.split(',')
+    cat='0.236,0.443,0.699,1.0'
+    if(Mjj > 250 && Mjj <= 500):
+      cat='0.236,0.443,0.699,1.0'
+    elif(Mjj > 500):
+      cat='0.236,0.443,0.699,1.0'
+
+  MVAcats=cat.split(',')
+
 
   input_files=["Data_"+sig+"_"+mass_range+"mass"]
   print(input_files)
@@ -195,7 +203,7 @@ for i in range(len(masses)):
         initial_name = 'Data_13TeV_DoubleHTag_0'
 
         if opt.doCategorization :
-          selection = "(MX <= %.2f and MX > %.2f) and (xmlMVAtransf <= %.2f and xmlMVAtransf > %.2f) and (ttHScore >= %.2f) and (Mjj >= 70. and Mjj <= 190.)" %(float(MX_cut2[i]),float(MX_cut1[i]),cat_def[cat]["MVA"][0],cat_def[cat]["MVA"][1],ttHScore)
+          selection = "(MX_Y%d <= %.2f and MX_Y%d > %.2f) and (xmlMVAtransf <= %.2f and xmlMVAtransf > %.2f) and (ttHScore >= %.2f) and (Mjj >= %.2f and Mjj <= %.2f)" %(Mjj,Mjj,float(MX_cut2[i]),float(MX_cut1[i]),cat_def[cat]["MVA"][0],cat_def[cat]["MVA"][1],ttHScore,MjjLow,MjjHigh)
 
           print 'doing selection from tree below for categorisation ', selection
           print tfilename, treeDirName+initial_name
@@ -204,7 +212,7 @@ for i in range(len(masses)):
           datasets += add_dataset_to_workspace( data, ws, name, btag_SF,'') #systemaitcs[1] : this should be done for nominal only, to add weights
    
     f_out = ROOT.TFile.Open("%s/DoubleEG.root"%(opt.out_dir+sig+"/"+str(masses[i])),"RECREATE")
-    print("created Data ws for ......",sig+str(masses[i]))
+    print("created Data ws for ......",sig+str(masses[i])),"_Mjj",Mjj
     dir_ws = f_out.mkdir("tagsDumper")
     dir_ws.cd()
     ws.Print()
