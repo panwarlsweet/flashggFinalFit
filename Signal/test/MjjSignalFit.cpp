@@ -67,6 +67,7 @@ using namespace std;
 namespace po = boost::program_options;
 string indir_;
 string year_;
+int massY_;
 string mergeYearsStr_;
 string lumiYearsStr_;
 string templatefile_;
@@ -101,6 +102,7 @@ void OptionParser(int argc, char *argv[]){
 		("year,y", po::value<string>(&year_), "year")
 		("mergeYears", po::value<string>(&mergeYearsStr_)->default_value(""), "Merge years or not, if yes a list of years should be given")
 		("lumiYears", po::value<string>(&lumiYearsStr_)->default_value("35.9,41.2,59."), "lumi of the years to be merged")
+        	  ("massY,mY", po::value<int>(&massY_)->default_value(125), "Y mass point from NMSSM")
 		("outfiledir,o", po::value<string>(&outdir_)->default_value("test/"), "Output file dir")
 		("plotdir,p", po::value<string>(&plotdir_)->default_value("test/"), "Plot dir")
 		("procs", po::value<string>(&procStr_)->default_value("hh_node_SM,ggh,qqh,vh,tth"), "Processes (comma sep)")
@@ -248,7 +250,7 @@ void RooDraw(TCanvas *can, TH1F *h, RooPlot* frame,RooDataHist* hist, RooAbsPdf*
 	//	else if (iproc.find("hh") != std::string::npos) newtitle = "ggF HH SM : H#rightarrow bb H#rightarrow#gamma#gamma";
 	else if (iproc.find("Radionhh") != std::string::npos) newtitle = "(Spin-0) X#rightarrow HH#rightarrow #gamma#gammab#bar{b}";
 	else if (iproc.find("BulkGravitonhh") != std::string::npos) newtitle = "(Spin-2) X#rightarrow HH#rightarrow #gamma#gammab#bar{b}";
-	else if (iproc.find("NMSSMhh") != std::string::npos) newtitle = "(Spin-0) X#rightarrow HY#rightarrow #gamma#gammab#bar{b}";
+	else if (iproc.find("NMSSM") != std::string::npos) newtitle = "(Spin-0) X#rightarrow HY#rightarrow #gamma#gammab#bar{b}";
  
 	if (paper_) if (iproc.find("hh_node_SM") != std::string::npos) newtitle = "ggF HH#rightarrow#gamma#gammab#bar{b}"; 
 	if (paper_) if (iproc.find("qqHH") != std::string::npos) newtitle = "VBF HH#rightarrow#gamma#gammab#bar{b}"; 
@@ -343,6 +345,14 @@ int main(int argc, char *argv[]){
 
 	float minSigFitMjj = 70;
 	float maxSigFitMjj = 190;
+	if (massY_ >= 200 && massY_ <= 500){
+	  minSigFitMjj = 150;
+	  maxSigFitMjj = 560;
+	}
+	else if (massY_ > 500){
+	  minSigFitMjj = 300;
+          maxSigFitMjj = 1000;
+	}
 	const int NCAT = flashggCats_.size(); 
 
 	unsigned int iproc_num = 0;
@@ -374,6 +384,8 @@ int main(int argc, char *argv[]){
 
 		Mjj->setRange((iproc+"FitRange").c_str(),minSigFitMjj,maxSigFitMjj);
 		int nbins = 24;
+		if (massY_ >= 200 && massY_ <= 500) nbins = 82;
+		if (massY_ > 500 ) nbins = 140;
 		Mjj->setBins(nbins); //70 - 190, reasonbale bins 5 GeV
 		RooRealVar *weight = (RooRealVar*)w_original->var("weight");
 

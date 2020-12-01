@@ -4,7 +4,7 @@ YEAR=$3
 mergeYears=0  #used for all procs
 mergeCats=0 #used for single Higgs and 12 DoubleHTag cats only, not for VBF
 PAPER=0
-
+Mjj=$4
 
 DATE="03_10_2020"
 
@@ -45,7 +45,7 @@ for PROC in $(echo $PROCS | sed "s/,/ /g")
 			if [ $mergeYears == 1 ]; then
 				./bin/MjjSignalFit -t ${TEMPLATE} -d ${INDIR}  -p ${PLOTDIR} -o ${OUTDIR} --procs ${PROC}   -y ${YEAR} --mergeYears 2016,2017,2018 --infileWithAllYears ${INFILEWITHYEARS} -f ${CATS} --paper ${PAPER} -s ${PROC}
 			else
-				./bin/MjjSignalFit -t ${TEMPLATE} -d ${INDIR}  -p ${PLOTDIR} -o ${OUTDIR} --procs ${PROC}   -y ${YEAR} -f ${CATS}  --paper ${PAPER} -s ${PROC}
+				./bin/MjjSignalFit -t ${TEMPLATE} -d ${INDIR}  -p ${PLOTDIR} -o ${OUTDIR} --procs ${PROC}   -y ${YEAR} -f ${CATS}  --paper ${PAPER} -s ${PROC} -mY $Mjj
 			fi
 		fi	
 done
