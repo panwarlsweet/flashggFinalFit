@@ -11,51 +11,41 @@ from root_numpy import tree2array
 from optparse import OptionParser
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-def add_mc_vars_to_workspace(ws=None, mjj=125, mjjLow=70, mjjHigh=190, systematics_labels=[],add_benchmarks = False):
-  IntLumi = ROOT.RooRealVar("IntLumi","IntLumi",1000)
-  IntLumi.setConstant(True)
-  getattr(ws, 'import')(IntLumi)
+def add_mc_vars_to_workspace(ws=None, mx=500, mxLow=450, mxHigh=1200, systematics_labels=[],add_benchmarks = False):
+    IntLumi = ROOT.RooRealVar("IntLumi","IntLumi",1000)
+    IntLumi.setConstant(True)
+    getattr(ws, 'import')(IntLumi)
 
-  weight = ROOT.RooRealVar("weight","weight",1)
-  weight.setConstant(False)
-  getattr(ws, 'import')(weight)
+    weight = ROOT.RooRealVar("weight","weight",1)
+    weight.setConstant(False)
+    getattr(ws, 'import')(weight)
 
-  CMS_hgg_mass = ROOT.RooRealVar("CMS_hgg_mass","CMS_hgg_mass",125,100,180)
-  CMS_hgg_mass.setConstant(False)
-  #CMS_hgg_mass.setBins(160)
-  #CMS_hgg_mass.setBins(80)
-  CMS_hgg_mass.setBins(100)
-  getattr(ws, 'import')(CMS_hgg_mass)
+    CMS_hgg_mass = ROOT.RooRealVar("CMS_hgg_mass","CMS_hgg_mass",125,100,180)
+    CMS_hgg_mass.setConstant(False)
+    CMS_hgg_mass.setBins(100)
+    getattr(ws, 'import')(CMS_hgg_mass)
 
-  Mjj = ROOT.RooRealVar("Mjj","Mjj",mjj,mjjLow,mjjHigh)
-  Mjj.setConstant(False)
-  Mjj.setBins(100)
-  #if mjjLow==90 : Mjj.setBins(25)
-  #else : Mjj.setBins(30)
-  getattr(ws, 'import')(Mjj)
+    MX = ROOT.RooRealVar("MX","MX",mx,mxLow,mxHigh)
+    MX.setConstant(False)
+    MX.setBins(100)
+    getattr(ws, 'import')(MX)
 
-  dZ = ROOT.RooRealVar("dZ","dZ",0.0,-20,20)
-  dZ.setConstant(False)
-  dZ.setBins(40)
-  getattr(ws, 'import')(dZ)
-
-#  ttHScore = ROOT.RooRealVar("ttHScore","ttHScore",0.5,0.,1.)
-#  ttHScore.setConstant(False)
-#  ttHScore.setBins(40)
-#  getattr(ws, 'import')(ttHScore)
-
+    dZ = ROOT.RooRealVar("dZ","dZ",0.0,-20,20)
+    dZ.setConstant(False)
+    dZ.setBins(40)
+    getattr(ws, 'import')(dZ)
 
 def apply_selection(data=None,reco_name=None):
-  #function to split up ttree into recobins
-  #if 'reco5' in reco_name: recobin_data = data[(data['pTH_reco']>=350.)]
-  #recobin_data = recobin_data[((recobin_data['mgg']>=100.)&(recobin_data['mgg']<=180.))]
-  return recobin_data
+    #function to split up ttree into recobins
+    #if 'reco5' in reco_name: recobin_data = data[(data['pTH_reco']>=350.)]
+    #recobin_data = recobin_data[((recobin_data['mgg']>=100.)&(recobin_data['mgg']<=180.))]
+    return recobin_data
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-def add_dataset_to_workspace(data=None,ws=None,name=None,btag_norm=1.0,yfracfix=1.0,systematics_labels=[]):
+def add_dataset_to_workspace(data=None,ws=None,name=None,btag_norm=1.0,yfracfix=1.0,mjj=300,systematics_labels=[]):
 
   #define argument set  
   arg_set = ROOT.RooArgSet(ws.var("weight"))
-  variables = ["CMS_hgg_mass","Mjj","dZ" ]#, "ttHScore"] #ttHScore
+  variables = ["CMS_hgg_mass","MX","dZ" ]#, "ttHScore"] #ttHScore
   for var in variables :
       arg_set.add(ws.var(var))
 
@@ -63,14 +53,19 @@ def add_dataset_to_workspace(data=None,ws=None,name=None,btag_norm=1.0,yfracfix=
   roodataset = ROOT.RooDataSet (name, name, arg_set, "weight" )
   #Restore normalization from the btag reshaping weights#                                        
   data['weight'] *= (btag_norm * yfracfix)
+
   #Fill the dataset with values
   for index,row in data.iterrows():
     for var in variables:
       if var=='dZ' :  #to ensure only one fit (i.e. all RV fit)
         ws.var(var).setVal( 0. )
         ws.var(var).setConstant()
-      else : 
-        ws.var(var).setVal( row[ var ] )
+      else :
+        if var=='MX':
+          ws.var(var).setVal(row[var+"_Y"+str(mjj)])
+        else:
+          ws.var(var).setVal( row[ var ] )
+        
 
     w_val = row['weight']
 
@@ -89,17 +84,16 @@ def get_options():
     parser.add_option("--inp-dir",type='string',dest="inp_dir",default='/work/nchernya/DiHiggs/inputs/22_04_2020/trees/')
     parser.add_option("--out-dir",type='string',dest="out_dir",default='/work/nchernya/DiHiggs/inputs/22_04_2020/')
     parser.add_option("--outtag",type='string',dest="outtag",default='')
-    parser.add_option("--MjjLow",type='float',dest="MjjLow",default='70')
-    parser.add_option("--MjjHigh",type='float',dest="MjjHigh",default='190')
+    parser.add_option("--MjjLow",type='float',dest="MjjLow",default='230')
+    parser.add_option("--MjjHigh",type='float',dest="MjjHigh",default='320')    
     parser.add_option("--cats",type='string',dest="cats",default='DoubleHTag_0,DoubleHTag_1,DoubleHTag_2')
     parser.add_option("--MVAcats",type='string',dest="MVAcats",default='0.37,0.62,0.78,1')
- #   parser.add_option("--MXcats",type='string',dest="MXcats",default='291,309')  #2d
-  #  parser.add_option("--ttHScore",type='float',dest="ttHScore",default=0.26)
     parser.add_option("--doCategorization",action="store_true", dest="doCategorization",default=True)
-    parser.add_option("--signal",type='string',dest="sig",default="Radion")
- #   parser.add_option("--mass",type='string',dest="mass",default="300")
-  #  parser.add_option("--year",type='string',dest="year",default="2016")
-    parser.add_option("--Mjj",type='int',dest="Mjj",default="125")
+    parser.add_option("--signal",type='string',dest="sig",default="NMSSM")
+    parser.add_option("--Mjj",type='int',dest="Mjj",default="300")
+    
+    
+    
     return parser.parse_args()
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  
 
@@ -114,110 +108,115 @@ cat_def = {}
 
 target_names = []
 sig = opt.sig
-Mjj = opt.Mjj
+Mjj=opt.Mjj
+MjjLow=opt.MjjLow
+MjjHigh=opt.MjjHigh
 
 years=["2016","2017","2018"]
-if sig=="Radion" or sig == "BulkGraviton":
-  ### for WED ######
-  masses =[260,270,280,300,320,350,400,450,500,550,600,650,700,800,900,1000]
-  #masses=[260]
-  MX_cut1=[255,265,275,291,305,337,374,418,464,510,555,615,655,745,835,925]
-  MX_cut2=[263,275,286,309,327,360,413,463,514,565,615,680,725,825,925,1025]
 
 ### for NMSSM #####
 if sig == "NMSSM":
-  masses =[300,400,500,600,700,800,900,1000]
-  MX_cut1=[291,374,464,555,655,745,835,925]
-  MX_cut2=[309,413,514,615,725,825,925,1025]
+  masses =[500,600,700,800,900,1000]
+
+MX_cut1 = 450
+MX_cut2 = 1200
+if Mjj == 300:
+    MjjLow = 230
+    MjjHigh = 320
+elif Mjj == 400:
+    MjjLow = 330
+    MjjHigh = 410
+    MX_cut1 = 550
+elif Mjj == 500:
+    MjjLow = 400
+    MjjHigh = 520
+    MX_cut1 = 650
+elif Mjj == 600:
+    MjjLow = 460
+    MjjHigh = 640
+    MX_cut1 = 750
+elif Mjj == 700:
+    MjjLow = 560
+    MjjHigh = 740
+    MX_cut1 = 850
+elif Mjj == 800:
+    MjjLow = 600
+    MjjHigh = 840
+    MX_cut1 = 950
+  
   
 for i in range(len(masses)):
  print("i...=",i,"\t","mass==",masses[i])
+ if masses[i]-Mjj-125 < 0 : continue
  for year in years:
-  if year == "2016":
-    bTagNF = 1
-    lumi = 35.9
+    if year == "2016":
+        bTagNF = 1
+        lumi = 35.9
+    elif year == "2017":
+        bTagNF = 2
+        lumi = 41.5
+    elif year == "2018":
+        bTagNF = 3
+        lumi = 59.4
 
-  elif year == "2017":
-    bTagNF = 2
-    lumi = 41.5
-    
-  elif year == "2018":
-    bTagNF = 3
-    lumi = 59.4
-  
-  if sig == "Radion" or sig == "BulkGraviton":
-    inp_files="GluGluHToGG_M-125_13TeV_powheg_pythia8,VBFHToGG_M-125_13TeV_powheg_pythia8,VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8,ttHToGG_M125_13TeV_powheg_pythia8,bbHToGG_M-125_4FS_yb2_13TeV_amcatnlo,bbHToGG_M-125_4FS_ybyt_13TeV_amcatnlo,GluGluTo"+opt.sig+"ToHHTo2B2G_M-"+str(masses[i])+"_narrow_13TeV-madgraph"
-  else:
     inp_files="GluGluHToGG_M-125_13TeV_powheg_pythia8,VBFHToGG_M-125_13TeV_powheg_pythia8,VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8,ttHToGG_M125_13TeV_powheg_pythia8,bbHToGG_M-125_4FS_yb2_13TeV_amcatnlo,bbHToGG_M-125_4FS_ybyt_13TeV_amcatnlo,output_NMSSM_XToYHTo2b2g_MX-"+str((masses[i])+"_13TeV-madgraph_pythia8"
 
-  input_files = inp_files.split(',')
-  print(input_files)
+    input_files = inp_files.split(',')
+    print(input_files)
   ## setting up ttHkiller cut #####
-  ttHScore=0.26
-  if(Mjj >= 200 or masses[i] >= 550):
-    ttHScore=0.0
-
-  ## setting up Mjj window ####
-  MjjLow=opt.MjjLow
-  MjjHigh=opt.MjjHigh
-  if(Mjj >= 200 && Mjj <= 500):
-    MjjLow = 150
-    MjjHigh = 560
-  elif(Mjj > 500)
-    MjjLow = 300
-    MjjHigh = 1000
+    ttHScore=0.0  
                                                                                             
   ## setting up categories ###
-  if masses[i] >= 260 and masses[i] <= 400: 
-    mass_range ="low"
-    cat='0.236,0.443,0.699,1.0'
+    if masses[i] >= 260 and masses[i] <= 400: 
+      mass_range ="low"
+      cat='0.236,0.443,0.699,1.0'
                                                                                         
-  elif masses[i] > 400 and masses[i] <= 700: 
-    mass_range ="mid"
-    cat='0.236,0.443,0.699,1.0'
-    if(Mjj > 250 && Mjj <= 500):
+    elif masses[i] > 400 and masses[i] <= 700: 
+      mass_range ="mid"
       cat='0.236,0.443,0.699,1.0'
+      if(MX > 250 && MX <= 500):
+        cat='0.236,0.443,0.699,1.0'
 
-  else:
-    mass_range ="high"
-    cat='0.236,0.443,0.699,1.0'
-    if(Mjj > 250 && Mjj <= 500):
+    else:
+      mass_range ="high"
       cat='0.236,0.443,0.699,1.0'
-    elif(Mjj > 500):
-      cat='0.236,0.443,0.699,1.0'
+      if(MX > 250 && MX <= 500):
+        cat='0.236,0.443,0.699,1.0'
+      elif(MX > 500):
+        cat='0.236,0.443,0.699,1.0'
 
-  MVAcats=cat.split(',')
+    MVAcats=cat.split(',')
   
-  for mva_num in range(0,nMVA):
-    cat_num = mva_num
-    cat_name = "DoubleHTag_%d"%(cat_num)
-    cat_def[cat_name] = {"MVA" : []}
-    cat_def[cat_name]["MVA"] = [float(MVAcats[nMVA - mva_num]),float(MVAcats[nMVA - (mva_num+1)])]
+    for mva_num in range(0,nMVA):
+      cat_num = mva_num
+      cat_name = "DoubleHTag_%d"%(cat_num)
+      cat_def[cat_name] = {"MVA" : []}
+      cat_def[cat_name]["MVA"] = [float(MVAcats[nMVA - mva_num]),float(MVAcats[nMVA - (mva_num+1)])]
 
-  for num,f in enumerate(input_files):
+    for num,f in enumerate(input_files):
 
-    if f.find("Radion") != -1 or f.find("BulkGraviton") != -1:
-      target_names.append(sig+"hh")
-    elif f.find("NMSSM") != -1:
-      target_names.append("xtoyh")
-    elif f.find("VBFH") != -1:
-      target_names.append("qqh") 
-    elif f.find("VH") != -1:
-      target_names.append("vh")
-    elif f.find("GluGluH") != -1:
-      target_names.append("ggh")
-    elif f.find("4FS_ybyt") != -1:
-      target_names.append("bbhybyt")
-    elif f.find("4FS_yb2") != -1:
-      target_names.append("bbhyb2")
-    elif f.find("ttH") != -1:
-      target_names.append("tth")
+        if f.find("Radion") != -1 or f.find("BulkGraviton") != -1:
+            target_names.append(sig+"hh")
+        elif f.find("NMSSM") != -1:
+            target_names.append("xtoyh")
+        elif f.find("VBFH") != -1:
+            target_names.append("qqh") 
+        elif f.find("VH") != -1:
+            target_names.append("vh")
+        elif f.find("GluGluH") != -1:
+            target_names.append("ggh")
+        elif f.find("4FS_ybyt") != -1:
+            target_names.append("bbhybyt")
+        elif f.find("4FS_yb2") != -1:
+            target_names.append("bbhyb2")
+        elif f.find("ttH") != -1:
+            target_names.append("tth")
       
     input_files[num] = 'output_' + f +".root" #comment out for ivan
   
     btag_SF = 1.0
 
-  for num,f in enumerate(input_files):
+    for num,f in enumerate(input_files):
       yfracfix = 1.0
       if sig == "Radion" or str(opt.signal) == "BulkGraviton": 
         SignalNodes = SignalNodes_WED
@@ -242,31 +241,33 @@ for i in range(len(masses)):
             if s[0] == target_names[num]:
               btag_SF = s[bTagNF]
 
-      print 'doing file ',f, 'with bTag_SF = ', btag_SF
+      print 'doing file ',f, 'with bTag_SF = ', btag_SF, " with yfracfix = ",  YFracfix
       tfile = ROOT.TFile(opt.inp_dir+"flattening_"+mass_range+"mass_"+sig + year + "_L2-regression/analysistrees/" + f)
       tfilename = opt.inp_dir+"flattening_"+mass_range+"mass_"+sig + year + "_L2-regression/analysistrees/" +f
-#      print tfile,"\t", tfilename
+
       #define roo fit workspace
       datasets=[]
       ws = ROOT.RooWorkspace("cms_hgg_13TeV", "cms_hgg_13TeV")
       #Assemble roorealvariable set
-      add_mc_vars_to_workspace( ws,Mjj,MjjLow,MjjHigh,'' )  # do not add them for the main systematics file
+      add_mc_vars_to_workspace( ws,MX,MX_cut1,MX_cut2,'' )  # do not add them for the main systematics file
       for cat in cats : 
         print 'doing cat ',cat
         name = 'bbggtrees_13TeV'+'_'+cat
         initial_name = 'bbggtrees_13TeV_DoubleHTag_0'
 
         if opt.doCategorization :
-          selection = "(MX_Y%d <= %.2f and MX_Y%d > %.2f) and (xmlMVAtransf <= %.2f and xmlMVAtransf > %.2f) and (ttHScore >= %.2f) and (Mjj >= %.2f and Mjj <= %.2f)" %(Mjj,Mjj,float(MX_cut2[i]),float(MX_cut1[i]),cat_def[cat]["MVA"][0],cat_def[cat]["MVA"][1],ttHScore,MjjLow,MjjHigh)
+          selection = "(MX_Y%d <= %.2f and MX_Y%d > %.2f) and (xmlMVAtransf <= %.2f and xmlMVAtransf > %.2f) and (ttHScore >= %.2f) and (Mjj >= %.2f and Mjj <= %.2f)" %(Mjj,Mjj,float(MX_cut2),float(MX_cut1),cat_def[cat]["MVA"][0],cat_def[cat]["MVA"][1],ttHScore,MjjLow,MjjHigh)
+          
           if f.find("NMSSM") != -1:
-            selection = "(genmbb >= %d and genmbb <= %d) and (MX_Y%d <= %.2f and MX_Y%d > %.2f) and (xmlMVAtransf <= %.2f and xmlMVAtransf > %.2f) and (ttHScore >= %.2f) and (Mjj >= %.2f and Mjj <= %.2f)" %(Mjj-2,Mjj+2,Mjj,Mjj,float(MX_cut2[i]),float(MX_cut1[i]),cat_def[cat]["MVA"][0],cat_def[cat]["MVA"][1],ttHScore,MjjLow,MjjHigh)
+            selection = "(genmbb >= %d and genmbb <= %d) and (MX_Y%d <= %.2f and MX_Y%d > %.2f) and (xmlMVAtransf <= %.2f and xmlMVAtransf > %.2f) and (ttHScore >= %.2f) and (Mjj >= %.2f and Mjj <= %.2f)" %(Mjj-2,Mjj+2,Mjj,Mjj,float(MX_cut2),float(MX_cut1),cat_def[cat]["MVA"][0],cat_def[cat]["MVA"][1],ttHScore,MjjLow,MjjHigh)
 
           print 'doing selection ', selection, 'to make categorised ws from following tree'
           print tfilename, treeDirName+initial_name
           print "bTagSF = ", btag_SF, " and yfracfix = ", yfracfix
           data = rpd.read_root(tfilename,'%s'%(treeDirName+initial_name)).query(selection)
           print 'created ws..', name
-          datasets += add_dataset_to_workspace( data, ws, name, btag_SF,yfracfix,'') #systemaitcs[1] : this should be done for nominal only, to add weights, yfracfix=since NMSSM sample has grid of Y masses so fixing normalization with yfracfix for each Y
+          datasets += add_dataset_to_workspace( data, ws, name, btag_SF,yfracfix,Mjj,'') #systemaitcs[1] : this should be done for nominal only, to add weights, yfracfix=since NMSSM sample has grid of Y masses so fixing normalization with yfracfix for each Y
+          
       if target_names[num].find("Radion") != -1 or target_names[num].find("BulkGraviton") != -1:
         target_names[num]=sig+"hh"+str(masses[i])
       elif target_names[num].find("NMSSM") != -1:
