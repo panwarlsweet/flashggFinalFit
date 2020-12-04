@@ -58,13 +58,14 @@ bool BLIND = true;
 bool runFtestCheckWithToys=false;
 int mgg_low =100;
 int mgg_high =180;
-//int mjj_low =70;
-int mjj_low =90;
+int mjj_low =70;
 int mjj_high =190;
 //int nBinsForMass = 4*(mgg_high-mgg_low);
 int nBinsForMass = mgg_high-mgg_low;
 //int nBinsForMass2 = (mjj_high-mjj_low);
-int nBinsForMass2 = (mjj_high-mjj_low)/4.;
+int nBinsForMass2 = (mjj_high-mjj_low)/5.;
+int mjj_blind_p1 = 105;
+int mjj_blind_p2 = 145;
 
 RooRealVar *intLumi_ = new RooRealVar("IntLumi","hacked int lumi", 1000.);
 
@@ -334,8 +335,8 @@ void plot(RooRealVar *mass, RooAbsPdf *pdf, RooDataSet *data, string name,vector
     else data->plotOn(plot,Binning(nBinsForMass));
   }
   if(proj==2){
-    mass->setRange("unblindReg_3",mjj_low,105);
-    mass->setRange("unblindReg_4",145,mjj_high);
+    mass->setRange("unblindReg_3",mjj_low,mjj_blind_p1);
+    mass->setRange("unblindReg_4",mjj_blind_p2,mjj_high);
     if (BLIND) {
       data->plotOn(plot,Binning(nBinsForMass2),CutRange("unblindReg_3"));
       data->plotOn(plot,Binning(nBinsForMass2),CutRange("unblindReg_4"));
@@ -393,8 +394,8 @@ void plot(RooRealVar *mass, RooMultiPdf *pdfs, RooCategory *catIndex, RooDataSet
     else data->plotOn(plot,Binning(nBinsForMass));
   }
   if(proj==2){
-    mass->setRange("unblindReg_3",mjj_low,105);
-    mass->setRange("unblindReg_4",145,mjj_high);
+    mass->setRange("unblindReg_3",mjj_low,mjj_blind_p1);
+    mass->setRange("unblindReg_4",mjj_blind_p1,mjj_high);
     if (BLIND) {
      // data->plotOn(plot,Binning(nBinsForMass2),CutRange("unblindReg_3,unblindReg_4"));
       data->plotOn(plot,Binning(nBinsForMass2),CutRange("unblindReg_3"),LineColor(kWhite),MarkerColor(kWhite));
@@ -480,7 +481,7 @@ void plot(RooRealVar *mass, RooMultiPdf *pdfs, RooCategory *catIndex, RooDataSet
       if ((xtmp > 115 ) && ( xtmp < 135) ) continue;
     }
     if (BLIND && proj==2) {
-      if ((xtmp > 105 ) && ( xtmp < 145) ) continue;
+      if ((xtmp > mjj_blind_p1 ) && ( xtmp < mjj_blind_p2) ) continue;
     }
 	
     //	std::cout << "[INFO] plotdata->Integral() " <<  plotdata->Integral() << " ( bins " << npoints  << ") hbkgplots[i]->Integral() " << hbplottmp->Integral() << " (bins " << hbplottmp->GetNbinsX() << std::endl;
@@ -554,8 +555,8 @@ void plot(RooRealVar *mass, map<string,RooAbsPdf*> pdfs, RooDataSet *data, strin
     else data->plotOn(plot,Binning(nBinsForMass));
   }
   if(proj==2){
-    mass->setRange("unblindReg_1",mjj_low,105);
-    mass->setRange("unblindReg_2",145,mjj_high);
+    mass->setRange("unblindReg_1",mjj_low,mjj_blind_p1);
+    mass->setRange("unblindReg_2",mjj_blind_p2,mjj_high);
     if (BLIND) {
       data->plotOn(plot,Binning(nBinsForMass2),CutRange("unblindReg_1"));
       data->plotOn(plot,Binning(nBinsForMass2),CutRange("unblindReg_2"));
@@ -1005,6 +1006,7 @@ int main(int argc, char* argv[]){
 
   string fileName;
   int ncats;
+  int massY_;
   int singleCategory;
   string datfile;
   string outDir;
@@ -1032,7 +1034,8 @@ int main(int argc, char* argv[]){
     ("is2012",                                                                                  "Run 2012 config")
     ("unblind",          "Dont blind plots")
     ("isFlashgg",  po::value<int>(&isFlashgg_)->default_value(1),              "Use Flashgg output ")
-    ("FitStrategy",  po::value<int>(&FitStrategy_)->default_value(2),              "1D or 2D ")		 
+    ("FitStrategy",  po::value<int>(&FitStrategy_)->default_value(2),              "1D or 2D ")
+    ("massY,mY",  po::value<int>(&massY_)->default_value(125), "Y mass point")
     ("isbbggLimits",  po::value<bool>(&isbbggLimits_)->default_value(0),              "Use bbggLimit output ")
     ("isData",  po::value<bool>(&isData_)->default_value(0),              "Use Data not MC ")
     ("flashggCats,f", po::value<string>(&flashggCatsStr_)->default_value("UntaggedTag_0,UntaggedTag_1,UntaggedTag_2,UntaggedTag_3,UntaggedTag_4,VBFTag_0,VBFTag_1,VBFTag_2,TTHHadronicTag,TTHLeptonicTag,VHHadronicTag,VHTightTag,VHLooseTag,VHEtTag"),       "Flashgg category names to consider")
@@ -1040,6 +1043,31 @@ int main(int argc, char* argv[]){
     ("year", po::value<int>(&year_)->default_value(2016),       "Dataset year")
     ("verbose,v",                                                               "Run with more output")
     ;
+
+  if(massY_ >= 200 && massY_ <= 500){
+    ::mjj_low =150;
+    ::mjj_high = 560;
+    ::nBinsForMass2 = (mjj_high-mjj_low)/82.;
+  }
+  else if (massY_ > 500 ){
+    ::mjj_low =300;
+    ::mjj_high = 1000;
+    ::nBinsForMass2 = (mjj_high-mjj_low)/140.;
+  }
+  if(massY_ == 90){::mjj_blind_p1 = 80; ::mjj_blind_p2 = 100;}
+  else if(massY_ == 100){::mjj_blind_p1 = 85; ::mjj_blind_p2 = 120;}
+  else if(massY_ == 125){::mjj_blind_p1 = 105; ::mjj_blind_p2 = 145;}
+  else if(massY_ == 150){::mjj_blind_p1 = 125; ::mjj_blind_p2 = 165;}
+  else if(massY_ == 200){::mjj_blind_p1 = 160; ::mjj_blind_p2 = 210;}
+  else if(massY_ == 250){::mjj_blind_p1 = 210; ::mjj_blind_p2 = 260;}
+  else if(massY_ == 300){::mjj_blind_p1 = 240; ::mjj_blind_p2 = 310;}
+  else if(massY_ == 400){::mjj_blind_p1 = 330; ::mjj_blind_p2 = 410;}
+  else if(massY_ == 500){::mjj_blind_p1 = 420; ::mjj_blind_p2 = 520;}
+  else if(massY_ == 600){::mjj_blind_p1 = 500; ::mjj_blind_p2 = 620;}
+  else if(massY_ == 700){::mjj_blind_p1 = 600; ::mjj_blind_p2 = 720;}
+  else if(massY_ == 800){::mjj_blind_p1 = 680; ::mjj_blind_p2 = 820;}
+  
+  
   po::variables_map vm;
   po::store(po::parse_command_line(argc,argv,desc),vm);
   po::notify(vm);
