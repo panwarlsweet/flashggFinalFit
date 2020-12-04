@@ -58,13 +58,14 @@ bool BLIND = true;
 bool runFtestCheckWithToys=false;
 int mgg_low =100;
 int mgg_high =180;
-//int mjj_low =70;
-int mjj_low =90;
-int mjj_high =190;
+int MX_low =450;
+int MX_high =1200;
 //int nBinsForMass = 4*(mgg_high-mgg_low);
 int nBinsForMass = mgg_high-mgg_low;
-//int nBinsForMass2 = (mjj_high-mjj_low);
-int nBinsForMass2 = (mjj_high-mjj_low)/4.;
+//int nBinsForMass2 = (MX_high-MX_low);
+int nBinsForMass2 = (MX_high-MX_low)/150.;
+int MX_blind_p1 = 470;
+int MX_blind_p2 = 540;
 
 RooRealVar *intLumi_ = new RooRealVar("IntLumi","hacked int lumi", 1000.);
 
@@ -334,8 +335,8 @@ void plot(RooRealVar *mass, RooAbsPdf *pdf, RooDataSet *data, string name,vector
     else data->plotOn(plot,Binning(nBinsForMass));
   }
   if(proj==2){
-    mass->setRange("unblindReg_3",mjj_low,105);
-    mass->setRange("unblindReg_4",145,mjj_high);
+    mass->setRange("unblindReg_3",MX_low,MX_blind_p1);
+    mass->setRange("unblindReg_4",MX_blind_p2,MX_high);
     if (BLIND) {
       data->plotOn(plot,Binning(nBinsForMass2),CutRange("unblindReg_3"));
       data->plotOn(plot,Binning(nBinsForMass2),CutRange("unblindReg_4"));
@@ -393,8 +394,8 @@ void plot(RooRealVar *mass, RooMultiPdf *pdfs, RooCategory *catIndex, RooDataSet
     else data->plotOn(plot,Binning(nBinsForMass));
   }
   if(proj==2){
-    mass->setRange("unblindReg_3",mjj_low,105);
-    mass->setRange("unblindReg_4",145,mjj_high);
+    mass->setRange("unblindReg_3",MX_low,MX_blind_p1);
+    mass->setRange("unblindReg_4",MX_blind_p1,MX_high);
     if (BLIND) {
      // data->plotOn(plot,Binning(nBinsForMass2),CutRange("unblindReg_3,unblindReg_4"));
       data->plotOn(plot,Binning(nBinsForMass2),CutRange("unblindReg_3"),LineColor(kWhite),MarkerColor(kWhite));
@@ -408,10 +409,10 @@ void plot(RooRealVar *mass, RooMultiPdf *pdfs, RooCategory *catIndex, RooDataSet
   string bestFitFuncNameOtherProj; 
   for (int icat=0;icat<catIndex->numTypes();icat++){
     if (bestFitPdf==icat) {
-      //split in mgg and mjj func by splitting in _.
+      //split in mgg and MX func by splitting in _.
       string currentPdfName(pdfs->getCurrentPdf()->GetName());
       split(pdfNameSplit,currentPdfName,boost::is_any_of("_"));
-      if (proj==1) bestFitFuncNameOtherProj = pdfNameSplit[2]; //first is Mgg, then is Mjj
+      if (proj==1) bestFitFuncNameOtherProj = pdfNameSplit[2]; //first is Mgg, then is MX
       if (proj==2) bestFitFuncNameOtherProj = pdfNameSplit[1];
     } 
   }
@@ -444,8 +445,8 @@ void plot(RooRealVar *mass, RooMultiPdf *pdfs, RooCategory *catIndex, RooDataSet
     string currentPdfName(pdfs->getCurrentPdf()->GetName());
     split(pdfNameSplit,currentPdfName,boost::is_any_of("_"));
     string currentFuncNameOtherProj; 
-    if (proj==1) currentFuncNameOtherProj = pdfNameSplit[2]; //first is Mgg, then is Mjj
-    if (proj==2) currentFuncNameOtherProj = pdfNameSplit[1]; //first is Mgg, then is Mjj
+    if (proj==1) currentFuncNameOtherProj = pdfNameSplit[2]; //first is Mgg, then is MX
+    if (proj==2) currentFuncNameOtherProj = pdfNameSplit[1]; //first is Mgg, then is MX
     if (currentFuncNameOtherProj==bestFitFuncNameOtherProj) {
       pdfs->getCurrentPdf()->plotOn(plot,LineColor(col),LineStyle(style));//,RooFit::NormRange("fitdata_1,fitdata_2"));
       pdfToConsiderCounter+=1;
@@ -480,7 +481,7 @@ void plot(RooRealVar *mass, RooMultiPdf *pdfs, RooCategory *catIndex, RooDataSet
       if ((xtmp > 115 ) && ( xtmp < 135) ) continue;
     }
     if (BLIND && proj==2) {
-      if ((xtmp > 105 ) && ( xtmp < 145) ) continue;
+      if ((xtmp > MX_blind_p1 ) && ( xtmp < MX_blind_p2) ) continue;
     }
 	
     //	std::cout << "[INFO] plotdata->Integral() " <<  plotdata->Integral() << " ( bins " << npoints  << ") hbkgplots[i]->Integral() " << hbplottmp->Integral() << " (bins " << hbplottmp->GetNbinsX() << std::endl;
@@ -500,7 +501,7 @@ void plot(RooRealVar *mass, RooMultiPdf *pdfs, RooCategory *catIndex, RooDataSet
   pad2->cd();
   TH1 *hdummy;
   if(proj==1) hdummy = new TH1D("hdummyweight","",nBinsForMass,mgg_low,mgg_high);
-  if(proj==2) hdummy = new TH1D("hdummyweight","",nBinsForMass2,mjj_low,mjj_high);   
+  if(proj==2) hdummy = new TH1D("hdummyweight","",nBinsForMass2,MX_low,MX_high);   
 
   hdummy->SetMaximum(hdatasub->GetHistogram()->GetMaximum()+1);
   hdummy->SetMinimum(hdatasub->GetHistogram()->GetMinimum()-1);
@@ -520,7 +521,7 @@ void plot(RooRealVar *mass, RooMultiPdf *pdfs, RooCategory *catIndex, RooDataSet
 
   TLine *line3;
   if(proj==1) line3 = new TLine(mgg_low,0.,mgg_high,0.);
-  if(proj==2) line3 = new TLine(mjj_low,0.,mjj_high,0.);   
+  if(proj==2) line3 = new TLine(MX_low,0.,MX_high,0.);   
   line3->SetLineColor(bestcol);
   //line3->SetLineStyle(kDashed);
   line3->SetLineWidth(5.0);
@@ -554,8 +555,8 @@ void plot(RooRealVar *mass, map<string,RooAbsPdf*> pdfs, RooDataSet *data, strin
     else data->plotOn(plot,Binning(nBinsForMass));
   }
   if(proj==2){
-    mass->setRange("unblindReg_1",mjj_low,105);
-    mass->setRange("unblindReg_2",145,mjj_high);
+    mass->setRange("unblindReg_1",MX_low,MX_blind_p1);
+    mass->setRange("unblindReg_2",MX_blind_p2,MX_high);
     if (BLIND) {
       data->plotOn(plot,Binning(nBinsForMass2),CutRange("unblindReg_1"));
       data->plotOn(plot,Binning(nBinsForMass2),CutRange("unblindReg_2"));
@@ -592,7 +593,7 @@ void plot(RooRealVar *mass, map<string,RooAbsPdf*> pdfs, RooDataSet *data, strin
     // *prob = getGoodnessOfFit(mass,(it->second),data,name);
     // cout<< Form("reduced #chi^{2} = %.3f, #chi^{2} = %.3f, Prob = %.2f",chi2,chi2*(nBinsForMass-np),*prob)<<endl;
     // cout<< Form(" INFO projection = %d  %s %s #chi^{2} = %.3f, reduced #chi^{2} = %.3f, prob = %.7f",proj,it->first.c_str(),ext.c_str(),chi2*(numBins-np),chi2,prob)<<endl;
-    string proj_str = "Mjj";
+    string proj_str = "MX";
     if (proj==1)  proj_str= "Mgg";
     cout<< Form(" INFO : Projection = %s, %s %s, #chi^{2} = %.3f",proj_str.c_str(),it->first.c_str(),ext.c_str(),chi2)<<endl;
 
@@ -698,7 +699,7 @@ int getBestFitFunction(RooMultiPdf *bkg, RooDataSet *data, RooCategory *cat, boo
 }
 
 void BkgMultiModelFitAllOrders(TString OutputFileName, std::string jsonForEnvelope,RooWorkspace *_w,
-			       int Ncat,  vector<map<string,int> > choices_mgg, vector<map<string,int> > choices_mjj,
+			       int Ncat,  vector<map<string,int> > choices_mgg, vector<map<string,int> > choices_MX,
 			       vector<string> functionClasses, map<string,string> namingMap,
 			       int _fitStrategy,bool isFlashgg_,bool isData_,int isbbggLimits_,
 			       vector<string> flashggCats_, std::string ext, std::string outDir)
@@ -709,39 +710,39 @@ void BkgMultiModelFitAllOrders(TString OutputFileName, std::string jsonForEnvelo
   wBias = new RooWorkspace("multipdf","multipdf");
   //   int _fitStrategy=2; // Only 2D for start
    
-  RooRealVar *mgg,*mjj;
+  RooRealVar *mgg,*MX;
   if(isFlashgg_ && isData_){
     mgg = _w->var("CMS_hgg_mass");
-    // if(_fitStrategy==2) mjj = _w->var("CMS_hjj_mass");
-    //  else mjj = new RooRealVar("CMS_hjj_mass","CMS_hjj_mass",mjj_low,mjj_high);
-    if(_fitStrategy==2) mjj = _w->var("Mjj");
-    else mjj = new RooRealVar("CMS_hjj_mass","CMS_hjj_mass",mjj_low,mjj_high);
+    // if(_fitStrategy==2) MX = _w->var("CMS_hjj_mass");
+    //  else MX = new RooRealVar("CMS_hjj_mass","CMS_hjj_mass",MX_low,MX_high);
+    if(_fitStrategy==2) MX = _w->var("MX");
+    else MX = new RooRealVar("CMS_hjj_mass","CMS_hjj_mass",MX_low,MX_high);// need to fix it
   }
   else if(isbbggLimits_){
     mgg = _w->var("mgg");
-    mjj = _w->var("mjj");
+    MX = _w->var("MX");
   }
 
  
   mgg->setRange("BkgFitRange",mgg_low,mgg_high);
-  if(_fitStrategy==2) mjj->setRange("BkgFitRange",mjj_low,mjj_high);
+  if(_fitStrategy==2) MX->setRange("BkgFitRange",MX_low,MX_high);
   RooArgSet *obsset = new RooArgSet();
   obsset->add(*mgg);
-  if(_fitStrategy==2) obsset->add(*mjj);
+  if(_fitStrategy==2) obsset->add(*MX);
   if(_fitStrategy==1)
     mgg->setBins(nBinsForMass);
   if(_fitStrategy==2){
     mgg->setBins(100);
-    mjj->setBins(100);
+    MX->setBins(100);
   }
   RooFitResult* fitresults = new RooFitResult();
   PdfModelBuilder pdfsModel;
   pdfsModel.setObsVar(mgg);
   PdfModelBuilder pdfsModel_1;
-  pdfsModel_1.setObsVar(mjj);
+  pdfsModel_1.setObsVar(MX);
    
   RooAbsPdf* mggBkgTmp = nullptr;
-  RooAbsPdf* mjjBkgTmp = nullptr;
+  RooAbsPdf* MXBkgTmp = nullptr;
   RooProdPdf* BkgProdPdf = nullptr;
   RooExtendPdf* BkgExtPdf = nullptr;
    
@@ -753,7 +754,7 @@ void BkgMultiModelFitAllOrders(TString OutputFileName, std::string jsonForEnvelo
   //      label[i] = (namingMap.find(functionClasses[i])).c_str();
   //   }
   int func_ordmgg[Ncat][NumOfFunc];
-  int func_ordmjj[Ncat][NumOfFunc];
+  int func_ordMX[Ncat][NumOfFunc];
   bool allorders[Ncat];
   for(int i=0;i<Ncat;i++) allorders[i]=false;
   ifstream  jFile(jsonForEnvelope.c_str());
@@ -762,10 +763,10 @@ void BkgMultiModelFitAllOrders(TString OutputFileName, std::string jsonForEnvelo
     cout<<"[WARNING]: Can't open envelope json file "<<jsonForEnvelope.c_str()<<endl;
     for(int c=0;c<Ncat;c++){
       map<string,int> choices_mgg_cat = choices_mgg[c];
-      map<string,int> choices_mjj_cat = choices_mjj[c];
+      map<string,int> choices_MX_cat = choices_MX[c];
       for(int i=0;i<NumOfFunc;i++){
 	func_ordmgg[c][i] = choices_mgg_cat.find(functionClasses[i])->second;
-	func_ordmjj[c][i] = choices_mjj_cat.find(functionClasses[i])->second;
+	func_ordMX[c][i] = choices_MX_cat.find(functionClasses[i])->second;
 	allorders[c] = true;
       }
     }
@@ -777,7 +778,7 @@ void BkgMultiModelFitAllOrders(TString OutputFileName, std::string jsonForEnvelo
     for(int c=0;c<Ncat;c++){
       jFile.getline(line,500);
       cat=-1; strcpy(funcs, "");
-      sscanf(line,"cat%d: %d %d %d %d %d %d %s",&cat,&(func_ordmgg[c][0]),&(func_ordmgg[c][1]),&(func_ordmgg[c][2]),&(func_ordmjj[c][0]),&(func_ordmjj[c][1]),&(func_ordmjj[c][2]),funcs);
+      sscanf(line,"cat%d: %d %d %d %d %d %d %s",&cat,&(func_ordmgg[c][0]),&(func_ordmgg[c][1]),&(func_ordmgg[c][2]),&(func_ordMX[c][0]),&(func_ordMX[c][1]),&(func_ordMX[c][2]),funcs);
 	 
       TString st_funcs(funcs);
       TObjArray *tx = st_funcs.Tokenize(",");
@@ -789,8 +790,8 @@ void BkgMultiModelFitAllOrders(TString OutputFileName, std::string jsonForEnvelo
       delete tx;
 	 
       // printf("cat %d:\n ",cat);
-      // printf("%d %d %d %d %d %d\n",func_ordmgg[c][0],func_ordmgg[c][1],func_ordmgg[c][2],func_ordmjj[c][0],func_ordmjj[c][1],func_ordmjj[c][2]);
-      //cout<<func_ordmgg[c][0]<<"  "<<func_ordmgg[c][1]<<"  "<<func_ordmgg[c][2]<<"  "<<func_ordmjj[c][0]<<"  "<<func_ordmjj[c][1]<<"  "<<func_ordmjj[c][2]<<"  "<<endl;
+      // printf("%d %d %d %d %d %d\n",func_ordmgg[c][0],func_ordmgg[c][1],func_ordmgg[c][2],func_ordMX[c][0],func_ordMX[c][1],func_ordMX[c][2]);
+      //cout<<func_ordmgg[c][0]<<"  "<<func_ordmgg[c][1]<<"  "<<func_ordmgg[c][2]<<"  "<<func_ordMX[c][0]<<"  "<<func_ordMX[c][1]<<"  "<<func_ordMX[c][2]<<"  "<<endl;
       //	 for(unsigned k=0; k<EnvFunc[c].size(); k++){
       //	    cout<<EnvFunc[c][k]<<"  ";
       //	    //printf("%s  \n",EnvFunc[c][k].Data());
@@ -825,9 +826,9 @@ void BkgMultiModelFitAllOrders(TString OutputFileName, std::string jsonForEnvelo
       cout<<functionClasses[mggfunc]<<"-"<<func_ordmgg[c][mggfunc]<<" , ";
     cout<<endl;
     if(_fitStrategy == 2){
-      cout<<"[INFO] "<<mjj->GetName()<<": ";
-      for(int mjjfunc=0;mjjfunc<NumOfFunc;mjjfunc++)
-	cout<<functionClasses[mjjfunc]<<"-"<<func_ordmjj[c][mjjfunc]<<" , ";
+      cout<<"[INFO] "<<MX->GetName()<<": ";
+      for(int MXfunc=0;MXfunc<NumOfFunc;MXfunc++)
+	cout<<functionClasses[MXfunc]<<"-"<<func_ordMX[c][MXfunc]<<" , ";
       cout<<endl;
     }
 
@@ -839,18 +840,18 @@ void BkgMultiModelFitAllOrders(TString OutputFileName, std::string jsonForEnvelo
 	    
 	if(mggfunc>0 && mggfunc_ord%2==0) continue; // only odd orders are allowed for Exp and Pow
 	    
-	for(int mjjfunc=0;mjjfunc<NumOfFunc;mjjfunc++){
-	  for(int mjjfunc_ord=1; mjjfunc_ord<=func_ordmjj[c][mjjfunc]; mjjfunc_ord++){
+	for(int MXfunc=0;MXfunc<NumOfFunc;MXfunc++){
+	  for(int MXfunc_ord=1; MXfunc_ord<=func_ordMX[c][MXfunc]; MXfunc_ord++){
 
-	    if(_fitStrategy == 1 && !(mjjfunc==0 && mjjfunc_ord==1)) continue;
-	    if(mjjfunc>0 && mjjfunc_ord%2==0)  continue;
+	    if(_fitStrategy == 1 && !(MXfunc==0 && MXfunc_ord==1)) continue;
+	    if(MXfunc>0 && MXfunc_ord%2==0)  continue;
 
 	    bool stoploop=true;
 	    if(EnvFunc[c].size()>0){
 	      for(unsigned k=0; k<EnvFunc[c].size(); k++){
 		TString s1,s2;
 		if(_fitStrategy == 2){
-		  s1 = TString::Format("%s%d_%s%d",label[mggfunc],mggfunc_ord,label[mjjfunc],mjjfunc_ord);
+		  s1 = TString::Format("%s%d_%s%d",label[mggfunc],mggfunc_ord,label[MXfunc],MXfunc_ord);
 		  s2 = EnvFunc[c][k];
 		}
 		else if(_fitStrategy == 1){
@@ -870,15 +871,15 @@ void BkgMultiModelFitAllOrders(TString OutputFileName, std::string jsonForEnvelo
 	    if(stoploop) continue;
 
        bool gofPass_mgg=true;
-       bool gofPass_mjj=true;
+       bool gofPass_MX=true;
 		  
-	    //  printf("%s%d_%s%d_cat%d\n",label[mggfunc],mggfunc_ord,label[mjjfunc],mjjfunc_ord,c);
+	    //  printf("%s%d_%s%d_cat%d\n",label[mggfunc],mggfunc_ord,label[MXfunc],MXfunc_ord,c);
 	    if(_fitStrategy == 2){
-	      mggBkgTmp = getPdf(pdfsModel,functionClasses[mggfunc],mggfunc_ord, TString::Format("bkg_mgg_for%s%d_%s",label[mjjfunc],mjjfunc_ord,flashggCats_[c].c_str()));
-	      mjjBkgTmp = getPdf(pdfsModel_1,functionClasses[mjjfunc],mjjfunc_ord, TString::Format("bkg_mjj_for%s%d_%s",label[mggfunc],mggfunc_ord,flashggCats_[c].c_str()));
+	      mggBkgTmp = getPdf(pdfsModel,functionClasses[mggfunc],mggfunc_ord, TString::Format("bkg_mgg_for%s%d_%s",label[MXfunc],MXfunc_ord,flashggCats_[c].c_str()));
+	      MXBkgTmp = getPdf(pdfsModel_1,functionClasses[MXfunc],MXfunc_ord, TString::Format("bkg_MX_for%s%d_%s",label[mggfunc],mggfunc_ord,flashggCats_[c].c_str()));
 
 /*		   double gofProbMgg =0; 
-		   double gofProbMjj =0; 
+		   double gofProbMX =0; 
 		   int fitStatus=0;
          int proj=1;
 			plot(mgg,mggBkgTmp,data[c],Form("%s/%s%d_mgg_gof_%s.pdf",outDir.c_str(),label[mggfunc],mggfunc_ord,flashggCats_[c].c_str()),flashggCats_,fitStatus,&gofProbMgg,proj);
@@ -886,15 +887,15 @@ void BkgMultiModelFitAllOrders(TString OutputFileName, std::string jsonForEnvelo
               gofPass_mgg=false;
          }
          proj=2;
-			plot(mjj,mjjBkgTmp,data[c],Form("%s/%s%d_mjj_gof_%s.pdf",outDir.c_str(),label[mjjfunc],mjjfunc_ord,flashggCats_[c].c_str()),flashggCats_,fitStatus,&gofProbMjj,proj);
-			if (! ((gofProbMjj > 0.05) || (mjjfunc_ord == func_ordmjj[c][mjjfunc]) )){   // Good looking fit or one of our regular truth functions
-              gofPass_mjj=false;
+			plot(MX,MXBkgTmp,data[c],Form("%s/%s%d_MX_gof_%s.pdf",outDir.c_str(),label[MXfunc],MXfunc_ord,flashggCats_[c].c_str()),flashggCats_,fitStatus,&gofProbMX,proj);
+			if (! ((gofProbMX > 0.05) || (MXfunc_ord == func_ordMX[c][MXfunc]) )){   // Good looking fit or one of our regular truth functions
+              gofPass_MX=false;
          }
-         cout<<"INFO Mjj : "<<Form("%s%d %s",label[mjjfunc],mjjfunc_ord,flashggCats_[c].c_str())<<"  "<<gofProbMjj<<"  "<<gofPass_mjj<<endl;
+         cout<<"INFO MX : "<<Form("%s%d %s",label[MXfunc],MXfunc_ord,flashggCats_[c].c_str())<<"  "<<gofProbMX<<"  "<<gofPass_MX<<endl;
          cout<<"INFO Mgg : "<<Form("%s%d %s",label[mggfunc],mggfunc_ord,flashggCats_[c].c_str())<<"  "<<gofProbMgg<<"  "<<gofPass_mgg<<endl;
 */
-	      BkgProdPdf = new RooProdPdf(TString::Format("pdf_%s%d_%s%d_%s",label[mggfunc],mggfunc_ord,label[mjjfunc],mjjfunc_ord,flashggCats_[c].c_str()), "", RooArgList(*mggBkgTmp, *mjjBkgTmp));
-	      BkgExtPdf = new RooExtendPdf(TString::Format("ext_pdf_%s%d_%s%d_%s",label[mggfunc],mggfunc_ord,label[mjjfunc],mjjfunc_ord,flashggCats_[c].c_str()),"", *BkgProdPdf,norm);
+	      BkgProdPdf = new RooProdPdf(TString::Format("pdf_%s%d_%s%d_%s",label[mggfunc],mggfunc_ord,label[MXfunc],MXfunc_ord,flashggCats_[c].c_str()), "", RooArgList(*mggBkgTmp, *MXBkgTmp));
+	      BkgExtPdf = new RooExtendPdf(TString::Format("ext_pdf_%s%d_%s%d_%s",label[mggfunc],mggfunc_ord,label[MXfunc],MXfunc_ord,flashggCats_[c].c_str()),"", *BkgProdPdf,norm);
 	    }
 	    else if(_fitStrategy == 1){
 	      mggBkgTmp = getPdf(pdfsModel,functionClasses[mggfunc],mggfunc_ord, TString::Format("bkg_mgg_%s",flashggCats_[c].c_str()));
@@ -912,10 +913,10 @@ void BkgMultiModelFitAllOrders(TString OutputFileName, std::string jsonForEnvelo
 	      ntries++;
 	    }
 	    if(stat!=0){
-	      printf("Warning::Fit of background function pdf_%s%d_%s%d_%s is failed\n",label[mggfunc],mggfunc_ord,label[mjjfunc],mjjfunc_ord,flashggCats_[c].c_str());
+	      printf("Warning::Fit of background function pdf_%s%d_%s%d_%s is failed\n",label[mggfunc],mggfunc_ord,label[MXfunc],MXfunc_ord,flashggCats_[c].c_str());
 	    }
 	    if(_fitStrategy == 2)
-         if ((gofPass_mgg) && (gofPass_mjj)) mypdfs.add(*BkgProdPdf);
+         if ((gofPass_mgg) && (gofPass_MX)) mypdfs.add(*BkgProdPdf);
 	    else if(_fitStrategy == 1)
 	      mypdfs.add(*mggBkgTmp);
 	  }
@@ -952,7 +953,7 @@ void BkgMultiModelFitAllOrders(TString OutputFileName, std::string jsonForEnvelo
     wBias->import(*data[c]);
 
     plot(mgg,&multipdf,&category,data[c],Form("%s/multipdf_mass_%s",outDir.c_str(),flashggCats_[c].c_str()),flashggCats_,c,bestFitPdfIndex,1);
-    plot(mjj,&multipdf,&category,data[c],Form("%s/multipdf_mass2_%s",outDir.c_str(),flashggCats_[c].c_str()),flashggCats_,c,bestFitPdfIndex,2);
+    plot(MX,&multipdf,&category,data[c],Form("%s/multipdf_mass2_%s",outDir.c_str(),flashggCats_[c].c_str()),flashggCats_,c,bestFitPdfIndex,2);
       
     if(isFlashgg_==1 && _fitStrategy == 1){
       RooDataHist dataBinned(Form("roohist_data_mass_%s",flashggCats_[c].c_str()),"data",*mgg,*data[c]);
@@ -1005,6 +1006,7 @@ int main(int argc, char* argv[]){
 
   string fileName;
   int ncats;
+  int massX_;
   int singleCategory;
   string datfile;
   string outDir;
@@ -1032,7 +1034,8 @@ int main(int argc, char* argv[]){
     ("is2012",                                                                                  "Run 2012 config")
     ("unblind",          "Dont blind plots")
     ("isFlashgg",  po::value<int>(&isFlashgg_)->default_value(1),              "Use Flashgg output ")
-    ("FitStrategy",  po::value<int>(&FitStrategy_)->default_value(2),              "1D or 2D ")		 
+    ("FitStrategy",  po::value<int>(&FitStrategy_)->default_value(2),              "1D or 2D ")
+    ("massX,mX",  po::value<int>(&massX_)->default_value(500), "X mass point")
     ("isbbggLimits",  po::value<bool>(&isbbggLimits_)->default_value(0),              "Use bbggLimit output ")
     ("isData",  po::value<bool>(&isData_)->default_value(0),              "Use Data not MC ")
     ("flashggCats,f", po::value<string>(&flashggCatsStr_)->default_value("UntaggedTag_0,UntaggedTag_1,UntaggedTag_2,UntaggedTag_3,UntaggedTag_4,VBFTag_0,VBFTag_1,VBFTag_2,TTHHadronicTag,TTHLeptonicTag,VHHadronicTag,VHTightTag,VHLooseTag,VHEtTag"),       "Flashgg category names to consider")
@@ -1040,6 +1043,14 @@ int main(int argc, char* argv[]){
     ("year", po::value<int>(&year_)->default_value(2016),       "Dataset year")
     ("verbose,v",                                                               "Run with more output")
     ;
+
+  if(massX_ == 500){::MX_low =450; ::MX_blind_p1 = 460; ::MX_blind_p2 = 530; ::nBinsForMass2=150;}
+  else if(massX_ == 600){::MX_low =550; ::MX_blind_p1 = 560; ::MX_blind_p2 = 630; ::nBinsForMass2=130;}
+  else if(massX_ == 700){::MX_low =650; ::MX_blind_p1 = 660; ::MX_blind_p2 = 730; ::nBinsForMass2=110;}
+  else if(massX_ == 800){::MX_low =750; ::MX_blind_p1 = 770; ::MX_blind_p2 = 830; ::nBinsForMass2=90;}
+  else if(massX_ == 900){::MX_low =850; ::MX_blind_p1 = 870; ::MX_blind_p2 = 930; ::nBinsForMass2=70;}
+  else if(massX_ == 1000){::MX_low =950; ::MX_blind_p1 = 970; ::MX_blind_p2 = 1030; ::nBinsForMass2=50;}
+  
   po::variables_map vm;
   po::store(po::parse_command_line(argc,argv,desc),vm);
   po::notify(vm);
@@ -1127,12 +1138,12 @@ int main(int argc, char* argv[]){
   RooRealVar *mass,*mass2=nullptr;
   if(isbbggLimits_){
     mass = (RooRealVar*)inWS->var("mgg");
-    if(FitStrategy_==2) mass2 = (RooRealVar*)inWS->var("mjj"); 
+    if(FitStrategy_==2) mass2 = (RooRealVar*)inWS->var("MX"); 
   }
   else{
     mass = (RooRealVar*)inWS->var("CMS_hgg_mass"); //FIXME
     //if(FitStrategy_==2) mass2 = (RooRealVar*)inWS->var("CMS_hjj_mass"); //FIXME
-    if(FitStrategy_==2) mass2 = (RooRealVar*)inWS->var("Mjj"); //FIXME
+    if(FitStrategy_==2) mass2 = (RooRealVar*)inWS->var("MX"); //FIXME
   }
   if(FitStrategy_!=2) mass2 = mass;
   std:: cout << "[INFO] Got masses from ws " << mass;
