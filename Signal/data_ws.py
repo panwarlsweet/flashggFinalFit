@@ -116,25 +116,26 @@ if Mjj == 300:
     MjjLow = 230
     MjjHigh = 320
 elif Mjj == 400:
-    MjjLow = 330
-    MjjHigh = 410
+    MjjLow = 310
+    MjjHigh = 450
     MX_cut1 = 550
 elif Mjj == 500:
-    MjjLow = 400
-    MjjHigh = 520
+    MjjLow = 380
+    MjjHigh = 550
     MX_cut1 = 650
 elif Mjj == 600:
     MjjLow = 460
     MjjHigh = 640
     MX_cut1 = 750
 elif Mjj == 700:
-    MjjLow = 560
+    MjjLow = 550
     MjjHigh = 740
     MX_cut1 = 850
 elif Mjj == 800:
     MjjLow = 600
     MjjHigh = 840
     MX_cut1 = 950
+
   
 
 for i in range(len(masses)):

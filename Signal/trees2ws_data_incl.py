@@ -124,19 +124,19 @@ if Mjj == 300:
     MjjLow = 230
     MjjHigh = 320
 elif Mjj == 400:
-    MjjLow = 330
-    MjjHigh = 410
+    MjjLow = 310
+    MjjHigh = 450
     MX_cut1 = 550
 elif Mjj == 500:
-    MjjLow = 400
-    MjjHigh = 520
+    MjjLow = 380
+    MjjHigh = 550
     MX_cut1 = 650
 elif Mjj == 600:
     MjjLow = 460
     MjjHigh = 640
     MX_cut1 = 750
 elif Mjj == 700:
-    MjjLow = 560
+    MjjLow = 550
     MjjHigh = 740
     MX_cut1 = 850
 elif Mjj == 800:
@@ -198,7 +198,7 @@ for i in range(len(masses)):
         if f.find("Radion") != -1 or f.find("BulkGraviton") != -1:
             target_names.append(sig+"hh")
         elif f.find("NMSSM") != -1:
-            target_names.append("xtoyh")
+            target_names.append(sig+"X"+str(masses[i])+"ToY"+str(Mjj)+"H125")
         elif f.find("VBFH") != -1:
             target_names.append("qqh") 
         elif f.find("VH") != -1:
@@ -271,7 +271,7 @@ for i in range(len(masses)):
       if target_names[num].find("Radion") != -1 or target_names[num].find("BulkGraviton") != -1:
         target_names[num]=sig+"hh"+str(masses[i])
       elif target_names[num].find("NMSSM") != -1:
-        target_names[num]="X"+str(masses[i])+"To_Y"+str(Mjj)+"_H125"
+        target_names[num]=sig+"X"+str(masses[i])+"ToY"+str(Mjj)+"H125"
       f_out = ROOT.TFile.Open("%s/%s_%s.root"%(opt.out_dir+sig+"/"+str(masses[i]),target_names[num],year),"RECREATE")
       #print("test......",masses[i]," ",target_names[num])
       dir_ws = f_out.mkdir("tagsDumper")
