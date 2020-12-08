@@ -511,9 +511,9 @@ void plot(RooRealVar *mass, RooMultiPdf *pdfs, RooCategory *catIndex, RooDataSet
   hdummy->GetYaxis()->SetLabelSize(0.07);
   hdummy->GetXaxis()->SetLabelSize(0.1);
   if(proj==1){
-    hdummy->GetXaxis()->SetTitle("m_{#gamma#gamma} (GeV)");
+    hdummy->GetXaxis()->SetTitle("m_{#gamma#gamma} [GeV]");
   } else {
-    hdummy->GetXaxis()->SetTitle("m_{jj} (GeV)");
+    hdummy->GetXaxis()->SetTitle("#tilde{M}_{X} [GeV]");
   }
   hdummy->GetXaxis()->SetTitleSize(0.12);
   hdummy->Draw("HIST");
