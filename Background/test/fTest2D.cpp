@@ -63,7 +63,7 @@ int MX_high =1200;
 //int nBinsForMass = 4*(mgg_high-mgg_low);
 int nBinsForMass = mgg_high-mgg_low;
 //int nBinsForMass2 = (MX_high-MX_low);
-int nBinsForMass2 = (MX_high-MX_low)/150.;
+int nBinsForMass2 = (MX_high-MX_low)/5.;
 int MX_blind_p1 = 470;
 int MX_blind_p2 = 540;
 
@@ -1006,7 +1006,7 @@ int main(int argc, char* argv[]){
 
   string fileName;
   int ncats;
-  int massX_;
+  int massX_,massY_;
   int singleCategory;
   string datfile;
   string outDir;
@@ -1036,6 +1036,7 @@ int main(int argc, char* argv[]){
     ("isFlashgg",  po::value<int>(&isFlashgg_)->default_value(1),              "Use Flashgg output ")
     ("FitStrategy",  po::value<int>(&FitStrategy_)->default_value(2),              "1D or 2D ")
     ("massX,mX",  po::value<int>(&massX_)->default_value(500), "X mass point")
+    ("massY,mY",  po::value<int>(&massY_)->default_value(300), "Y mass point")
     ("isbbggLimits",  po::value<bool>(&isbbggLimits_)->default_value(0),              "Use bbggLimit output ")
     ("isData",  po::value<bool>(&isData_)->default_value(0),              "Use Data not MC ")
     ("flashggCats,f", po::value<string>(&flashggCatsStr_)->default_value("UntaggedTag_0,UntaggedTag_1,UntaggedTag_2,UntaggedTag_3,UntaggedTag_4,VBFTag_0,VBFTag_1,VBFTag_2,TTHHadronicTag,TTHLeptonicTag,VHHadronicTag,VHTightTag,VHLooseTag,VHEtTag"),       "Flashgg category names to consider")
@@ -1043,13 +1044,6 @@ int main(int argc, char* argv[]){
     ("year", po::value<int>(&year_)->default_value(2016),       "Dataset year")
     ("verbose,v",                                                               "Run with more output")
     ;
-
-  if(massX_ == 500){::MX_low =450; ::MX_blind_p1 = 460; ::MX_blind_p2 = 530; ::nBinsForMass2=150;}
-  else if(massX_ == 600){::MX_low =550; ::MX_blind_p1 = 560; ::MX_blind_p2 = 630; ::nBinsForMass2=130;}
-  else if(massX_ == 700){::MX_low =650; ::MX_blind_p1 = 660; ::MX_blind_p2 = 730; ::nBinsForMass2=110;}
-  else if(massX_ == 800){::MX_low =750; ::MX_blind_p1 = 770; ::MX_blind_p2 = 830; ::nBinsForMass2=90;}
-  else if(massX_ == 900){::MX_low =850; ::MX_blind_p1 = 870; ::MX_blind_p2 = 930; ::nBinsForMass2=70;}
-  else if(massX_ == 1000){::MX_low =950; ::MX_blind_p1 = 970; ::MX_blind_p2 = 1030; ::nBinsForMass2=50;}
   
   po::variables_map vm;
   po::store(po::parse_command_line(argc,argv,desc),vm);
@@ -1063,7 +1057,20 @@ int main(int argc, char* argv[]){
    
   if (vm.count("verbose")) verbose=true;
   if (vm.count("runFtestCheckWithToys")) runFtestCheckWithToys=true;
-
+  if(massX_ == 500){::MX_blind_p1 = 460; ::MX_blind_p2 = 530;}
+  else if(massX_ == 600){::MX_blind_p1 = 560; ::MX_blind_p2 = 630;}
+  else if(massX_ == 700){::MX_blind_p1 = 660; ::MX_blind_p2 = 730;}
+  else if(massX_ == 800){::MX_blind_p1 = 770; ::MX_blind_p2 = 830;}
+  else if(massX_ == 900){::MX_blind_p1 = 870; ::MX_blind_p2 = 930;}
+  else if(massX_ == 1000){::MX_blind_p1 = 970; ::MX_blind_p2 = 1030;}
+  
+  if(massY_==300) ::MX_low=450;
+  else if(massY_==400) ::MX_low=550;
+  else if(massY_==500) ::MX_low=650;
+  else if(massY_==600) ::MX_low=750;
+  else if(massY_==700) ::MX_low=850;
+  else if(massY_==800) ::MX_low=950;
+  ::nBinsForMass2=(MX_high-MX_low)/5;
   if (!verbose) {
     RooMsgService::instance().setGlobalKillBelow(RooFit::ERROR);
     RooMsgService::instance().setSilentMode(true);

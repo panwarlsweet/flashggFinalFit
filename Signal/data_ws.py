@@ -61,7 +61,7 @@ def add_dataset_to_workspace(data=None,ws=None,name=None,btag_norm=1.0,mjj=300,s
       else :
          if var=='MX':
             ws.var(var).setVal(row[var+"_Y"+str(mjj)])
-        else:
+         else:
             ws.var(var).setVal( row[ var ] )
 
     w_val = row['weight']
@@ -135,36 +135,42 @@ elif Mjj == 800:
     MjjLow = 600
     MjjHigh = 840
     MX_cut1 = 950
-
+Mjjbin="low"
+if Mjj >= 200 and Mjj <= 500: Mjjbin = "mid"
+elif Mjj > 500: Mjjbin = "high"
   
 
 for i in range(len(masses)):
   print("i...=",i,"\t","mass==",masses[i])
+  if masses[i]  - 125 - Mjj < 0:
+      print("skipping X =",masses[i],"for Mjj=",Mjj)
+      continue
   ttHScore=0.0
+  MX=masses[i]
                                                                                             
   ## setting up categories ###
   if masses[i] >= 260 and masses[i] <= 400: 
     mass_range ="low"
-    cat='0.236,0.443,0.699,1.0'
+    cat='0.174,0.329,0.627,1.0'
                                                                                         
   elif masses[i] > 400 and masses[i] <= 700: 
     mass_range ="mid"
-    cat='0.236,0.443,0.699,1.0'
-    if(Mjj > 250 && Mjj <= 500):
-      cat='0.236,0.443,0.699,1.0'
+    cat='0.213,0.401,0.600,1.0'
+    if Mjj > 250 and Mjj <= 500:
+      cat='0.180,0.352,0.6,1.0'
 
   else:
     mass_range ="high"
-    cat='0.236,0.443,0.699,1.0'
-    if(Mjj > 250 && Mjj <= 500):
-      cat='0.236,0.443,0.699,1.0'
-    elif(Mjj > 500):
-      cat='0.236,0.443,0.699,1.0'
+    cat='0.215,0.344,0.600,1.0'
+    if Mjj > 250 and Mjj <= 500:
+      cat='0.177,0.319,0.48,1.0'
+    elif Mjj > 500:
+      cat='0.129,0.286,0.55,1.0'
 
   MVAcats=cat.split(',')
 
 
-  input_files=["Data_"+sig+"_"+mass_range+"mass"]
+  input_files=["Data"]
   print(input_files)
   target_names = ["Data"]
 
@@ -183,8 +189,8 @@ for i in range(len(masses)):
   for num,f in enumerate(input_files):
     print 'doing file ',f, 'with bTag_SF = ', btag_SF
     print 'applying categorisation from...',mass_range, "..=",MVAcats
-    tfile = ROOT.TFile(opt.inp_dir+ f)
-    tfilename = opt.inp_dir+f
+    #tfile = ROOT.TFile(opt.inp_dir+ f)
+    tfilename = opt.inp_dir+str(mass_range)+"X_"+Mjjbin+"Y/"+f
     datasets=[]
     ws = ROOT.RooWorkspace("cms_hgg_13TeV", "cms_hgg_13TeV")
     #Assemble roorealvariable set
@@ -195,7 +201,7 @@ for i in range(len(masses)):
         initial_name = 'Data_13TeV_DoubleHTag_0'
 
         if opt.doCategorization :
-          selection = "(MX_Y%d <= %.2f and MX_Y%d > %.2f) and (xmlMVAtransf <= %.2f and xmlMVAtransf > %.2f) and (ttHScore >= %.2f) and (Mjj >= %.2f and Mjj <= %.2f)" %(Mjj,Mjj,float(MX_cut2),float(MX_cut1),cat_def[cat]["MVA"][0],cat_def[cat]["MVA"][1],ttHScore,MjjLow,MjjHigh)
+          selection = "(MX_Y%d <= %.2f and MX_Y%d > %.2f) and (xmlMVAtransf <= %.2f and xmlMVAtransf > %.2f) and (ttHScore >= %.2f) and (Mjj >= %.2f and Mjj <= %.2f)" %(Mjj,float(MX_cut2),Mjj,float(MX_cut1),cat_def[cat]["MVA"][0],cat_def[cat]["MVA"][1],ttHScore,MjjLow,MjjHigh)
 
           print 'doing selection from tree below for categorisation ', selection
           print tfilename, treeDirName+initial_name
@@ -203,7 +209,7 @@ for i in range(len(masses)):
           print "created workspace", name
           datasets += add_dataset_to_workspace( data, ws, name, btag_SF, Mjj,'') #systemaitcs[1] : this should be done for nominal only, to add weights
    
-    f_out = ROOT.TFile.Open("%s/DoubleEG.root"%(opt.out_dir+sig+"/"+str(masses[i])),"RECREATE")
+    f_out = ROOT.TFile.Open("%s/%s/DoubleEG.root"%(opt.out_dir+sig+"_MXMgg/"+str(masses[i]),str(Mjj)),"RECREATE")
     print("created Data ws for ......",sig+str(masses[i])),"_Mjj",Mjj
     dir_ws = f_out.mkdir("tagsDumper")
     dir_ws.cd()
