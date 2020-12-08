@@ -1042,32 +1042,6 @@ int main(int argc, char* argv[]){
     ("year", po::value<int>(&year_)->default_value(2016),       "Dataset year")
     ("verbose,v",                                                               "Run with more output")
     ;
-  /*
-  std::cout << "modeling bkg for Y ===== " << massY_ << endl;
-  if(massY_ >= 200 && massY_ <= 500){
-    ::mjj_low =150;
-    ::mjj_high = 560;
-    ::nBinsForMass2 = (mjj_high-mjj_low)/5;
-  }
-  else if (massY_ > 500 ){
-    ::mjj_low =300;
-    ::mjj_high = 1000;
-    ::nBinsForMass2 = (mjj_high-mjj_low)/5;
-  }
-  std::cout << "modeling bkg for Y ===== " << massY_ << " with cuts = " << mjj_low << " " << mjj_high << " and " << nBinsForMass2 << endl;
-  if(massY_ == 90){::mjj_blind_p1 = 80; ::mjj_blind_p2 = 100;}
-  else if(massY_ == 100){::mjj_blind_p1 = 85; ::mjj_blind_p2 = 120;}
-  else if(massY_ == 125){::mjj_blind_p1 = 105; ::mjj_blind_p2 = 145;}
-  else if(massY_ == 150){::mjj_blind_p1 = 125; ::mjj_blind_p2 = 165;}
-  else if(massY_ == 200){::mjj_blind_p1 = 160; ::mjj_blind_p2 = 210;}
-  else if(massY_ == 250){::mjj_blind_p1 = 210; ::mjj_blind_p2 = 260;}
-  else if(massY_ == 300){::mjj_blind_p1 = 240; ::mjj_blind_p2 = 310;}
-  else if(massY_ == 400){::mjj_blind_p1 = 330; ::mjj_blind_p2 = 410;}
-  else if(massY_ == 500){::mjj_blind_p1 = 420; ::mjj_blind_p2 = 520;}
-  else if(massY_ == 600){::mjj_blind_p1 = 500; ::mjj_blind_p2 = 620;}
-  else if(massY_ == 700){::mjj_blind_p1 = 600; ::mjj_blind_p2 = 720;}
-  else if(massY_ == 800){::mjj_blind_p1 = 680; ::mjj_blind_p2 = 820;}
-  */
   
   po::variables_map vm;
   po::store(po::parse_command_line(argc,argv,desc),vm);
@@ -1086,13 +1060,12 @@ int main(int argc, char* argv[]){
   if(massY_ >= 200 && massY_ <= 500){
     ::mjj_low =150;
     ::mjj_high = 560;
-    ::nBinsForMass2 = (mjj_high-mjj_low)/5;
   }
   else if (massY_ > 500 ){
     ::mjj_low =300;
     ::mjj_high = 1000;
-    ::nBinsForMass2 = (mjj_high-mjj_low)/5;
   }
+  ::nBinsForMass2 = (mjj_high-mjj_low)/5;
   std::cout << "modeling bkg for Y ===== " << massY_ << " with cuts = " << mjj_low << " " << mjj_high << " and " << nBinsForMass2 << endl;
 
   if(massY_ == 90){::mjj_blind_p1 = 80; ::mjj_blind_p2 = 100;}                                
