@@ -1006,7 +1006,6 @@ int main(int argc, char* argv[]){
 
   string fileName;
   int ncats;
-  int massY_;
   int singleCategory;
   string datfile;
   string outDir;
@@ -1019,7 +1018,7 @@ int main(int argc, char* argv[]){
   vector<string> flashggCats_;
   bool isData_ =0;     bool isbbggLimits_ =0;
   std::string jsonForEnvelope_ = "";
-   
+  int massY_;
   po::options_description desc("Allowed options");
   desc.add_options()
     ("help,h",                                                                                  "Show help")
@@ -1035,25 +1034,27 @@ int main(int argc, char* argv[]){
     ("unblind",          "Dont blind plots")
     ("isFlashgg",  po::value<int>(&isFlashgg_)->default_value(1),              "Use Flashgg output ")
     ("FitStrategy",  po::value<int>(&FitStrategy_)->default_value(2),              "1D or 2D ")
-    ("massY,mY",  po::value<int>(&massY_)->default_value(125), "Y mass point")
     ("isbbggLimits",  po::value<bool>(&isbbggLimits_)->default_value(0),              "Use bbggLimit output ")
     ("isData",  po::value<bool>(&isData_)->default_value(0),              "Use Data not MC ")
     ("flashggCats,f", po::value<string>(&flashggCatsStr_)->default_value("UntaggedTag_0,UntaggedTag_1,UntaggedTag_2,UntaggedTag_3,UntaggedTag_4,VBFTag_0,VBFTag_1,VBFTag_2,TTHHadronicTag,TTHLeptonicTag,VHHadronicTag,VHTightTag,VHLooseTag,VHEtTag"),       "Flashgg category names to consider")
-    ("jsonForEnvelope", po::value<string>(&jsonForEnvelope_)->default_value(""),       "Json file for envelope")		     
+    ("jsonForEnvelope", po::value<string>(&jsonForEnvelope_)->default_value(""),       "Json file for envelope")
+    ("massY,mY",  po::value<int>(&massY_)->default_value(125), "Y mass point")
     ("year", po::value<int>(&year_)->default_value(2016),       "Dataset year")
     ("verbose,v",                                                               "Run with more output")
     ;
-
+  /*
+  std::cout << "modeling bkg for Y ===== " << massY_ << endl;
   if(massY_ >= 200 && massY_ <= 500){
     ::mjj_low =150;
     ::mjj_high = 560;
-    ::nBinsForMass2 = (mjj_high-mjj_low)/82.;
+    ::nBinsForMass2 = (mjj_high-mjj_low)/5;
   }
   else if (massY_ > 500 ){
     ::mjj_low =300;
     ::mjj_high = 1000;
-    ::nBinsForMass2 = (mjj_high-mjj_low)/140.;
+    ::nBinsForMass2 = (mjj_high-mjj_low)/5;
   }
+  std::cout << "modeling bkg for Y ===== " << massY_ << " with cuts = " << mjj_low << " " << mjj_high << " and " << nBinsForMass2 << endl;
   if(massY_ == 90){::mjj_blind_p1 = 80; ::mjj_blind_p2 = 100;}
   else if(massY_ == 100){::mjj_blind_p1 = 85; ::mjj_blind_p2 = 120;}
   else if(massY_ == 125){::mjj_blind_p1 = 105; ::mjj_blind_p2 = 145;}
@@ -1066,7 +1067,7 @@ int main(int argc, char* argv[]){
   else if(massY_ == 600){::mjj_blind_p1 = 500; ::mjj_blind_p2 = 620;}
   else if(massY_ == 700){::mjj_blind_p1 = 600; ::mjj_blind_p2 = 720;}
   else if(massY_ == 800){::mjj_blind_p1 = 680; ::mjj_blind_p2 = 820;}
-  
+  */
   
   po::variables_map vm;
   po::store(po::parse_command_line(argc,argv,desc),vm);
@@ -1080,6 +1081,32 @@ int main(int argc, char* argv[]){
    
   if (vm.count("verbose")) verbose=true;
   if (vm.count("runFtestCheckWithToys")) runFtestCheckWithToys=true;
+
+  std::cout << "modeling bkg for Y ===== " << massY_ << endl;
+  if(massY_ >= 200 && massY_ <= 500){
+    ::mjj_low =150;
+    ::mjj_high = 560;
+    ::nBinsForMass2 = (mjj_high-mjj_low)/5;
+  }
+  else if (massY_ > 500 ){
+    ::mjj_low =300;
+    ::mjj_high = 1000;
+    ::nBinsForMass2 = (mjj_high-mjj_low)/5;
+  }
+  std::cout << "modeling bkg for Y ===== " << massY_ << " with cuts = " << mjj_low << " " << mjj_high << " and " << nBinsForMass2 << endl;
+
+  if(massY_ == 90){::mjj_blind_p1 = 80; ::mjj_blind_p2 = 100;}                                
+  else if(massY_ == 100){::mjj_blind_p1 = 85; ::mjj_blind_p2 = 120;}                          
+  else if(massY_ == 125){::mjj_blind_p1 = 105; ::mjj_blind_p2 = 145;}                         
+  else if(massY_ == 150){::mjj_blind_p1 = 125; ::mjj_blind_p2 = 165;}                         
+  else if(massY_ == 200){::mjj_blind_p1 = 160; ::mjj_blind_p2 = 210;}                         
+  else if(massY_ == 250){::mjj_blind_p1 = 210; ::mjj_blind_p2 = 260;}                         
+  else if(massY_ == 300){::mjj_blind_p1 = 240; ::mjj_blind_p2 = 310;}                         
+  else if(massY_ == 400){::mjj_blind_p1 = 330; ::mjj_blind_p2 = 410;}                         
+  else if(massY_ == 500){::mjj_blind_p1 = 420; ::mjj_blind_p2 = 520;}                         
+  else if(massY_ == 600){::mjj_blind_p1 = 500; ::mjj_blind_p2 = 620;}                         
+  else if(massY_ == 700){::mjj_blind_p1 = 600; ::mjj_blind_p2 = 720;}                         
+  else if(massY_ == 800){::mjj_blind_p1 = 680; ::mjj_blind_p2 = 820;} 
 
   if (!verbose) {
     RooMsgService::instance().setGlobalKillBelow(RooFit::ERROR);

@@ -132,6 +132,9 @@ if sig == "NMSSM":
   
 for i in range(len(masses)):
  print("i...=",i,"\t","mass==",masses[i])
+ if masses[i]  - 125 - Mjj < 0:
+      print("skipping X =",masses[i],"for Mjj=",Mjj)
+      continue
  for year in years:
   if year == "2016":
     bTagNF = 1
@@ -148,43 +151,50 @@ for i in range(len(masses)):
   if sig == "Radion" or sig == "BulkGraviton":
     inp_files="GluGluHToGG_M-125_13TeV_powheg_pythia8,VBFHToGG_M-125_13TeV_powheg_pythia8,VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8,ttHToGG_M125_13TeV_powheg_pythia8,bbHToGG_M-125_4FS_yb2_13TeV_amcatnlo,bbHToGG_M-125_4FS_ybyt_13TeV_amcatnlo,GluGluTo"+opt.sig+"ToHHTo2B2G_M-"+str(masses[i])+"_narrow_13TeV-madgraph"
   else:
-    inp_files="GluGluHToGG_M-125_13TeV_powheg_pythia8,VBFHToGG_M-125_13TeV_powheg_pythia8,VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8,ttHToGG_M125_13TeV_powheg_pythia8,bbHToGG_M-125_4FS_yb2_13TeV_amcatnlo,bbHToGG_M-125_4FS_ybyt_13TeV_amcatnlo,output_NMSSM_XToYHTo2b2g_MX-"+str((masses[i])+"_13TeV-madgraph_pythia8"
+    if Mjj >= 200:
+      inp_files="NMSSM_XToYHTo2b2g_MX-"+str(masses[i])+"_13TeV-madgraph-pythia8"
+    elif Mjj == 125:
+      inp_files="GluGluHToGG_M-125_13TeV_powheg_pythia8,VBFHToGG_M-125_13TeV_powheg_pythia8,VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8,ttHToGG_M125_13TeV_powheg_pythia8,bbHToGG_M-125_4FS_yb2_13TeV_amcatnlo,bbHToGG_M-125_4FS_ybyt_13TeV_amcatnlo,NMSSM_XToYHTo2b2g_MX-"+str(masses[i])+"_13TeV-madgraph-pythia8,GluGluToRadionToHHTo2B2G_M-"+str(masses[i])+"_narrow_13TeV-madgraph,GluGluToBulkGravitonToHHTo2B2G_M-"+str(masses[i])+"_narrow_13TeV-madgraph"
+    else:
+      inp_files="GluGluHToGG_M-125_13TeV_powheg_pythia8,VBFHToGG_M-125_13TeV_powheg_pythia8,VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8,ttHToGG_M125_13TeV_powheg_pythia8,bbHToGG_M-125_4FS_yb2_13TeV_amcatnlo,bbHToGG_M-125_4FS_ybyt_13TeV_amcatnlo,NMSSM_XToYHTo2b2g_MX-"+str(masses[i])+"_13TeV-madgraph-pythia8"
 
   input_files = inp_files.split(',')
   print(input_files)
   ## setting up ttHkiller cut #####
   ttHScore=0.26
-  if(Mjj >= 200 or masses[i] >= 550):
+  if Mjj >= 200 or masses[i] >= 550:
     ttHScore=0.0
 
   ## setting up Mjj window ####
   MjjLow=opt.MjjLow
   MjjHigh=opt.MjjHigh
-  if(Mjj >= 200 && Mjj <= 500):
+  Mjjbin="low"
+  if Mjj >= 200 and Mjj <= 500:
     MjjLow = 150
     MjjHigh = 560
-  elif(Mjj > 500)
+    Mjjbin="mid"
+  elif Mjj > 500:
     MjjLow = 300
     MjjHigh = 1000
-                                                                                            
+    Mjjbin="high"                                                                                         
   ## setting up categories ###
   if masses[i] >= 260 and masses[i] <= 400: 
     mass_range ="low"
-    cat='0.236,0.443,0.699,1.0'
+    cat='0.174,0.329,0.627,1.0'
                                                                                         
   elif masses[i] > 400 and masses[i] <= 700: 
     mass_range ="mid"
-    cat='0.236,0.443,0.699,1.0'
-    if(Mjj > 250 && Mjj <= 500):
-      cat='0.236,0.443,0.699,1.0'
+    cat='0.213,0.401,0.600,1.0'
+    if Mjj > 250 and Mjj <= 500:
+      cat='0.180,0.352,0.6,1.0'
 
   else:
     mass_range ="high"
-    cat='0.236,0.443,0.699,1.0'
-    if(Mjj > 250 && Mjj <= 500):
-      cat='0.236,0.443,0.699,1.0'
-    elif(Mjj > 500):
-      cat='0.236,0.443,0.699,1.0'
+    cat='0.215,0.344,0.600,1.0'
+    if Mjj > 250 and Mjj <= 500:
+      cat='0.177,0.319,0.48,1.0'
+    elif Mjj > 500:
+      cat='0.129,0.286,0.55,1.0'
 
   MVAcats=cat.split(',')
   
@@ -199,7 +209,7 @@ for i in range(len(masses)):
     if f.find("Radion") != -1 or f.find("BulkGraviton") != -1:
       target_names.append(sig+"hh")
     elif f.find("NMSSM") != -1:
-      target_names.append("xtoyh")
+      target_names.append(sig+"X"+str(masses[i])+"ToY"+str(Mjj)+"H125")
     elif f.find("VBFH") != -1:
       target_names.append("qqh") 
     elif f.find("VH") != -1:
@@ -213,24 +223,26 @@ for i in range(len(masses)):
     elif f.find("ttH") != -1:
       target_names.append("tth")
       
-    input_files[num] = 'output_' + f +".root" #comment out for ivan
+    #input_files[num] = 'output_' + f +".root" #comment out for ivan
   
     btag_SF = 1.0
 
   for num,f in enumerate(input_files):
       yfracfix = 1.0
-      if sig == "Radion" or str(opt.signal) == "BulkGraviton": 
+      if sig == "Radion" or sig == "BulkGraviton": 
         SignalNodes = SignalNodes_WED
         SMHiggsNodes = SMHiggsNodes_WED
       else: 
         SignalNodes = SignalNodes_NMSSM
         SMHiggsNodes = SMHiggsNodes_NMSSM
-        YFracfix = YFrac_+str(year)
+        if year == "2016": YFracfix = YFrac_2016
+        elif year == "2017": YFracfix = YFrac_2017
+        elif year == "2018": YFracfix = YFrac_2018
         Y=str(Mjj)
         if f.find("NMSSM") != -1:
           for frac in YFracfix:
                 if frac[0] == 'Y'+Y:
-                        #print("testing2......",frac[0] )
+                        print("testing2......",frac[0] )
                         yfracfix = frac[(int(masses[i])/100)-2]
 
       if f.find("Radion") != -1 or f.find("BulkGraviton") != -1 or f.find("NMSSM") != -1:
@@ -243,8 +255,8 @@ for i in range(len(masses)):
               btag_SF = s[bTagNF]
 
       print 'doing file ',f, 'with bTag_SF = ', btag_SF
-      tfile = ROOT.TFile(opt.inp_dir+"flattening_"+mass_range+"mass_"+sig + year + "_L2-regression/analysistrees/" + f)
-      tfilename = opt.inp_dir+"flattening_"+mass_range+"mass_"+sig + year + "_L2-regression/analysistrees/" +f
+      tfile = ROOT.TFile(opt.inp_dir + year + "/" + str(mass_range)+"X_"+Mjjbin+"Y"+ "/analysistrees/output_" + f+".root")
+      tfilename = opt.inp_dir + year + "/" + str(mass_range)+"X_"+Mjjbin+"Y"+ "/analysistrees/output_" +f+".root"
 #      print tfile,"\t", tfilename
       #define roo fit workspace
       datasets=[]
@@ -257,9 +269,9 @@ for i in range(len(masses)):
         initial_name = 'bbggtrees_13TeV_DoubleHTag_0'
 
         if opt.doCategorization :
-          selection = "(MX_Y%d <= %.2f and MX_Y%d > %.2f) and (xmlMVAtransf <= %.2f and xmlMVAtransf > %.2f) and (ttHScore >= %.2f) and (Mjj >= %.2f and Mjj <= %.2f)" %(Mjj,Mjj,float(MX_cut2[i]),float(MX_cut1[i]),cat_def[cat]["MVA"][0],cat_def[cat]["MVA"][1],ttHScore,MjjLow,MjjHigh)
+          selection = "(MX_Y%d <= %.2f and MX_Y%d > %.2f) and (xmlMVAtransf <= %.2f and xmlMVAtransf > %.2f) and (ttHScore >= %.2f) and (Mjj >= %.2f and Mjj <= %.2f)" %(Mjj,float(MX_cut2[i]),Mjj,float(MX_cut1[i]),cat_def[cat]["MVA"][0],cat_def[cat]["MVA"][1],ttHScore,MjjLow,MjjHigh)
           if f.find("NMSSM") != -1:
-            selection = "(genmbb >= %d and genmbb <= %d) and (MX_Y%d <= %.2f and MX_Y%d > %.2f) and (xmlMVAtransf <= %.2f and xmlMVAtransf > %.2f) and (ttHScore >= %.2f) and (Mjj >= %.2f and Mjj <= %.2f)" %(Mjj-2,Mjj+2,Mjj,Mjj,float(MX_cut2[i]),float(MX_cut1[i]),cat_def[cat]["MVA"][0],cat_def[cat]["MVA"][1],ttHScore,MjjLow,MjjHigh)
+            selection = "(genmbb >= %d and genmbb <= %d) and (MX_Y%d <= %.2f and MX_Y%d > %.2f) and (xmlMVAtransf <= %.2f and xmlMVAtransf > %.2f) and (ttHScore >= %.2f) and (Mjj >= %.2f and Mjj <= %.2f)" %(Mjj-2,Mjj+2,Mjj,float(MX_cut2[i]),Mjj,float(MX_cut1[i]),cat_def[cat]["MVA"][0],cat_def[cat]["MVA"][1],ttHScore,MjjLow,MjjHigh)
 
           print 'doing selection ', selection, 'to make categorised ws from following tree'
           print tfilename, treeDirName+initial_name
@@ -270,8 +282,8 @@ for i in range(len(masses)):
       if target_names[num].find("Radion") != -1 or target_names[num].find("BulkGraviton") != -1:
         target_names[num]=sig+"hh"+str(masses[i])
       elif target_names[num].find("NMSSM") != -1:
-        target_names[num]="X"+str(masses[i])+"To_Y"+str(Mjj)+"_H125"
-      f_out = ROOT.TFile.Open("%s/%s_%s.root"%(opt.out_dir+sig+"/"+str(masses[i]),target_names[num],year),"RECREATE")
+        target_names[num]=sig+"X"+str(masses[i])+"ToY"+str(Mjj)+"H125"
+      f_out = ROOT.TFile.Open("%s/%s/%s_%s.root"%(opt.out_dir+sig+"/"+str(masses[i]),str(Mjj),target_names[num],year),"RECREATE")
       #print("test......",masses[i]," ",target_names[num])
       dir_ws = f_out.mkdir("tagsDumper")
       dir_ws.cd()
