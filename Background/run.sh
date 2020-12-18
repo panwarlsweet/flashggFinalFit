@@ -20,7 +20,7 @@ input2D=output_${name2D}_${YEAR}_${DATE}.root
 Signal=$1  ### give signal name as an arguement 
 massY=$2
 #if [ $Signal -eq "NMSSM" ];then
-Masses="300,400,500,600,700,800,900,1000"
+Masses="300,400,500,600,800,900,1000"
 #fi
 set -x
 for mass in $(echo $Masses | sed "s/,/ /g")

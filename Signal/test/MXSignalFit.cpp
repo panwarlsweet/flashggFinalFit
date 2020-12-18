@@ -67,7 +67,7 @@ using namespace std;
 namespace po = boost::program_options;
 string indir_;
 string year_;
-int massY_;
+int massY_,massX_;
 string mergeYearsStr_;
 string lumiYearsStr_;
 string templatefile_;
@@ -103,6 +103,7 @@ void OptionParser(int argc, char *argv[]){
 		("mergeYears", po::value<string>(&mergeYearsStr_)->default_value(""), "Merge years or not, if yes a list of years should be given")
 		("lumiYears", po::value<string>(&lumiYearsStr_)->default_value("35.9,41.2,59."), "lumi of the years to be merged")
 	        ("massY,mY", po::value<int>(&massY_)->default_value(300), "Y mass point from NMSSM")
+        	("massX,mX", po::value<int>(&massX_)->default_value(500), "X mass point from NMSSM")
 		("outfiledir,o", po::value<string>(&outdir_)->default_value("test/"), "Output file dir")
 		("plotdir,p", po::value<string>(&plotdir_)->default_value("test/"), "Plot dir")
 		("procs", po::value<string>(&procStr_)->default_value("hh_node_SM,ggh,qqh,vh,tth"), "Processes (comma sep)")
@@ -216,9 +217,9 @@ void RooDraw(TCanvas *can, TH1F *h, RooPlot* frame,RooDataHist* hist, RooAbsPdf*
   	can->SetLeftMargin(0.16);
   	can->SetTickx(); can->SetTicky();
 	can->cd();
-	frame->GetXaxis()->SetTitle("M_{bb} (GeV)");
+	frame->GetXaxis()->SetTitle("#tilde{M}_{X} [GeV]");
 	frame->SetTitle("");
-	frame->GetXaxis()->SetTitle("m_{jj} (GeV)");
+	frame->GetXaxis()->SetTitle("#tilde{M}_{X} [GeV]");
 	frame->GetXaxis()->SetTitleSize(0.05);
 	frame->GetYaxis()->SetTitleSize(0.05);
 	frame->GetYaxis()->SetTitleOffset(1.5);
@@ -263,7 +264,7 @@ void RooDraw(TCanvas *can, TH1F *h, RooPlot* frame,RooDataHist* hist, RooAbsPdf*
 	if (paper_) catLabel_humanReadable  = category;
 	catLabel_humanReadable.ReplaceAll("_"," ");
 	catLabel_humanReadable.ReplaceAll("VBFDoubleHTag","VBF CAT");
-	catLabel_humanReadable.ReplaceAll("DoubleHTag","ggF CAT");
+	catLabel_humanReadable.ReplaceAll("DoubleHTag","CAT");
 	TLatex *lat2 = new TLatex(0.93,0.88,catLabel_humanReadable);
 	lat2->SetTextAlign(33);
 	lat2->SetNDC(1);
@@ -281,8 +282,9 @@ void RooDraw(TCanvas *can, TH1F *h, RooPlot* frame,RooDataHist* hist, RooAbsPdf*
 
 
 	if (calc_width) {
-		leg->AddEntry(seffLeg,Form("#bf{#sigma_{eff} = %1.1f GeV}",0.5*(semax-semin)),"fl");
-		halfmax*=(frame->getFitRangeBinW()/binwidth);
+	  leg->AddEntry(seffLeg,Form("#bf{#sigma_{eff} = %1.1f GeV}",0.5*(semax-semin)),"fl");
+	  //leg->AddEntry(seffLeg,Form("#bf{#sigma_{std} = %1.1f GeV}",h->GetStdDev()),"fl");
+	  halfmax*=(frame->getFitRangeBinW()/binwidth);
 		TArrow *fwhmArrow = new TArrow(fwmin,halfmax,fwmax,halfmax,0.02,"<>");
 		fwhmArrow->SetLineWidth(2.);
 		//TPaveText *fwhmText = new TPaveText(0.17+offset,0.3,0.45+offset,0.40,"brNDC");
@@ -450,9 +452,9 @@ int main(int argc, char *argv[]){
 	//		normalization_cat = sigToFit[ic]->sumEntries()/1000.; //as for Hgg use fb
 			MX->setRange((iproc+"FitRange").c_str(),minSigFitMX,maxSigFitMX);
 			if (normalization_cat < 0) normalization_cat = 0.;
-			RooRealVar *MXSig_normalization = new RooRealVar(("hbbggpdfsm_13TeV_"+iproc+"_"+year_+"_"+icat+"_normalization").c_str(),("hbbggpdfsm_13TeV_"+iproc+"_"+year_+"_"+icat+"_normalization").c_str(),normalization_cat,"");
+			RooRealVar *MXSig_normalization = new RooRealVar(("hhbbggpdfsm_13TeV_"+iproc+"_"+year_+"_"+icat+"_normalization").c_str(),("hhbbggpdfsm_13TeV_"+iproc+"_"+year_+"_"+icat+"_normalization").c_str(),normalization_cat,"");
 			MXSig_normalization->setConstant(true);
-			RooFormulaVar *finalNorm = new RooFormulaVar(("hbbggpdfsm_13TeV_"+iproc+"_"+year_+"_"+icat+"_norm").c_str(),("hbbggpdfsm_13TeV_"+iproc+"_"+year_+"_"+icat+"_norm").c_str(),"@0",RooArgList(*MXSig_normalization));
+			RooFormulaVar *finalNorm = new RooFormulaVar(("hhbbggpdfsm_13TeV_"+iproc+"_"+year_+"_"+icat+"_norm").c_str(),("hhbbggpdfsm_13TeV_"+iproc+"_"+year_+"_"+icat+"_norm").c_str(),"@0",RooArgList(*MXSig_normalization));
 			w->import( *finalNorm);
 
 
@@ -493,7 +495,7 @@ int main(int argc, char *argv[]){
 			      
 			sigParams->Print("v");
 
-			string EditPDF = ("EDIT::hbbggpdfsm_13TeV_"+iproc+"_"+year_+"_"+icat+"(MX"+proc_type_upper+iproc_type+"_cat"+to_string(c));
+			string EditPDF = ("EDIT::hhbbggpdfsm_13TeV_"+iproc+"_"+year_+"_"+icat+"(MX"+proc_type_upper+iproc_type+"_cat"+to_string(c));
 			for (unsigned int iv = 0; iv < varsToChange.size(); iv++)
 			{
 				EditPDF += (","+varsToChange[iv].first +"="+varsToChange[iv].second).c_str();		
@@ -508,7 +510,14 @@ int main(int argc, char *argv[]){
 			MXSig[ic]->fillHistogram(h,RooArgList(*MX),sigToFit[ic]->sumEntries());
 			TH1F *h_fine = new TH1F(("h_"+iproc+"_"+year_+"_"+icat+"_fine").c_str(),("h_"+iproc+"_"+year_+"_"+icat+"_fine").c_str(),nbins*50,minSigFitMX,maxSigFitMX);
 			MXSig[ic]->fillHistogram(h_fine,RooArgList(*MX),sigToFit[ic]->sumEntries());
-			pair<double,double> thisSigRange = getEffSigma(MX,MXSig[ic]);
+			double mx1, mx2;
+			if(massX_ == 500){mx1 = 460; mx2 = 530;}
+			else if(massX_ == 600){mx1 = 560; mx2 = 620;}
+			else if(massX_ == 700){mx1 = 660; mx2 = 720;}
+			else if(massX_ == 800){mx1 = 770; mx2 = 820;}
+			else if(massX_ == 900){mx1 = 870; mx2 = 920;}
+			else if(massX_ == 1000){mx1 = 970; mx2 = 1020;}
+			pair<double,double> thisSigRange = getEffSigma(MX,MXSig[ic],mx1,mx2);
 			vector<double> fwhmRange = getFWHM(h_fine);		
 
 			TCanvas* can = new TCanvas("can","can",650,650);
@@ -552,7 +561,7 @@ int main(int argc, char *argv[]){
 			}
 
 
-			string finalpdfname = "hbbggpdfsm_13TeV_"+iproc+"_"+year_+"_"+icat;
+			string finalpdfname = "hhbbggpdfsm_13TeV_"+iproc+"_"+year_+"_"+icat;
 			wAll->import(*w->pdf(finalpdfname.c_str()));
 			wAll->import( *w->function((finalpdfname+"_norm").c_str()));
 		}

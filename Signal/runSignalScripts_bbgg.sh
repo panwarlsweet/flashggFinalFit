@@ -3,8 +3,8 @@ doFIT=1
 doPACKAGER=0
 doPLOTS=0
 doCALCPHOSYST=0 #Not needed, only for shape syst, checked to be negligible
-MASS='125'
-
+#MASS='125'
+massY=$5
 YEAR=$1
 #YEAR="2017"
 #YEAR="2018"
@@ -13,13 +13,13 @@ YEAR=$1
 DATE=$2
 #DATE="24_08_2020_2"
 
-EXT=$3$4"_"$YEAR
-#EXT="SingleH_"$3$4"_"$YEAR
+EXT=$3"X"$4"ToY${massY}H125_"$YEAR
+#EXT="SingleH_"$3"X"$4"ToY${massY}H125_"$YEAR
 
 PHOTONSYSTFILE=dat/photonCatSyst.dat # without systematics
 #PHOTONSYSTFILE=dat/photonCatSyst_${EXT}.dat
 
-INDIR="/eos/user/l/lata/Resonant_bbgg/flattrees_L2Regression_resonant_PR1217_PR1220_17Sep2020/WED/Run2_ws_trees_p2/"$3"/"$4"/"
+INDIR="/eos/user/l/lata/Resonant_bbgg/flattrees_NMSSM_fromjobs/hadd_files/Run2_WS/"$3"_MXMgg/"$4"/"$massY"/"
 OUTDIR="output/out_fit_${DATE}_${EXT}"
 runLocal=''
 if [ $doFTEST -gt 0 ]; then
@@ -56,10 +56,17 @@ SCALESCORR="MaterialCentralBarrel,MaterialOuterBarrel,MaterialForward"
 SCALESGLOBAL="NonLinearity,Geant4,LightYield,Absolute"
 
 ########## Radion HH ###########
-REFTAG="DoubleHTag_1"
-REFPROC=$3"hh"$4"_${YEAR}"
-PROCS=$3"hh"$4"_${YEAR}"
-INFILES=$3"hh"$4"_${YEAR}"
+#REFTAG="DoubleHTag_1"
+#REFPROC=$3"hh"$4"_${YEAR}"
+#PROCS=$3"hh"$4"_${YEAR}"
+#INFILES=$3"hh"$4"_${YEAR}"
+
+####### NMSSM XToYH ######
+ 
+REFTAG="DoubleHTag_0" 
+REFPROC=$3"X"$4"ToY${massY}H125_${YEAR}"
+PROCS=$3"X"$4"ToY${massY}H125_${YEAR}"
+INFILES=$3"X"$4"ToY${massY}H125_${YEAR}"
 
 ####### for Single H###########
 #REFPROC=$5"_${YEAR}"

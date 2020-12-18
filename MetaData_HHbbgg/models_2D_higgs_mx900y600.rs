@@ -1,22 +1,22 @@
-MX[950, 1200];
+MX[850,1200];
 
-MX_sig_m0_cat0[985, 980, 1020];
-MX_sig_sigma_cat0[2.0, 1.0, 60.0];
-MX_sig_alpha1_cat0[1.0,1., 4.0];
-MX_sig_n1_cat0[3.0, 2, 5.0];
+MX_sig_m0_cat0[880, 870, 910];
+MX_sig_sigma_cat0[15.0, 5.0, 60.0];
+MX_sig_alpha1_cat0[1.2,1., 4.0];
+MX_sig_n1_cat0[2.0, 2, 5.0];
 MX_sig_alpha2_cat0[1.0, 0.05, 10.0];
 MX_sig_n2_cat0[2.0, 0.1, 10.0];
 MXSig_cat0 = RooDoubleCB(MX, MX_sig_m0_cat0, MX_sig_sigma_cat0, MX_sig_alpha1_cat0, MX_sig_n1_cat0, MX_sig_alpha2_cat0, MX_sig_n2_cat0);
 
-MX_sig_m0_cat1[980, 970, 1030];
-MX_sig_sigma_cat1[2.0, 1.0, 60.0];
-MX_sig_alpha1_cat1[1.0,1., 4.0];
-MX_sig_n1_cat1[3.0, 2, 5.0];
+MX_sig_m0_cat1[880, 870, 910];
+MX_sig_sigma_cat1[15.0, 5.0, 60.0];
+MX_sig_alpha1_cat1[1.2,1., 4.0];
+MX_sig_n1_cat1[2.0, 2, 5.0];
 MX_sig_alpha2_cat1[1.0, 0.05, 10.0];
 MX_sig_n2_cat1[2.0, 0.1, 10.0];
 MXSig_cat1 = RooDoubleCB(MX, MX_sig_m0_cat1, MX_sig_sigma_cat1, MX_sig_alpha1_cat1, MX_sig_n1_cat1, MX_sig_alpha2_cat1, MX_sig_n2_cat1);
 
-MX_sig_m0_cat2[980, 970, 1030];
+MX_sig_m0_cat2[880, 870, 910];
 MX_sig_sigma_cat2[15.0, 5.0, 60.0];
 MX_sig_alpha1_cat2[1.2,1., 4.0];
 MX_sig_n1_cat2[2.0, 2, 5.0];

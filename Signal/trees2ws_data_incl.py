@@ -117,7 +117,7 @@ years=["2016","2017","2018"]
 ### for NMSSM #####
 if sig == "NMSSM":
     masses =[500,600,700,800,900,1000]
-
+    #masses =[800,900,1000]
 Mjjbin="low"
 if Mjj >= 200 and Mjj <= 500: Mjjbin = "mid"
 elif Mjj > 500: Mjjbin = "high"
@@ -148,7 +148,7 @@ elif Mjj == 800:
     MjjHigh = 840
     MX_cut1 = 950
 
-for i in range(len(masses)):
+for i in range(3,len(masses)):
   ttHScore=0.0
   print("i...=",i,"\t","mass==",masses[i])
   if masses[i]-Mjj-125 < 0 : continue
