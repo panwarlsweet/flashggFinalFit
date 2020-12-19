@@ -120,7 +120,6 @@ years=["2016","2017","2018"]
 if sig=="Radion" or sig == "BulkGraviton":
   ### for WED ######
   masses =[260,270,280,300,320,350,400,450,500,550,600,650,700,800,900,1000]
-  #masses=[260]
   MX_cut1=[255,265,275,291,305,337,374,418,464,510,555,615,655,745,835,925]
   MX_cut2=[263,275,286,309,327,360,413,463,514,565,615,680,725,825,925,1025]
 
@@ -132,6 +131,7 @@ if sig == "NMSSM":
   
 for i in range(len(masses)):
  print("i...=",i,"\t","mass==",masses[i])
+ if masses[i] == 700: continue
  if masses[i]  - 125 - Mjj < 0:
       print("skipping X =",masses[i],"for Mjj=",Mjj)
       continue
@@ -151,10 +151,12 @@ for i in range(len(masses)):
   if sig == "Radion" or sig == "BulkGraviton":
     inp_files="GluGluHToGG_M-125_13TeV_powheg_pythia8,VBFHToGG_M-125_13TeV_powheg_pythia8,VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8,ttHToGG_M125_13TeV_powheg_pythia8,bbHToGG_M-125_4FS_yb2_13TeV_amcatnlo,bbHToGG_M-125_4FS_ybyt_13TeV_amcatnlo,GluGluTo"+opt.sig+"ToHHTo2B2G_M-"+str(masses[i])+"_narrow_13TeV-madgraph"
   else:
-    if Mjj >= 200:
+    if Mjj >= 200 :
       inp_files="NMSSM_XToYHTo2b2g_MX-"+str(masses[i])+"_13TeV-madgraph-pythia8"
     elif Mjj == 125:
       inp_files="GluGluHToGG_M-125_13TeV_powheg_pythia8,VBFHToGG_M-125_13TeV_powheg_pythia8,VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8,ttHToGG_M125_13TeV_powheg_pythia8,bbHToGG_M-125_4FS_yb2_13TeV_amcatnlo,bbHToGG_M-125_4FS_ybyt_13TeV_amcatnlo,NMSSM_XToYHTo2b2g_MX-"+str(masses[i])+"_13TeV-madgraph-pythia8,GluGluToRadionToHHTo2B2G_M-"+str(masses[i])+"_narrow_13TeV-madgraph,GluGluToBulkGravitonToHHTo2B2G_M-"+str(masses[i])+"_narrow_13TeV-madgraph"
+      if masses[i] > 550:
+        inp_files="NMSSM_XToYHTo2b2g_MX-"+str(masses[i])+"_13TeV-madgraph-pythia8,GluGluToRadionToHHTo2B2G_M-"+str(masses[i])+"_narrow_13TeV-madgraph,GluGluToBulkGravitonToHHTo2B2G_M-"+str(masses[i])+"_narrow_13TeV-madgraph"
     else:
       inp_files="GluGluHToGG_M-125_13TeV_powheg_pythia8,VBFHToGG_M-125_13TeV_powheg_pythia8,VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8,ttHToGG_M125_13TeV_powheg_pythia8,bbHToGG_M-125_4FS_yb2_13TeV_amcatnlo,bbHToGG_M-125_4FS_ybyt_13TeV_amcatnlo,NMSSM_XToYHTo2b2g_MX-"+str(masses[i])+"_13TeV-madgraph-pythia8"
 
@@ -207,9 +209,9 @@ for i in range(len(masses)):
   for num,f in enumerate(input_files):
 
     if f.find("Radion") != -1 or f.find("BulkGraviton") != -1:
-      target_names.append(sig+"hh")
+      target_names.append("hh")
     elif f.find("NMSSM") != -1:
-      target_names.append(sig+"X"+str(masses[i])+"ToY"+str(Mjj)+"H125")
+      target_names.append("NMSSMX"+str(masses[i])+"ToY"+str(Mjj)+"H125")
     elif f.find("VBFH") != -1:
       target_names.append("qqh") 
     elif f.find("VH") != -1:
@@ -229,9 +231,9 @@ for i in range(len(masses)):
 
   for num,f in enumerate(input_files):
       yfracfix = 1.0
-      if sig == "Radion" or sig == "BulkGraviton": 
+      if f.find("Radion") != -1 or f.find("BulkGraviton") != -1:
         SignalNodes = SignalNodes_WED
-        SMHiggsNodes = SMHiggsNodes_WED
+#        SMHiggsNodes = SMHiggsNodes_WED
       else: 
         SignalNodes = SignalNodes_NMSSM
         SMHiggsNodes = SMHiggsNodes_NMSSM
@@ -245,9 +247,17 @@ for i in range(len(masses)):
                         print("testing2......",frac[0] )
                         yfracfix = frac[(int(masses[i])/100)-2]
 
-      if f.find("Radion") != -1 or f.find("BulkGraviton") != -1 or f.find("NMSSM") != -1:
+      if f.find("Radion") != -1: 
           for s in SignalNodes:
-            if s[0] == sig+str(masses[i]):
+            if s[0] == "Radion"+str(masses[i]):
+              btag_SF = s[bTagNF]
+      elif f.find("BulkGraviton") != -1:
+           for s in SignalNodes:
+            if s[0] == "BulkGraviton"+str(masses[i]):
+              btag_SF = s[bTagNF]
+      elif f.find("NMSSM") != -1:
+           for s in SignalNodes:
+       	    if s[0] == "NMSSM"+str(masses[i]):
               btag_SF = s[bTagNF]
       else:
           for s in SMHiggsNodes:
@@ -272,6 +282,8 @@ for i in range(len(masses)):
           selection = "(MX_Y%d <= %.2f and MX_Y%d > %.2f) and (xmlMVAtransf <= %.2f and xmlMVAtransf > %.2f) and (ttHScore >= %.2f) and (Mjj >= %.2f and Mjj <= %.2f)" %(Mjj,float(MX_cut2[i]),Mjj,float(MX_cut1[i]),cat_def[cat]["MVA"][0],cat_def[cat]["MVA"][1],ttHScore,MjjLow,MjjHigh)
           if f.find("NMSSM") != -1:
             selection = "(genmbb >= %d and genmbb <= %d) and (MX_Y%d <= %.2f and MX_Y%d > %.2f) and (xmlMVAtransf <= %.2f and xmlMVAtransf > %.2f) and (ttHScore >= %.2f) and (Mjj >= %.2f and Mjj <= %.2f)" %(Mjj-2,Mjj+2,Mjj,float(MX_cut2[i]),Mjj,float(MX_cut1[i]),cat_def[cat]["MVA"][0],cat_def[cat]["MVA"][1],ttHScore,MjjLow,MjjHigh)
+          elif f.find("Radion") != -1 or f.find("BulkGraviton") != -1 or f.find("ybyt") != -1:
+            selection = "(MX <= %.2f and MX > %.2f) and (xmlMVAtransf <= %.2f and xmlMVAtransf > %.2f) and (ttHScore >= %.2f) and (Mjj >= %.2f and Mjj <= %.2f)" %(float(MX_cut2[i]),float(MX_cut1[i]),cat_def[cat]["MVA"][0],cat_def[cat]["MVA"][1],ttHScore,MjjLow,MjjHigh)
 
           print 'doing selection ', selection, 'to make categorised ws from following tree'
           print tfilename, treeDirName+initial_name
@@ -279,10 +291,13 @@ for i in range(len(masses)):
           data = rpd.read_root(tfilename,'%s'%(treeDirName+initial_name)).query(selection)
           print 'created ws..', name
           datasets += add_dataset_to_workspace( data, ws, name, btag_SF,yfracfix,'') #systemaitcs[1] : this should be done for nominal only, to add weights, yfracfix=since NMSSM sample has grid of Y masses so fixing normalization with yfracfix for each Y
-      if target_names[num].find("Radion") != -1 or target_names[num].find("BulkGraviton") != -1:
-        target_names[num]=sig+"hh"+str(masses[i])
-      elif target_names[num].find("NMSSM") != -1:
-        target_names[num]=sig+"X"+str(masses[i])+"ToY"+str(Mjj)+"H125"
+      if f.find("Radion") != -1:
+        target_names[num]="Radionhh"+str(masses[i])
+      if f.find("BulkGraviton") != -1:
+        target_names[num]="BulkGravitonhh"+str(masses[i])
+      if f.find("NMSSM") != -1:
+        target_names[num]="NMSSMX"+str(masses[i])+"ToY"+str(Mjj)+"H125"
+      print "root file = ", target_names[num]
       f_out = ROOT.TFile.Open("%s/%s/%s_%s.root"%(opt.out_dir+sig+"/"+str(masses[i]),str(Mjj),target_names[num],year),"RECREATE")
       #print("test......",masses[i]," ",target_names[num])
       dir_ws = f_out.mkdir("tagsDumper")
@@ -291,7 +306,7 @@ for i in range(len(masses)):
       data0=ROOT.RooDataSet()
       data0=ws.data("bbggtrees_13TeV_DoubleHTag_0")
       data0.SetNameTitle(target_names[num]+'_'+year+'_13TeV_125_DoubleHTag_0',target_names[num]+'_'+year+'_13TeV_125_DoubleHTag_0')
-      #data0.Print("V")
+      data0.Print("V")
       
       data00=ROOT.RooDataSet()
       data00=data0.Clone(target_names[num]+'_'+year+'_13TeV_120_DoubleHTag_0')

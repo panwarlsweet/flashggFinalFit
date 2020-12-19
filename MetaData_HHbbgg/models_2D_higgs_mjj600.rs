@@ -1,27 +1,27 @@
-Mjj[70,190];
+Mjj[300,1000];
 
-Mjj_sig_m0_cat0[520, 500, 620];
-Mjj_sig_sigma_cat0[25.0, 1.0, 60.0];
-Mjj_sig_alpha1_cat0[2.0, 0.5, 4.0];
-Mjj_sig_n1_cat0[4.0, 3, 5.0];
+Mjj_sig_m0_cat0[540, 520, 600];
+Mjj_sig_sigma_cat0[10.0, 1.0, 60.0];
+Mjj_sig_alpha1_cat0[1.0, 0.05, 10.0];
+Mjj_sig_n1_cat0[3.0, 0.1, 10.0];
 Mjj_sig_alpha2_cat0[1.0, 0.05, 10.0];
-Mjj_sig_n2_cat0[2.0, 0.1, 10.0];
+Mjj_sig_n2_cat0[3.0, 0.1, 10.0];
 MjjSig_cat0 = RooDoubleCB(Mjj, Mjj_sig_m0_cat0, Mjj_sig_sigma_cat0, Mjj_sig_alpha1_cat0, Mjj_sig_n1_cat0, Mjj_sig_alpha2_cat0, Mjj_sig_n2_cat0);
 
-Mjj_sig_m0_cat1[520, 500, 620];
-Mjj_sig_sigma_cat1[15.0, 5.0, 60.0];
-Mjj_sig_alpha1_cat1[1.2,1., 4.0];
-Mjj_sig_n1_cat1[2.0, 2, 5.0];
+Mjj_sig_m0_cat1[555, 550, 620];
+Mjj_sig_sigma_cat1[10.0, 1.0, 60.0];
+Mjj_sig_alpha1_cat1[1.0, 0.05, 10.0];
+Mjj_sig_n1_cat1[2.0, 0.1, 10.0];
 Mjj_sig_alpha2_cat1[1.0, 0.05, 10.0];
 Mjj_sig_n2_cat1[2.0, 0.1, 10.0];
 MjjSig_cat1 = RooDoubleCB(Mjj, Mjj_sig_m0_cat1, Mjj_sig_sigma_cat1, Mjj_sig_alpha1_cat1, Mjj_sig_n1_cat1, Mjj_sig_alpha2_cat1, Mjj_sig_n2_cat1);
 
-Mjj_sig_m0_cat2[520, 500, 620];
-Mjj_sig_sigma_cat2[15.0, 7.0, 30.0];
-Mjj_sig_alpha1_cat2[1.0, .5, 4.0];
-Mjj_sig_n1_cat2[4.0, 3, 5.0];
+Mjj_sig_m0_cat2[525, 520, 620];
+Mjj_sig_sigma_cat2[10.0, 1.0, 60.0];
+Mjj_sig_alpha1_cat2[1.0, 0.05, 10.0];
+Mjj_sig_n1_cat2[1.0, 0.1, 10.0];
 Mjj_sig_alpha2_cat2[1.0, 0.05, 10.0];
-Mjj_sig_n2_cat2[2.0, 0.1, 10.0];
+Mjj_sig_n2_cat2[1.0, 0.1, 10.0];
 MjjSig_cat2 = RooDoubleCB(Mjj, Mjj_sig_m0_cat2, Mjj_sig_sigma_cat2, Mjj_sig_alpha1_cat2, Mjj_sig_n1_cat2, Mjj_sig_alpha2_cat2, Mjj_sig_n2_cat2);
 
 Mjj_hig_par1_ggh_cat0[0.1, 0, 10];

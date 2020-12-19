@@ -1,32 +1,41 @@
-YEAR=$3
-#YEAR="2017"
+#YEAR=$3
+Signal=$1
+X_points="300,400,500,600,800,900,1000"
+Run2_YEAR="2016,2017,2018"
 #YEAR="2018"
 mergeYears=0  #used for all procs
 mergeCats=0 #used for single Higgs and 12 DoubleHTag cats only, not for VBF
 PAPER=0
-Mjj=$4
+massY=$2
 
-DATE="03_10_2020"
+DATE="06_12_2020"
 
 #EXT="singleHiggs"$YEAR
 
 #EXT=$1"hh"$2"_"$YEAR
+set -x
+for X in $(echo $X_points | sed "s/,/ /g")
+do
 
-INDIR="/eos/user/l/lata/Resonant_bbgg/flattrees_L2Regression_resonant_PR1217_PR1220_17Sep2020/WED/Run2_ws_trees_p2/"$1"/"$2"/"
-OUTDIR="/afs/cern.ch/work/l/lata/2Denvelop/CMSSW_7_4_7/src/flashggFinalFit/Signal/output/out_fit_"${DATE}"_"$1$2"_"$YEAR"/"
-PLOTDIR="plot_dir_"$1$2"/"
-TEMPLATE="fits_config/models_2D_higgs_mjj70_16_02_2020.rs"  #working rather well for all qqHH and ggHH
+INDIR="/eos/user/l/lata/Resonant_bbgg/flattrees_NMSSM_fromjobs/hadd_files/Run2_WS/"$Signal"/"$X"/"$massY"/"
+OUTDIR="./output/out_fit_"${DATE}"_"$Signal$X"Y"$massY"/"
+PLOTDIR="plot_dir_"$Signal$X"Y"$massY"/"
+TEMPLATE="../MetaData_HHbbgg/models_2D_higgs_mjj"$massY".rs"  #working rather well for all qqHH and ggHH
 
 
 CATS="DoubleHTag_0,DoubleHTag_1,DoubleHTag_2"
 
 
 #############SINGLE HIGGS ############
-PROCS="ggh,tth,qqh,vh,bbhyb2,bbhybyt,"$1"hh"$2
-#PROCS=$1"hh"$2
+PROCS="ggh,tth,qqh,vh,bbhyb2,bbhybyt,"$Signal"X"$X"ToY"$massY"H125,Radionhh"$X",BulkGravitonhh"$X
+#PROCS=$Signal"X"$X"ToY"$massY"H125,Radionhh"$X",BulkGravitonhh"$X
+#PROCS="bbhyb2"
+SIG_PROCS=$Signal"X"$X"ToY"$massY"H125,Radionhh"$X",BulkGravitonhh"$X 
 ################################
 
-set -x
+
+for YEAR in $(echo $Run2_YEAR | sed "s/,/ /g")
+do
 for PROC in $(echo $PROCS | sed "s/,/ /g")
 	do
    
@@ -43,11 +52,12 @@ for PROC in $(echo $PROCS | sed "s/,/ /g")
 			fi	
 		else
 			if [ $mergeYears == 1 ]; then
-				./bin/MjjSignalFit -t ${TEMPLATE} -d ${INDIR}  -p ${PLOTDIR} -o ${OUTDIR} --procs ${PROC}   -y ${YEAR} --mergeYears 2016,2017,2018 --infileWithAllYears ${INFILEWITHYEARS} -f ${CATS} --paper ${PAPER} -s ${PROC}
+				./bin/MjjSignalFit -t ${TEMPLATE} -d ${INDIR}  -p ${PLOTDIR} -o ${OUTDIR} --procs ${PROC}   -y ${YEAR} --mergeYears 2016,2017,2018 --infileWithAllYears ${INFILEWITHYEARS} -f ${CATS} --paper ${PAPER} -s ${SIG_PROCS}
 			else
-				./bin/MjjSignalFit -t ${TEMPLATE} -d ${INDIR}  -p ${PLOTDIR} -o ${OUTDIR} --procs ${PROC}   -y ${YEAR} -f ${CATS}  --paper ${PAPER} -s ${PROC} -mY $Mjj
+				./bin/MjjSignalFit -t ${TEMPLATE} -d ${INDIR}  -p ${PLOTDIR} -o ${OUTDIR} --procs ${PROC}   -y ${YEAR} -f ${CATS}  --paper ${PAPER} -s ${SIG_PROCS}  --massY $massY
 			fi
 		fi	
 done
-
+done
+done
 set +x

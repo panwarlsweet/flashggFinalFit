@@ -216,9 +216,9 @@ void RooDraw(TCanvas *can, TH1F *h, RooPlot* frame,RooDataHist* hist, RooAbsPdf*
   	can->SetLeftMargin(0.16);
   	can->SetTickx(); can->SetTicky();
 	can->cd();
-	frame->GetXaxis()->SetTitle("M_{bb} (GeV)");
+	frame->GetXaxis()->SetTitle("M_{bb} [GeV]");
 	frame->SetTitle("");
-	frame->GetXaxis()->SetTitle("m_{jj} (GeV)");
+	frame->GetXaxis()->SetTitle("m_{jj} [GeV]");
 	frame->GetXaxis()->SetTitleSize(0.05);
 	frame->GetYaxis()->SetTitleSize(0.05);
 	frame->GetYaxis()->SetTitleOffset(1.5);
@@ -263,7 +263,7 @@ void RooDraw(TCanvas *can, TH1F *h, RooPlot* frame,RooDataHist* hist, RooAbsPdf*
 	if (paper_) catLabel_humanReadable  = category;
 	catLabel_humanReadable.ReplaceAll("_"," ");
 	catLabel_humanReadable.ReplaceAll("VBFDoubleHTag","VBF CAT");
-	catLabel_humanReadable.ReplaceAll("DoubleHTag","ggF CAT");
+	catLabel_humanReadable.ReplaceAll("DoubleHTag","CAT");
 	TLatex *lat2 = new TLatex(0.93,0.88,catLabel_humanReadable);
 	lat2->SetTextAlign(33);
 	lat2->SetNDC(1);
@@ -292,7 +292,8 @@ void RooDraw(TCanvas *can, TH1F *h, RooPlot* frame,RooDataHist* hist, RooAbsPdf*
 		fwhmText->SetFillStyle(0);
 		fwhmText->SetLineColor(kWhite);
 		fwhmText->SetTextSize(0.037);
-		fwhmText->AddText(Form("FWHM = %1.1f GeV",(fwmax-fwmin)));	
+		fwhmText->AddText(Form("FWHM = %1.1f GeV",(fwmax-fwmin)));
+		//fwhmText->AddText(Form("#mu = %1.1f GeV",(h->GetMean())));
 		fwhmArrow->Draw("same <>");
 		fwhmText->Draw("same");
 	}
@@ -341,6 +342,7 @@ int main(int argc, char *argv[]){
 	string allCatFitsTemplate = templatefile_; 
 	HLFactory hlf(HLFactoryname.c_str(),allCatFitsTemplate.c_str(), false);
 	RooWorkspace *w = (RooWorkspace*)hlf.GetWs();
+	w->Print();
 	RooWorkspace *wAll = new RooWorkspace("wsig_13TeV","wsig_13TeV");
 
 	float minSigFitMjj = 70;
@@ -375,6 +377,7 @@ int main(int argc, char *argv[]){
 		proc_type_upper[0] = std::toupper(proc_type_upper[0]);
 		string iproc_type = "_"+iproc;
 	//	if (iproc == signalproc_)  {
+		//std::cout << "test........" << iproc << std::endl;
 		if (signalprocStr_.find(iproc) != string::npos )  {
 			proc_type = "sig";
 			proc_type_upper = proc_type;
@@ -429,7 +432,7 @@ int main(int argc, char *argv[]){
 			int c = stoi(icat.substr(icat.find_last_of("_")+1)); //find category number used
 			if (icat.find("VBFDoubleHTag") != string::npos ) c = 12+stoi(icat.substr(icat.find_last_of("_")+1)); //category number is 12+0/1/2.... if it is VBFDoubleHTAg
 			
-			if(iproc.find("ggh") != string::npos || iproc.find("qqh") != string::npos) {
+			if(iproc.find("ggh") != string::npos || iproc.find("qqh") != string::npos || iproc.find("bbhyb2") != string::npos || iproc.find("bbhybyt") != string::npos ) {
 					MjjSig[ic] = new RooBernstein(("MjjHig_"+iproc+"_cat"+std::to_string(c)).c_str(),"",*Mjj,
 					RooArgList( *w->var( ("Mjj_hig_par1_"+iproc+"_cat"+std::to_string(c)).c_str()) ,
 							*w->var(("Mjj_hig_par2_"+iproc+"_cat"+std::to_string(c)).c_str()) ,//))); //,
@@ -511,7 +514,21 @@ int main(int argc, char *argv[]){
 			MjjSig[ic]->fillHistogram(h,RooArgList(*Mjj),sigToFit[ic]->sumEntries());
 			TH1F *h_fine = new TH1F(("h_"+iproc+"_"+year_+"_"+icat+"_fine").c_str(),("h_"+iproc+"_"+year_+"_"+icat+"_fine").c_str(),nbins*50,minSigFitMjj,maxSigFitMjj);
 			MjjSig[ic]->fillHistogram(h_fine,RooArgList(*Mjj),sigToFit[ic]->sumEntries());
-			pair<double,double> thisSigRange = getEffSigma(Mjj,MjjSig[ic]);
+			double mjj1,mjj2;
+
+			if(massY_ == 90){mjj1=80; mjj2=100;}
+			else if(massY_ == 100){mjj1=85; mjj2=120;}
+			else if(massY_ == 125){mjj1=105; mjj2=145;}
+			else if(massY_ == 150){mjj1=125; mjj2=165;}
+			else if(massY_ == 200){mjj1=160; mjj2=210;}
+			else if(massY_ == 250){mjj1=180; mjj2=260;}
+			else if(massY_ == 300){mjj1=220; mjj2=310;}
+			else if(massY_ == 400){mjj1=280; mjj2=410;}
+			else if(massY_ == 500){mjj1=350; mjj2=520;}
+			else if(massY_ == 600){mjj1=400; mjj2=620;}
+			else if(massY_ == 700){mjj1=500; mjj2=720;}
+			else if(massY_ == 800){mjj1=580; mjj2=820;}
+			pair<double,double> thisSigRange = getEffSigma(Mjj,MjjSig[ic],mjj1,mjj2);
 			vector<double> fwhmRange = getFWHM(h_fine);		
 
 			TCanvas* can = new TCanvas("can","can",650,650);

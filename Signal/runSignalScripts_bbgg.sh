@@ -3,23 +3,31 @@ doFIT=1
 doPACKAGER=0
 doPLOTS=0
 doCALCPHOSYST=0 #Not needed, only for shape syst, checked to be negligible
-MASS='125'
-
-YEAR=$1
+#MASS='125'
+massY=$3
+#YEAR=$1
 #YEAR="2017"
 #YEAR="2018"
+Run2_YEAR="2016,2017,2018"
+#X_points="300,400,500,600,800,900,1000"
+X_points="300,400,500"
+DATE=$1
+Signal=$2
+set -x
+for YEAR in $(echo $Run2_YEAR | sed "s/,/ /g")
+do
+for X in $(echo $X_points | sed "s/,/ /g")
+do
 
-
-DATE=$2
-#DATE="24_08_2020_2"
-
-EXT=$3$4"_"$YEAR
-#EXT="SingleH_"$3$4"_"$YEAR
-
+#EXT=$Signal"X"$X"ToY${massY}H125_"$YEAR
+#EXT="Radionhh"$X"_"$YEAR
+#EXT="BulkGravitonhh"$X"_"$YEAR 
+#EXT="SingleH_X"$X"ToY${massY}H125_"$YEAR
+EXT="SingleH_X"$X"_"$YEAR
 PHOTONSYSTFILE=dat/photonCatSyst.dat # without systematics
 #PHOTONSYSTFILE=dat/photonCatSyst_${EXT}.dat
 
-INDIR="/eos/user/l/lata/Resonant_bbgg/flattrees_L2Regression_resonant_PR1217_PR1220_17Sep2020/WED/Run2_ws_trees_p2/"$3"/"$4"/"
+INDIR="/eos/user/l/lata/Resonant_bbgg/flattrees_NMSSM_fromjobs/hadd_files/Run2_WS/"$Signal"/"$X"/"$massY"/"
 OUTDIR="output/out_fit_${DATE}_${EXT}"
 runLocal=''
 if [ $doFTEST -gt 0 ]; then
@@ -56,17 +64,30 @@ SCALESCORR="MaterialCentralBarrel,MaterialOuterBarrel,MaterialForward"
 SCALESGLOBAL="NonLinearity,Geant4,LightYield,Absolute"
 
 ########## Radion HH ###########
-REFTAG="DoubleHTag_1"
-REFPROC=$3"hh"$4"_${YEAR}"
-PROCS=$3"hh"$4"_${YEAR}"
-INFILES=$3"hh"$4"_${YEAR}"
+#REFTAG="DoubleHTag_0"
+#REFPROC="Radionhh"$X"_${YEAR}"
+#PROCS="Radionhh"$X"_${YEAR}"
+#INFILES="Radionhh"$X"_${YEAR}"
+
+
+########## BulkGraviton HH #####
+#REFTAG="DoubleHTag_0"                                                                        
+#REFPROC="BulkGravitonhh"$X"_${YEAR}"                                                         
+#PROCS="BulkGravitonhh"$X"_${YEAR}"                                                           
+#INFILES="BulkGravitonhh"$X"_${YEAR}" 
+
+####### NMSSM XToYH ######
+ 
+#REFTAG="DoubleHTag_0" 
+#REFPROC=$Signal"X"${X}"ToY${massY}H125_${YEAR}"
+#PROCS=$Signal"X"${X}"ToY${massY}H125_${YEAR}"
+#INFILES=$Signal"X"${X}"ToY${massY}H125_${YEAR}"
 
 ####### for Single H###########
-#REFPROC=$5"_${YEAR}"
-#REFTAG="DoubleHTag_"$6
-#PROCS="qqh_${YEAR},vh_${YEAR},tth_${YEAR},ggh_${YEAR},bbhyb2_${YEAR},bbhybyt_${YEAR}"
-#INFILES="qqh_${YEAR},vh_${YEAR},tth_${YEAR},ggh_${YEAR},bbhyb2_${YEAR},bbhybyt_${YEAR}"
-#INFILES="output_VBFHToGG_M-125_13TeV_powheg_pythia8,output_VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8,output_ttHToGG_M125_13TeV_powheg_pythia8,output_GluGluHToGG_M-125_13TeV_powheg_pythia8,output_bbHToGG_M-125_4FS_yb2_13TeV_amcatnlo,output_bbHToGG_M-125_4FS_ybyt_13TeV_amcatnlo"
+REFPROC="tth_${YEAR}"
+REFTAG="DoubleHTag_0"
+PROCS="qqh_${YEAR},vh_${YEAR},tth_${YEAR},ggh_${YEAR},bbhyb2_${YEAR},bbhybyt_${YEAR}"
+INFILES="qqh_${YEAR},vh_${YEAR},tth_${YEAR},ggh_${YEAR},bbhyb2_${YEAR},bbhybyt_${YEAR}"
 
 
 ####################################################
@@ -177,7 +198,7 @@ fi
 CATS="DoubleHTag_0,DoubleHTag_1,DoubleHTag_2" 
 
 OUTDIR="output/out_fit_${DATE}_${EXT}"
-PROC=$3"hh"$4"_${YEAR}"
+#PROC=$3"hh"$4"_${YEAR}"
 ############
 
 ###########VBF plots
@@ -213,3 +234,7 @@ if [ $doPLOTS -gt 0 ]; then
 	./bin/makeParametricSignalModelPlots -i  ${OUTDIR}/CMS-HGG_sigfit_${EXT}_${PROC}_packager.root -o $OUTDIR/signalModel -p $PROC -f $CATS 
 fi
 
+done
+done
+
+set +x

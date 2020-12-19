@@ -48,17 +48,29 @@ Mjj_hig_par1_qqh_cat2[0.1, 0, 10];
 Mjj_hig_par2_qqh_cat2[0.1, 0, 10];
 Mjj_hig_par3_qqh_cat2[0.1, 0, 10];
 
-Mjj_hig_par1_bbh_cat0[0.1, 0, 10];
-Mjj_hig_par2_bbh_cat0[0.1, 0, 10];
-Mjj_hig_par3_bbh_cat0[0.1, 0, 10];
+Mjj_hig_par1_bbhyb2_cat0[0.1, 0, 10];
+Mjj_hig_par2_bbhyb2_cat0[0.1, 0, 10];
+Mjj_hig_par3_bbhyb2_cat0[0.1, 0, 10];
 
-Mjj_hig_par1_bbh_cat1[0.1, 0, 10];
-Mjj_hig_par2_bbh_cat1[0.1, 0, 10];
-Mjj_hig_par3_bbh_cat1[0.1, 0, 10];
+Mjj_hig_par1_bbhyb2_cat1[0.1, 0, 10];
+Mjj_hig_par2_bbhyb2_cat1[0.1, 0, 10];
+Mjj_hig_par3_bbhyb2_cat1[0.1, 0, 10];
 
-Mjj_hig_par1_bbh_cat2[0.1, 0, 10];
-Mjj_hig_par2_bbh_cat2[0.1, 0, 10];
-Mjj_hig_par3_bbh_cat2[0.1, 0, 10];
+Mjj_hig_par1_bbhyb2_cat2[0.1, 0, 10];
+Mjj_hig_par2_bbhyb2_cat2[0.1, 0, 10];
+Mjj_hig_par3_bbhyb2_cat2[0.1, 0, 10];
+
+Mjj_hig_par1_bbhybyt_cat0[0.1, 0, 10];
+Mjj_hig_par2_bbhybyt_cat0[0.1, 0, 10];
+Mjj_hig_par3_bbhybyt_cat0[0.1, 0, 10];
+
+Mjj_hig_par1_bbhybyt_cat1[0.1, 0, 10];
+Mjj_hig_par2_bbhybyt_cat1[0.1, 0, 10];
+Mjj_hig_par3_bbhybyt_cat1[0.1, 0, 10];
+
+Mjj_hig_par1_bbhybyt_cat2[0.1, 0, 10];
+Mjj_hig_par2_bbhybyt_cat2[0.1, 0, 10];
+Mjj_hig_par3_bbhybyt_cat2[0.1, 0, 10];
 
 Mjj_hig_m0_vh_cat0[91, 88, 94];
 Mjj_hig_sigma_vh_cat0[7, 5, 10];
