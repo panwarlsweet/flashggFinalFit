@@ -281,7 +281,7 @@ void RooDraw(TCanvas *can, TH1F *h, RooPlot* frame,RooDataHist* hist, RooAbsPdf*
 
 
 	if (calc_width) {
-		leg->AddEntry(seffLeg,Form("#bf{#sigma_{eff} = %1.1f GeV}",0.5*(semax-semin)),"fl");
+	  //leg->AddEntry(seffLeg,Form("#bf{#sigma_{eff} = %1.1f GeV}",0.5*(semax-semin)),"fl");
 		halfmax*=(frame->getFitRangeBinW()/binwidth);
 		TArrow *fwhmArrow = new TArrow(fwmin,halfmax,fwmax,halfmax,0.02,"<>");
 		fwhmArrow->SetLineWidth(2.);
@@ -294,8 +294,8 @@ void RooDraw(TCanvas *can, TH1F *h, RooPlot* frame,RooDataHist* hist, RooAbsPdf*
 		fwhmText->SetTextSize(0.037);
 		fwhmText->AddText(Form("FWHM = %1.1f GeV",(fwmax-fwmin)));
 		//fwhmText->AddText(Form("#mu = %1.1f GeV",(h->GetMean())));
-		fwhmArrow->Draw("same <>");
-		fwhmText->Draw("same");
+		//		fwhmArrow->Draw("same <>");
+		//		fwhmText->Draw("same");
 	}
 
 	lat2->Draw("same");
@@ -347,12 +347,15 @@ int main(int argc, char *argv[]){
 
 	float minSigFitMjj = 70;
 	float maxSigFitMjj = 190;
-	if (massY_ >= 200 && massY_ <= 500){
-	  minSigFitMjj = 150;
-	  maxSigFitMjj = 560;
+	if (massY_ >= 200 && massY_ <= 250){
+	  maxSigFitMjj = 400;
+	}
+	else if (massY_ >= 300 && massY_ <= 500){
+	  minSigFitMjj = 200;
+          maxSigFitMjj = 560;
 	}
 	else if (massY_ > 500){
-	  minSigFitMjj = 300;
+	  minSigFitMjj = 400;
           maxSigFitMjj = 1000;
 	}
 	const int NCAT = flashggCats_.size(); 
@@ -386,9 +389,9 @@ int main(int argc, char *argv[]){
 		}
 
 		Mjj->setRange((iproc+"FitRange").c_str(),minSigFitMjj,maxSigFitMjj);
-		int nbins = 24;
-		if (massY_ >= 200 && massY_ <= 500) nbins = 82;
-		if (massY_ > 500 ) nbins = 140;
+		int nbins = (maxSigFitMjj - minSigFitMjj)/5;
+		//if (massY_ >= 200 && massY_ <= 500) nbins = 82;
+		//if (massY_ > 500 ) nbins = 140;
 		Mjj->setBins(nbins); //70 - 190, reasonbale bins 5 GeV
 		RooRealVar *weight = (RooRealVar*)w_original->var("weight");
 
@@ -509,7 +512,7 @@ int main(int argc, char *argv[]){
 
 			///Plot everything 
 			double putyear = 1;	
-			bool calc_width=1;
+			bool calc_width=0;
 			TH1F *h = new TH1F(("h_"+iproc+"_"+year_+"_"+icat).c_str(),("h_"+iproc+"_"+year_+"_"+icat).c_str(),nbins,minSigFitMjj,maxSigFitMjj);
 			MjjSig[ic]->fillHistogram(h,RooArgList(*Mjj),sigToFit[ic]->sumEntries());
 			TH1F *h_fine = new TH1F(("h_"+iproc+"_"+year_+"_"+icat+"_fine").c_str(),("h_"+iproc+"_"+year_+"_"+icat+"_fine").c_str(),nbins*50,minSigFitMjj,maxSigFitMjj);

@@ -1,8 +1,8 @@
 YEAR="2016_2017_2018"
 #YEAR="2018"
-DATE="03_10_2020"
+DATE="18_01_2021"
 DO_SYSTEMATIC=0
-btagReshapeFalse=1  #btagReshapeWeight was propagated with False in the flashgg trees
+btagReshapeFalse=0  #btagReshapeWeight was propagated with False in the flashgg trees then set 1
 signal=$1
 #mass=$2
 #PROCS="tth_2016,ggh_2016,qqh_2016,vh_2016"
@@ -17,12 +17,12 @@ Masses="260,270,280,300,320,350,400,450,500,550,600,650,700,800,900,1000"
 set -x
 for mass in $(echo $Masses | sed "s/,/ /g")
     do
-    SYSINPUTFILE="final_workspaces/CMS-HGG_sigfit_MggMjj_${YEAR}_${DATE}_${signal}hh${mass}.root"
+    SYSINPUTFILE="final_workspaces/CMS-HGG_sigfit_MggMjj_${YEAR}_${DATE}_Radionhh${mass}.root"
 
 ##if running with no systematcis use any file with ws
 
-    SIGNALFILE="final_workspaces/CMS-HGG_sigfit_MggMjj_${YEAR}_${DATE}_${signal}hh${mass}.root"
-    DATAFILE="final_workspaces/CMS-HGG_multipdf2D_DoubleEG_ftest_"${signal}${mass}"_HHbbgg_${YEAR}_${DATE}.root"
+    SIGNALFILE="final_workspaces/CMS-HGG_sigfit_MggMjj_${YEAR}_${DATE}_Radionhh${mass}.root"
+    DATAFILE="final_workspaces/CMS-HGG_multipdf2D_DoubleEG_ftest_WED_X"${mass}"_HHbbgg_${YEAR}_${DATE}.root"
 #NODESFILE="CMS-HGG_sigfit_MggMjj_${YEAR}_${DATE}.root"
 
     INTLUMI2016=35.91

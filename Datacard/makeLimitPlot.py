@@ -147,9 +147,10 @@ def getLimit(model,masses,tag,scale=1):
   for mass in masses:
     i = masses.index(mass)
     xsec = 1.
-    date="03_10_2020" ######update this
+    date="18_01_2021" ######update this
     year="2016_2017_2018" ######update this 
-    f = ROOT.TFile.Open("final_workspaces/final_datacards/limits/higgsCombineResHHbbgg_datacard_%s%s_%s_%s.AsymptoticLimits.mH125.root" % (model, mass, date, year), "READ")
+
+    f = ROOT.TFile.Open("WED_WS_Datacard/combineroot/higgsCombineResHHbbgg_datacard_%s%s_%s_%s_SYS.AsymptoticLimits.mH125.root" % (model, mass, date, year), "READ")
     limit = f.Get("limit")
     entries = limit.GetEntriesFast()
     obs = 0
@@ -469,6 +470,7 @@ def plotLimits(model, masses):
     canv_hllhc.SaveAs("Limit_Run2_13TeV_%s.%s" % (model, end))
 
 masses = [260,270,280,300,320,350,400,450,500,550,600,650,700,800,900,1000]
+#masses = [300,400,500,600,800,900,1000]
 models = ['Radion', 'BulkGraviton']
 for model in models: 
   plotLimits(model, masses)

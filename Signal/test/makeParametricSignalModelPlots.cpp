@@ -517,12 +517,17 @@ void Plot(RooRealVar *mass, RooDataSet *data, RooAbsPdf *pdf, pair<double,double
   TString newtitle = "H#rightarrow#gamma#gamma";
   //if (title.find("hh") != std::string::npos) newtitle = "HH SM : H#rightarrow bb H#rightarrow#gamma#gamma"; 
   if ((title.find("vbfhh") != std::string::npos) || (title.find("qqHH") != std::string::npos)) newtitle = "VBF HH#rightarrow#gamma#gammab#bar{b}"; 
-  else if (title.find("hh") != std::string::npos) newtitle = "ggF HH#rightarrow#gamma#gammab#bar{b}"; 
+  else if (title.find("Radionhh") != std::string::npos) newtitle = "(Spin-0) X#rightarrow HH#rightarrow#gamma#gammab#bar{b}";
+  else if (title.find("NMSSM") != std::string::npos) newtitle = "(Spin-0) X#rightarrow HY#rightarrow#gamma#gammab#bar{b}";
+  else if (title.find("BulkGravitonhh") != std::string::npos) newtitle = "(Spin-2) X#rightarrow HH#rightarrow#gamma#gammab#bar{b}";
   TLatex  lat1(.129+0.03+offset,0.85,newtitle);
   lat1.SetNDC(1);
-  lat1.SetTextSize(0.047);
+  lat1.SetTextSize(0.045);
 
-  TString catLabel_humanReadable  = title;
+    TString catLabel_humanReadable  = title;
+    if (title.find("DoubleHTag_0")!= std::string::npos) catLabel_humanReadable = "CAT0";
+    else if (title.find("DoubleHTag_1")!= std::string::npos) catLabel_humanReadable = "CAT1";
+    else if (title.find("DoubleHTag_2")!= std::string::npos) catLabel_humanReadable = "CAT2";
 //  catLabel_humanReadable.ReplaceAll("GluGluToHHTo2B2G_node_SM_13TeV_madgraph_2017","H#rightarrow bb H#rightarrow#gamma#gamma");
 //  catLabel_humanReadable.ReplaceAll("GluGluToHHTo2B2G_node_SM_13TeV_madgraph","H#rightarrow bb H#rightarrow#gamma#gamma");
   catLabel_humanReadable.ReplaceAll("GluGluToHHTo2B2G_node_SM_13TeV_madgraph_2017","");
@@ -540,7 +545,7 @@ void Plot(RooRealVar *mass, RooDataSet *data, RooAbsPdf *pdf, pair<double,double
   catLabel_humanReadable.ReplaceAll("TTHHadronicTag","TTH Hadronic Tag");
   catLabel_humanReadable.ReplaceAll("all","All Categories");
   catLabel_humanReadable.ReplaceAll("VBFDoubleHTag","VBF DoubleHTag");
-  catLabel_humanReadable.ReplaceAll("DoubleHTag","ggF CAT");
+  catLabel_humanReadable.ReplaceAll("DoubleHTag","CAT");
   catLabel_humanReadable.ReplaceAll("2018","");
   catLabel_humanReadable.ReplaceAll("_"," ");
 
@@ -583,7 +588,7 @@ void Plot(RooRealVar *mass, RooDataSet *data, RooAbsPdf *pdf, pair<double,double
   string sim="Simulation"; //for the paper
   CMS_lumi( canv, 0,0,sim);
   canv->Print(Form("%s.pdf",savename.c_str()));
-  canv->Print(Form("%s.png",savename.c_str()));
+  //canv->Print(Form("%s.png",savename.c_str()));
   canv->Print(Form("%s.jpg",savename.c_str()));
   //string path = savename.substr(0,savename.find('/'));
   //canv->Print(Form("%s/animation.gif+100",path.c_str()));
@@ -667,15 +672,17 @@ int main(int argc, char *argv[]){
     if(dataIt->first!="all") thisSigRange = getEffSigma(mass,pdfs[dataIt->first],m_hyp_-10.,m_hyp_+10.);
     else {
       thisSigRange = getEffSigBinned(mass,pdfs[dataIt->first],m_hyp_-10.,m_hyp_+10);
+      continue;
       //RooDataHist *binned = new RooDataHist("test","test",*mass, (dataIt->second)->createHistogram("test",*mass,RooFit::Binning(1000,m_hyp_-10.,m_hyp_+10.)));
       //thisSigRange = getEffSigmaData(mass,binned,m_hyp_-10.,m_hyp_+10.);
     }
-
-    vector<double> thisFWHMRange = getFWHM(mass,pdfs[dataIt->first],dataIt->second,m_hyp_-10.,m_hyp_+10.);
+    
+        vector<double> thisFWHMRange = getFWHM(mass,pdfs[dataIt->first],dataIt->second,m_hyp_-10.,m_hyp_+10.);
 
     sigEffs.insert(pair<string,double>(dataIt->first,(thisSigRange.second-thisSigRange.first)/2.));
     fwhms.insert(pair<string,double>(dataIt->first,thisFWHMRange[1]-thisFWHMRange[0]));
     if (doCrossCheck_) performClosure(mass,pdfs[dataIt->first],dataIt->second,Form("%s/closure_%s.pdf",outfilename_.c_str(),dataIt->first.c_str()),m_hyp_-10.,m_hyp_+10.,thisSigRange.first,thisSigRange.second);
+    std::cout << "test...." << dataIt->first << std::endl;
     Plot(mass,dataIt->second,pdfs[dataIt->first],thisSigRange,thisFWHMRange,dataIt->first,Form("%s/%s",outfilename_.c_str(),dataIt->first.c_str()));
   }
 
@@ -691,7 +698,7 @@ int main(int argc, char *argv[]){
     fwhms.insert(pair<string,double>(dataIt->first,thisFWHMRange[1]-thisFWHMRange[0]));
     if (doCrossCheck_) performClosure(mass,pdfsGranular[dataIt->first],dataIt->second,Form("%s/closure_%s.pdf",outfilename_.c_str(),dataIt->first.c_str()),m_hyp_-10.,m_hyp_+10.,thisSigRange.first,thisSigRange.second);
     Plot(mass,dataIt->second,pdfsGranular[dataIt->first],thisSigRange,thisFWHMRange,dataIt->first,Form("%s/%s",outfilename_.c_str(),dataIt->first.c_str()));
-  }
+    }
 
   map<string,pair<double,double> > bkgVals;
   map<string,vector<double> > sigVals;

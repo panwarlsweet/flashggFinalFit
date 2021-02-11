@@ -9,9 +9,7 @@ massY=$3
 #YEAR="2017"
 #YEAR="2018"
 Run2_YEAR="2016,2017,2018"
-X_points="260,270,280,300,320,350,400,450,500,550"
-#,600,650,700,800,900,1000"
-#,600,800,900,1000"
+X_points="300,400,500,600,800,900,1000"
 #X_points="300,400,500"
 DATE=$1
 Signal=$2
@@ -26,11 +24,10 @@ if [ "${check}" -lt 0 ]; then
     continue;
 else
 #EXT=$Signal"X"$X"ToY${massY}H125_"$YEAR
-#EXT="Radionhh"$X"_"$YEAR
+EXT="Radionhh"$X"_"$YEAR
 #EXT="BulkGravitonhh"$X"_"$YEAR 
 #EXT="SingleH_X"$X"ToY${massY}H125_"$YEAR
-EXT="SingleH_X"$X"_"$YEAR
-#EXT="WED_X"$X"_"$YEAR
+#EXT="SingleH_X"$X"_"$YEAR
 PHOTONSYSTFILE=dat/photonCatSyst.dat # without systematics
 #PHOTONSYSTFILE=dat/photonCatSyst_${EXT}.dat
 
@@ -71,10 +68,10 @@ SCALESCORR="MaterialCentralBarrel,MaterialOuterBarrel,MaterialForward"
 SCALESGLOBAL="NonLinearity,Geant4,LightYield,Absolute"
 
 ########## Radion HH ###########
-#REFTAG="DoubleHTag_0"
-#REFPROC="Radionhh"$X"_${YEAR}"
-#PROCS="Radionhh"$X"_${YEAR},BulkGravitonhh"$X"_${YEAR}"
-#INFILES="Radionhh"$X"_${YEAR},BulkGravitonhh"$X"_${YEAR}"
+REFTAG="DoubleHTag_0"
+REFPROC="Radionhh"$X"_${YEAR}"
+PROCS="Radionhh"$X"_${YEAR}"
+INFILES="Radionhh"$X"_${YEAR}"
 
 
 ########## BulkGraviton HH #####
@@ -91,10 +88,10 @@ SCALESGLOBAL="NonLinearity,Geant4,LightYield,Absolute"
 #INFILES=$Signal"X"${X}"ToY${massY}H125_${YEAR}"
 
 ####### for Single H###########
-REFPROC="tth_${YEAR}"
-REFTAG="DoubleHTag_2"
-PROCS="qqh_${YEAR},vh_${YEAR},tth_${YEAR},ggh_${YEAR},bbhyb2_${YEAR},bbhybyt_${YEAR}"
-INFILES="qqh_${YEAR},vh_${YEAR},tth_${YEAR},ggh_${YEAR},bbhyb2_${YEAR},bbhybyt_${YEAR}"
+#REFPROC="tth_${YEAR}"
+#REFTAG="DoubleHTag_0"
+#PROCS="qqh_${YEAR},vh_${YEAR},tth_${YEAR},ggh_${YEAR},bbhyb2_${YEAR},bbhybyt_${YEAR}"
+#INFILES="qqh_${YEAR},vh_${YEAR},tth_${YEAR},ggh_${YEAR},bbhyb2_${YEAR},bbhybyt_${YEAR}"
 
 
 ####################################################

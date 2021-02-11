@@ -90,14 +90,14 @@ Mjj_hig_alpha_vh_cat2[-0.5, -2., .0];
 Mjj_hig_n_vh_cat2[2.0, 0.5, 10.0];
 MjjHig_vh_cat2 = RooCBShape(Mjj, Mjj_hig_m0_vh_cat2, Mjj_hig_sigma_vh_cat2,Mjj_hig_alpha_vh_cat2,Mjj_hig_n_vh_cat2);
 
-Mjj_hig_m0_tth_cat0[130, 110, 150];
+Mjj_hig_m0_tth_cat0[110, 100, 150];
 Mjj_hig_sigma_tth_cat0[30, 20, 70];
 MjjHig_tth_cat0 = RooGaussian(Mjj, Mjj_hig_m0_tth_cat0, Mjj_hig_sigma_tth_cat0);
 
-Mjj_hig_m0_tth_cat1[130, 110, 150];
+Mjj_hig_m0_tth_cat1[110, 100, 150];
 Mjj_hig_sigma_tth_cat1[30, 20, 70];
 MjjHig_tth_cat1 = RooGaussian(Mjj, Mjj_hig_m0_tth_cat1, Mjj_hig_sigma_tth_cat1);
 
-Mjj_hig_m0_tth_cat2[130, 110, 150];
+Mjj_hig_m0_tth_cat2[110, 100, 150];
 Mjj_hig_sigma_tth_cat2[30, 20, 70];
 MjjHig_tth_cat2 = RooGaussian(Mjj, Mjj_hig_m0_tth_cat2, Mjj_hig_sigma_tth_cat2);

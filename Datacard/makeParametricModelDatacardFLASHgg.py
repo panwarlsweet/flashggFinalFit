@@ -78,7 +78,7 @@ class WSTFileWrapper:
         for i in range(len(self.fnList)):
           this_result_obj = self.wsList[i].data(dataName);
           if ( result and this_result_obj and (not complained_yet) ):
-            complained_yet = true;
+            complained_yet = True;
           if this_result_obj: # [3]
              result = this_result_obj
         return result 
@@ -184,7 +184,7 @@ for node in whichNodes:
      allNodes.append(proc)
      allProcs.append(proc)
 #for p in 'ggHH_kl_0_kt_1,ggHH_kl_1_kt_1,ggHH_kl_2p45_kt_1,ggHH_kl_5_kt_1,qqHH_CV_1_C2V_1_kl_1,qqHH_CV_1_C2V_2_kl_1,qqHH_CV_1_C2V_1_kl_2,qqHH_CV_1_C2V_1_kl_0,qqHH_CV_0p5_C2V_1_kl_1,qqHH_CV_1p5_C2V_1_kl_1'.split(','):
-for p in 'Radionhh260,Radionhh270,Radionhh280,Radionhh300,Radionhh320,Radionhh350,Radionhh400,Radionhh450,Radionhh500,Radionhh550,Radionhh600,Radionhh650,Radionhh700,Radionhh800,Radionhh900,Radionhh1000,BulkGravitonhh260,BulkGravitonhh270,BulkGravitonhh280,BulkGravitonhh300,BulkGravitonhh320,BulkGravitonhh350,BulkGravitonhh400,BulkGravitonhh450,BulkGravitonhh500,BulkGravitonhh550,BulkGravitonhh600,BulkGravitonhh650,BulkGravitonhh700,BulkGravitonhh800,BulkGravitonhh900,BulkGravitonhh1000,NMSSMX800ToY600H125,NMSSMX900ToY600H125,NMSSMX1000ToY600H125,NMSSMX300ToY125H125,NMSSMX400ToY125H125,NMSSMX500ToY125H125,NMSSMX600ToY125H125,NMSSMX700ToY125H125,NMSSMX800ToY125H125,NMSSMX900ToY125H125,NMSSMX1000ToY125H125'.split(','):
+for p in 'Radionhh260,Radionhh270,Radionhh280,Radionhh300,Radionhh320,Radionhh350,Radionhh400,Radionhh450,Radionhh500,Radionhh550,Radionhh600,Radionhh650,Radionhh700,Radionhh800,Radionhh900,Radionhh1000,BulkGravitonhh260,BulkGravitonhh270,BulkGravitonhh280,BulkGravitonhh300,BulkGravitonhh320,BulkGravitonhh350,BulkGravitonhh400,BulkGravitonhh450,BulkGravitonhh500,BulkGravitonhh550,BulkGravitonhh600,BulkGravitonhh650,BulkGravitonhh700,BulkGravitonhh800,BulkGravitonhh900,BulkGravitonhh1000,NMSSMX800ToY600H125,NMSSMX900ToY600H125,NMSSMX1000ToY600H125,NMSSMX300ToY125H125,NMSSMX400ToY125H125,NMSSMX500ToY125H125,NMSSMX600ToY125H125,NMSSMX700ToY125H125,NMSSMX800ToY125H125,NMSSMX900ToY125H125,NMSSMX1000ToY125H125,NMSSMX300ToY90H125,NMSSMX400ToY90H125,NMSSMX500ToY90H125,NMSSMX600ToY90H125,NMSSMX700ToY90H125,NMSSMX800ToY90H125,NMSSMX1000ToY90H125,NMSSMX300ToY100H125,NMSSMX400ToY100H125,NMSSMX500ToY100H125,NMSSMX600ToY100H125,NMSSMX700ToY100H125,NMSSMX800ToY100H125,NMSSMX1000ToY100H125,NMSSMX300ToY150H125,NMSSMX400ToY150H125,NMSSMX500ToY150H125,NMSSMX600ToY150H125,NMSSMX700ToY150H125,NMSSMX800ToY150H125,NMSSMX900ToY150H125,NMSSMX1000ToY150H125,NMSSMX400ToY200H125,NMSSMX500ToY200H125,NMSSMX600ToY200H125,NMSSMX700ToY200H125,NMSSMX800ToY200H125,NMSSMX900ToY200H125,NMSSMX1000ToY200H125,NMSSMX400ToY250H125,NMSSMX500ToY250H125,NMSSMX600ToY250H125,NMSSMX700ToY250H125,NMSSMX800ToY250H125,NMSSMX900ToY250H125,NMSSMX1000ToY250H125,NMSSMX500ToY300H125,NMSSMX600ToY300H125,NMSSMX700ToY300H125,NMSSMX800ToY300H125,NMSSMX900ToY300H125,NMSSMX1000ToY300H125,NMSSMX600ToY400H125,NMSSMX700ToY400H125,NMSSMX800ToY400H125,NMSSMX900ToY400H125,NMSSMX1000ToY400H125,NMSSMX700ToY500H125,NMSSMX800ToY500H125,NMSSMX900ToY500H125,NMSSMX1000ToY500H125,NMSSMX900ToY700H125,NMSSMX1000ToY700H125,NMSSMX1000ToY800H125,'.split(','):
    for y in ['2016','2017','2018']:
      combProc[p+'_'+y] = p+'_'+y
      allNodes.append(p+'_'+y)
@@ -290,8 +290,9 @@ else: options.globalScalesCorr = options.globalScalesCorr.split(',')
 ## OPEN WORKSPACE AND EXTRACT INFO # ##########################################
 sqrts=13
 print 'filename', options.infilename#
-inWS = WSTFileWrapper(options.infilename,"wsig_%sTeV"%sqrts)
-#inWS = infilename.Get('wsig_13TeV')
+inWS = WSTFileWrapper(options.infilename,"tagsDumper/cms_hgg_%sTeV"%sqrts)
+#inWS =  WSTFileWrapper(options.infilename,"wsig_%sTeV"%sqrts)
+#options.infilename.Get('wsig_13TeV')
 #if (inWS==None) : inWS = inFile.Get('tagsDumper/cms_hgg_%sTeV'%sqrts)
 #intL = inWS.var('IntLumi').getVal() #FIXME
 #intL = 2600
@@ -1121,6 +1122,8 @@ if options.do_HHbbgg_systematics:
   flashggSysts['electronVetoSF'] = 'electronVetoSF'
   flashggSysts['TriggerWeight'] = 'TriggerWeight'
   flashggSysts['JetBTagReshapeWeight'] = 'JetBTagReshapeWeight'
+  flashggSysts['JetBTagReshapeWeightHF'] = 'JetBTagReshapeWeightHF'
+  flashggSysts['JetBTagReshapeWeightLF'] = 'JetBTagReshapeWeightLF'
   flashggSysts['JEC'] = 'JEC' 
   flashggSysts['JER'] = 'JER' 
   flashggSysts['PUJIDShift'] = 'PUJIDShift'
@@ -1484,6 +1487,7 @@ def getFlashggLine(proc,cat,syst):
         weight_up.setVal(w_nominal*(w_up/w_central))
         if options.btagReshapeFalse :
            print 'trees were produced with btagReshapeWeight save separately, have to undo it then for other weight syst.'
+           print "w_nominal=",w_nominal, " w_down=",w_down, " w_central=",w_central," w_btagReshape=", w_btagReshape, " w_up=",w_up
            if "JetBTagReshapeWeight" in syst : 
               weight_down.setVal(w_nominal*(w_down/w_btagReshape))
               weight_up.setVal(w_nominal*(w_up/w_btagReshape))

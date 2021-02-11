@@ -4,7 +4,7 @@ import numpy as np
 import ROOT
 import json
 from bTagSF import *
-
+import os,sys
 from root_numpy import tree2array
 
 from optparse import OptionParser
@@ -121,7 +121,7 @@ sig = opt.sig
 Mjj = opt.Mjj
 
 years=["2016","2017","2018"]
-if sig=="Radion" or sig == "BulkGraviton":
+if sig=="Radion" or sig=="BulkGraviton":
   ### for WED ######
   masses =[260,270,280,300,320,350,400,450,500,550,600,650,700,800,900,1000]
   #masses=[260]
@@ -146,12 +146,15 @@ for i in range(len(masses)):
   MjjLow=opt.MjjLow
   MjjHigh=opt.MjjHigh
   Mjjbin="low"
-  if Mjj >= 200 and Mjj <= 500:
-    MjjLow = 150
+  if Mjj > 150 and Mjj < 300:
+    MjjLow = 70
+    MjjHigh = 400
+  elif Mjj >= 300 and Mjj <= 500:
+    MjjLow = 200
     MjjHigh = 560
     Mjjbin = "mid"
   elif Mjj > 500:
-    MjjLow = 300
+    MjjLow = 400
     MjjHigh = 1000
     Mjjbin = "high"
                                                                                             
@@ -162,17 +165,17 @@ for i in range(len(masses)):
                                                                                         
   elif masses[i] > 400 and masses[i] <= 700: 
     mass_range ="mid"
-    cat='0.213,0.401,0.600,1.0'
+    cat='0.213,0.401,0.550,1.0'
     if Mjj > 250 and Mjj <= 500:
       cat='0.180,0.352,0.6,1.0'
 
   else:
     mass_range ="high"
-    cat='0.215,0.344,0.600,1.0'
+    cat='0.215,0.304,0.500,1.0'
     if Mjj > 250 and Mjj <= 500:
-      cat='0.177,0.319,0.48,1.0'
+      cat='0.177,0.239,0.35,1.0'
     elif Mjj > 500:
-      cat='0.129,0.286,0.55,1.0'
+      cat='0.129,0.286,0.40,1.0'
 
   MVAcats=cat.split(',')
 
@@ -209,18 +212,26 @@ for i in range(len(masses)):
 
         if opt.doCategorization :
           selection = "(MX_Y%d <= %.2f and MX_Y%d > %.2f) and (xmlMVAtransf <= %.2f and xmlMVAtransf > %.2f) and (ttHScore >= %.2f) and (Mjj >= %.2f and Mjj <= %.2f)" %(Mjj,float(MX_cut2[i]),Mjj,float(MX_cut1[i]),cat_def[cat]["MVA"][0],cat_def[cat]["MVA"][1],ttHScore,MjjLow,MjjHigh)
-
+          if sig != "NMSSM":
+            selection = "(MX <= %.2f and MX > %.2f) and (xmlMVAtransf <= %.2f and xmlMVAtransf > %.2f) and (ttHScore >= %.2f) and (Mjj >= %.2f and Mjj <= %.2f)" %(float(MX_cut2[i]),float(MX_cut1[i]),cat_def[cat]["MVA"][0],cat_def[cat]["MVA"][1],ttHScore,MjjLow,MjjHigh)
+          #selection+=" and ((CMS_hgg_mass < 115) or (CMS_hgg_mass>135))"  #no need to it, combine takes care of blinding part
           print 'doing selection from tree below for categorisation ', selection
           print tfilename, treeDirName+initial_name
           data = rpd.read_root(tfilename,'%s'%(treeDirName+initial_name)).query(selection)
           print "created workspace", name
           datasets += add_dataset_to_workspace( data, ws, name, btag_SF,'') #systemaitcs[1] : this should be done for nominal only, to add weights
-   
-    f_out = ROOT.TFile.Open("%s/%s/DoubleEG.root"%(opt.out_dir+sig+"/"+str(masses[i]),str(Mjj)),"RECREATE")
+    outputdir = opt.out_dir+sig+"/"+str(masses[i])+"/"+str(Mjj)
+    if not os.path.exists(outputdir):
+       print("create folder for ws")
+       break
+    f_out = ROOT.TFile.Open("%s/DoubleEG.root"%(str(outputdir)),"RECREATE")
     print("created Data ws for ......",sig+str(masses[i])),"_Mjj",Mjj
     dir_ws = f_out.mkdir("tagsDumper")
     dir_ws.cd()
     ws.Print()
       
     ws.Write()
+    ws.data("Data_13TeV_DoubleHTag_0").Print("V")
+    ws.data("Data_13TeV_DoubleHTag_1").Print("V")
+    ws.data("Data_13TeV_DoubleHTag_2").Print("V")
     f_out.Close()
